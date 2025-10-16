@@ -1,0 +1,157 @@
+# MapleStory 遊戲內容儀表板
+
+一個現代化的響應式網頁應用程式，用於追蹤 MapleStory 角色進度和遊戲內容。使用 Next.js 14、React 18 和 Tailwind CSS 建置。
+
+## 功能特色
+
+- **角色搜尋**：依名稱搜尋 MapleStory 角色
+- **進度追蹤**：查看詳細的角色統計資料和經驗值進度
+- **響應式設計**：針對手機、平板和桌面裝置進行優化
+- **無障礙支援**：完整的螢幕閱讀器支援和語意化 HTML
+- **效能優化**：記憶化、延遲載入和有效率的重新渲染
+- **即時資料**：與 Nexon MapleStory OpenAPI 整合
+
+## 技術棧
+
+- **前端**：Next.js 14 (App Router)、React 18
+- **樣式**：Material-UI (MUI)
+- **測試**：Jest、React Testing Library
+- **API 整合**：Axios
+- **資料視覺化**：Recharts
+- **部署**：Vercel (推薦)
+
+## 系統需求
+
+- Node.js 18.17 或更新版本
+- npm 或 yarn
+- Nexon MapleStory OpenAPI 金鑰 (生產環境使用)
+
+## 快速開始
+
+### 1. 複製並安裝
+
+```bash
+git clone <repository-url>
+cd maplestory
+npm install
+```
+
+### 2. 環境設定
+
+在專案根目錄建立 `.env.local` 檔案：
+
+```env
+# Nexon MapleStory OpenAPI 金鑰 (選用，用於開發環境)
+NEXT_PUBLIC_MAPLESTORY_API_KEY=your_api_key_here
+```
+
+> **注意**：如果沒有 API 金鑰，應用程式將使用模擬資料進行開發。
+
+### 3. 開發伺服器
+
+```bash
+npm run dev
+```
+
+在瀏覽器中開啟 [http://localhost:3000](http://localhost:3000)。
+
+### 4. 測試
+
+```bash
+npm test
+npm run lint
+```
+
+## 使用方式
+
+### 角色儀表板
+
+1. 前往主要儀表板
+2. 在搜尋欄位中輸入角色名稱
+3. 點擊「搜尋」來獲取角色資料
+4. 查看角色統計資料、進度和成就
+
+### 進度追蹤
+
+1. 前往進度儀表板 (`/dashboard-progress`)
+2. 搜尋要追蹤的角色
+3. 查看詳細的進度圖表和統計資料
+4. 監控經驗值在時間上的變化
+
+## 專案結構
+
+```
+├── app/                    # Next.js app router 頁面
+│   ├── api/               # API 路由
+│   ├── dashboard/         # 角色儀表板頁面
+│   └── dashboard-progress/# 進度追蹤頁面
+├── components/            # 可重用 React 組件
+│   ├── CharacterCard.js   # 角色顯示組件
+│   ├── ProgressChart.js   # 資料視覺化組件
+│   └── ErrorMessage.js    # 錯誤處理組件
+├── __tests__/             # 測試檔案
+├── lib/                   # 工具函數
+└── specs/                 # 專案規格
+```
+
+## API 整合
+
+應用程式與 Nexon MapleStory OpenAPI 整合：
+
+- **角色搜尋**：`/api/character/search`
+- **角色詳細資料**：`/api/characters/{ocid}`
+
+API 回應會在本機快取以提升效能。
+
+## 開發指南
+
+### 程式碼風格
+
+- ES2020 JavaScript 語法
+- React 函數式組件搭配 hooks
+- Material-UI 組件和樣式
+- 語意化 HTML 和無障礙標準
+
+### 測試
+
+- 所有組件的單元測試
+- API 路由的整合測試
+- 包含無障礙測試
+
+### 效能
+
+- React.memo 用於組件記憶化
+- useMemo 用於昂貴計算
+- 圖片延遲載入
+- 有效率的重新渲染模式
+
+## 部署
+
+### Vercel (推薦)
+
+1. 將 GitHub 儲存庫連接到 Vercel
+2. 在 Vercel 儀表板中新增環境變數
+3. 推送至主分支時自動部署
+
+### 手動部署
+
+```bash
+npm run build
+npm start
+```
+
+## 貢獻
+
+1. 遵循既定的程式碼風格和測試模式
+2. 為新功能新增測試
+3. 確保無障礙相容性
+4. 視需要更新文件
+
+## 授權
+
+本專案採用 MIT 授權。
+
+## 致謝
+
+- Nexon Corporation 提供 MapleStory OpenAPI
+- 資料由 MapleStory OpenAPI 服務提供

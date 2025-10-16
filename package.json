@@ -1,0 +1,40 @@
+{
+  "name": "game-content-dashboard",
+  "version": "0.1.0",
+  "description": "MapleStory 角色進度追蹤儀表板",
+  "private": true,
+  "scripts": {
+    "dev": "next dev",
+    "build": "next build",
+    "start": "next start",
+    "lint": "next lint",
+    "test": "jest",
+    "test:watch": "jest --watch"
+  },
+  "dependencies": {
+    "@emotion/react": "^11.14.0",
+    "@emotion/styled": "^11.14.1",
+    "@fontsource/comic-neue": "^5.2.7",
+    "@fontsource/nunito": "^5.2.7",
+    "@mui/icons-material": "^7.3.4",
+    "@mui/material": "^7.3.4",
+    "autoprefixer": "^10.4.0",
+    "axios": "^1.12.2",
+    "next": "^15.5.5",
+    "postcss": "^8.4.0",
+    "react": "^19.2.0",
+    "react-dom": "^19.2.0",
+    "recharts": "^3.2.1",
+    "resize-observer-polyfill": "^1.5.1",
+    "tailwindcss": "^4.1.14"
+  },
+  "devDependencies": {
+    "@testing-library/jest-dom": "^6.0.0",
+    "@testing-library/react": "^16.0.0",
+    "@testing-library/user-event": "^14.0.0",
+    "eslint": "^8.0.0",
+    "eslint-config-next": "^15.5.5",
+    "jest": "^30.2.0",
+    "jest-environment-jsdom": "^30.2.0"
+  }
+}
