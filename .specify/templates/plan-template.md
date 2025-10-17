@@ -31,13 +31,13 @@
 
 _GATE: Must pass before Phase 0 research. Re-check after Phase 1 design._
 
-- [ ] Library-First: Confirm feature starts as standalone library with clear purpose
-- [ ] CLI Interface: Ensure library exposes functionality via CLI with text I/O
-- [ ] Test-First: Verify TDD approach will be strictly enforced
-- [ ] Integration Testing: Plan for integration tests on contracts and inter-service communication
-- [ ] Observability: Include structured logging and debuggability measures
-- [ ] Versioning: Follow MAJOR.MINOR.BUILD format for breaking changes
-- [ ] Simplicity: Start simple, apply YAGNI principles
+- [ ] User-Centric Design: Confirm feature prioritizes user experience and accessibility
+- [ ] API Integration Excellence: Ensure robust external API handling with error management
+- [ ] Component Reusability: Plan for modular React components with consistent styling
+- [ ] Comprehensive Testing: Include unit, integration, and accessibility testing
+- [ ] Data Visualization: Plan for clear data visualization where applicable
+- [ ] Performance & Optimization: Include performance optimization measures
+- [ ] Simplicity & Maintainability: Start simple, apply clean code principles
 
 ## Project Structure
 

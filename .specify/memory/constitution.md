@@ -1,9 +1,9 @@
 <!-- Sync Impact Report
-Version change: 1.0.0 → 1.0.0
-List of modified principles: none
-Added sections: none
+Version change: 1.0.0 → 2.0.0
+List of modified principles: All principles updated to reflect web application project requirements
+Added sections: Additional Constraints, Development Workflow
 Removed sections: none
-Templates requiring updates: ✅ updated - .specify/templates/plan-template.md (Constitution Check section aligns), .specify/templates/spec-template.md (no specific alignment needed), .specify/templates/tasks-template.md (tests mandatory per Test-First principle)
+Templates requiring updates: ✅ updated - .specify/templates/plan-template.md (Constitution Check section updated), ✅ updated - .specify/templates/tasks-template.md (test principle reference updated), .specify/templates/spec-template.md (no specific alignment needed)
 Follow-up TODOs: RATIFICATION_DATE (original adoption date unknown)
 -->
 
@@ -11,36 +11,48 @@ Follow-up TODOs: RATIFICATION_DATE (original adoption date unknown)
 
 ## Core Principles
 
-### I. Library-First
+### I. User-Centric Design
 
-Every feature starts as a standalone library; Libraries must be self-contained, independently testable, documented; Clear purpose required - no organizational-only libraries
+Prioritize intuitive user interfaces and accessibility; Ensure responsive design across all devices; Optimize for performance and fast loading times
 
-### II. CLI Interface
+### II. API Integration Excellence
 
-Every library exposes functionality via CLI; Text in/out protocol: stdin/args → stdout, errors → stderr; Support JSON + human-readable formats
+Handle external API integrations robustly; Implement graceful error handling and recovery; Use efficient caching strategies for data persistence
 
-### III. Test-First (NON-NEGOTIABLE)
+### III. Component Reusability
 
-TDD mandatory: Tests written → User approved → Tests fail → Then implement; Red-Green-Refactor cycle strictly enforced
+Build modular, reusable React components; Maintain consistent styling with Material-UI; Follow semantic HTML and accessibility standards
 
-### IV. Integration Testing
+### IV. Comprehensive Testing
 
-Focus areas requiring integration tests: New library contract tests, Contract changes, Inter-service communication, Shared schemas
+Write unit tests for all components; Include integration tests for API routes; Ensure accessibility and performance testing coverage
 
-### V. Observability, VI. Versioning & Breaking Changes, VII. Simplicity
+### V. Data Visualization
 
-Text I/O ensures debuggability; Structured logging required; Or: MAJOR.MINOR.BUILD format; Or: Start simple, YAGNI principles
+Provide clear and interactive data visualizations; Use charts for progress tracking; Support real-time data updates where applicable
+
+### VI. Performance & Optimization
+
+Apply React optimization techniques (memo, lazy loading); Implement efficient state management; Minimize bundle sizes and loading times
+
+### VII. Simplicity & Maintainability
+
+Write clean, readable code following ES2020 standards; Maintain consistent project structure; Keep documentation up-to-date
 
 ## Additional Constraints
 
-Technology stack requirements, compliance standards, deployment policies, etc.
+Technology stack: JavaScript ES2020, Next.js 14, React 18, Axios, Material-UI, Jest, Recharts, Tailwind CSS
+
+Deployment: Vercel or manual with Node.js 18+
+
+Security: Client-side data handling, API key management for production
 
 ## Development Workflow
 
-Code review requirements, testing gates, deployment approval process, etc.
+Feature development follows user story prioritization; Test-first approach for critical functionality; Code review for all changes; Accessibility audits before deployment
 
 ## Governance
 
-Constitution supersedes all other practices; Amendments require documentation, approval, migration plan
+Constitution supersedes other practices; Amendments require documentation and team approval; Versioning follows semantic versioning for governance changes
 
-**Version**: 1.0.0 | **Ratified**: TODO(RATIFICATION_DATE): Original adoption date unknown | **Last Amended**: 2025-10-16
+**Version**: 2.0.0 | **Ratified**: TODO(RATIFICATION_DATE): Original adoption date unknown | **Last Amended**: 2025-10-18

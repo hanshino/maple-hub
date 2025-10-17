@@ -30,14 +30,6 @@ describe('CharacterCard', () => {
     expect(screen.getByText('2025/1/10')).toBeInTheDocument();
   });
 
-  it('renders progress bar', () => {
-    render(<CharacterCard character={mockCharacter} />);
-
-    // Check for MUI LinearProgress component
-    const progressBar = document.querySelector('.MuiLinearProgress-root');
-    expect(progressBar).toBeInTheDocument();
-  });
-
   it('has proper accessibility attributes', () => {
     render(<CharacterCard character={mockCharacter} />);
 
@@ -45,9 +37,6 @@ describe('CharacterCard', () => {
     const cardContent = document.querySelector('.MuiCardContent-root');
     expect(cardContent).toBeInTheDocument();
     expect(cardContent).toHaveAttribute('role', 'region');
-
-    const progressSection = screen.getByLabelText('經驗值進度');
-    expect(progressSection).toBeInTheDocument();
 
     const timeElement = screen.getByLabelText(/最後更新時間/);
     expect(timeElement).toBeInTheDocument();

@@ -1,0 +1,81 @@
+openapi: 3.0.3
+info:
+  title: MapleStory Dashboard APIs
+  description: Existing API contracts used by the dashboard progress UI layout feature
+  version: 1.0.0
+
+servers:
+  - url: https://open.api.nexon.com
+    description: Nexon MapleStory OpenAPI
+
+paths:
+  /maplestorytw/v1/character/basic:
+    get:
+      summary: Get character basic information
+      parameters:
+        - name: ocid
+          in: query
+          required: true
+          schema:
+            type: string
+          description: Character OCID
+      responses:
+        '200':
+          description: Character basic info
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  ocid:
+                    type: string
+                  character_name:
+                    type: string
+                  world_name:
+                    type: string
+                  character_class:
+                    type: string
+                  character_class_level:
+                    type: integer
+                    minimum: 1
+                    maximum: 6
+
+  /maplestorytw/v1/character/hexamatrix:
+    get:
+      summary: Get Hexa Matrix information for level 6 characters
+      parameters:
+        - name: ocid
+          in: query
+          required: true
+          schema:
+            type: string
+          description: Character OCID
+      responses:
+        '200':
+          description: Hexa Matrix data
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  character_hexa_core_equipment:
+                    type: array
+                    items:
+                      type: object
+                      properties:
+                        hexa_core_name:
+                          type: string
+                        hexa_core_level:
+                          type: integer
+                          minimum: 0
+                          maximum: 30
+                        hexa_core_type:
+                          type: string
+                          enum: ['技能核心', '精通核心', '強化核心', '共用核心']
+                        linked_skill:
+                          type: array
+                          items:
+                            type: object
+                            properties:
+                              hexa_skill_id:
+                                type: string

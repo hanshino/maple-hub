@@ -1,6 +1,7 @@
 'use client';
 
 import { memo, useMemo } from 'react';
+import { Box } from '@mui/material';
 import {
   PieChart,
   Pie,
@@ -11,6 +12,7 @@ import {
   YAxis,
   CartesianGrid,
   Tooltip,
+  ResponsiveContainer,
 } from 'recharts';
 
 const ProgressChart = memo(function ProgressChart({ progressData }) {
@@ -171,72 +173,63 @@ const ProgressChart = memo(function ProgressChart({ progressData }) {
     <figure
       className="w-full h-64 sm:h-80"
       role="region"
-      aria-labelledby="line-chart-title"
+      aria-label="進度趨勢圖表"
     >
-      <figcaption id="line-chart-title" className="sr-only">
-        進度趨勢線圖表包含{' '}
-        {chartData.combinedData.filter(d => d.progress !== null).length}{' '}
-        個實際資料點及{chartData.hasPrediction ? '10天預測' : '無預測'}
-      </figcaption>
-      <div className="text-xs text-gray-600 mb-2 text-center sm:text-left">
+      <Box
+        sx={{
+          fontSize: '0.75rem',
+          color: 'text.secondary',
+          mb: 3,
+          textAlign: { xs: 'center', sm: 'left' },
+        }}
+      >
         資料點數量:{' '}
         {chartData.combinedData.filter(d => d.progress !== null).length}{' '}
         {chartData.hasPrediction ? '| 預測: 10天' : ''}
-      </div>
-      <div className="overflow-x-auto">
-        <div
-          style={{ width: '100%', minWidth: '300px', height: '200px' }}
-          role="img"
-          aria-label={`進度趨勢圖表顯示歷史資料及未來預測趨勢`}
+      </Box>
+      <ResponsiveContainer width="100%" height={400}>
+        <LineChart
+          data={chartData.combinedData}
+          margin={{ top: 5, right: 30, left: 20, bottom: 60 }}
         >
-          <LineChart
-            width={Math.max(400, chartData.combinedData.length * 40)}
-            height={200}
-            data={chartData.combinedData}
-            margin={{ top: 5, right: 30, left: 20, bottom: 60 }}
-          >
-            <CartesianGrid strokeDasharray="3 3" />
-            <XAxis
-              dataKey="date"
-              tick={{ fontSize: 10 }}
-              angle={-45}
-              textAnchor="end"
-              height={60}
-              interval={Math.max(
-                0,
-                Math.floor(chartData.combinedData.length / 10) - 1
-              )}
-            />
-            <YAxis tick={{ fontSize: 10 }} domain={[0, 100]} />
-            <Tooltip
-              formatter={(value, name) => [
-                `${value?.toFixed(2)}%`,
-                name === 'progress' ? '實際進度' : '預測進度',
-              ]}
-              labelFormatter={label => `日期: ${label}`}
-            />
+          <CartesianGrid strokeDasharray="3 3" />
+          <XAxis
+            dataKey="date"
+            tick={{ fontSize: 10 }}
+            angle={-45}
+            textAnchor="end"
+            height={60}
+            interval="preserveStartEnd"
+          />
+          <YAxis tick={{ fontSize: 10 }} domain={[0, 100]} />
+          <Tooltip
+            formatter={(value, name) => [
+              `${value?.toFixed(2)}%`,
+              name === 'progress' ? '實際進度' : '預測進度',
+            ]}
+            labelFormatter={label => `日期: ${label}`}
+          />
+          <Line
+            type="monotone"
+            dataKey="progress"
+            stroke="#3B82F6"
+            strokeWidth={2}
+            dot={{ fill: '#3B82F6', strokeWidth: 2, r: 3 }}
+            connectNulls={false}
+          />
+          {chartData.hasPrediction && (
             <Line
               type="monotone"
-              dataKey="progress"
-              stroke="#3B82F6"
+              dataKey="prediction"
+              stroke="#9CA3AF"
               strokeWidth={2}
-              dot={{ fill: '#3B82F6', strokeWidth: 2, r: 3 }}
+              strokeDasharray="5 5"
+              dot={{ fill: '#9CA3AF', strokeWidth: 2, r: 2 }}
               connectNulls={false}
             />
-            {chartData.hasPrediction && (
-              <Line
-                type="monotone"
-                dataKey="prediction"
-                stroke="#9CA3AF"
-                strokeWidth={2}
-                strokeDasharray="5 5"
-                dot={{ fill: '#9CA3AF', strokeWidth: 2, r: 2 }}
-                connectNulls={false}
-              />
-            )}
-          </LineChart>
-        </div>
-      </div>
+          )}
+        </LineChart>
+      </ResponsiveContainer>
     </figure>
   );
 });
