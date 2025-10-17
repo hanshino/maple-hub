@@ -1,5 +1,5 @@
-import Link from 'next/link'
-import { AppBar, Toolbar, Typography, Button, Box } from '@mui/material'
+import Link from 'next/link';
+import { AppBar, Toolbar, Typography, Button, Box } from '@mui/material';
 
 export default function Navigation() {
   return (
@@ -21,5 +21,5 @@ export default function Navigation() {
         </Box>
       </Toolbar>
     </AppBar>
-  )
+  );
 }

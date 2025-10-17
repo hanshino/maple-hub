@@ -5,7 +5,7 @@
 **Status**: Draft  
 **Input**: User description: "我主要想做一個遊戲內容儀表板，我現在可以串接遊戲提供的 openapi 可以獲得遊戲腳色的各種資訊，我會做很多串接，例如腳色的練等進度之類的，這只是初期規劃，後續可能還會根據這些內容來做小工具，這樣子的規格夠明確嗎？我還需要提供什麼"
 
-## User Scenarios & Testing *(mandatory)*
+## User Scenarios & Testing _(mandatory)_
 
 ### User Story 1 - View Character Information (Priority: P1)
 
@@ -64,7 +64,7 @@ As a player, I want the dashboard to handle API issues gracefully so that I can 
 - How does the system handle characters with no progress data?
 - What if user has no characters or invalid API credentials?
 
-## Requirements *(mandatory)*
+## Requirements _(mandatory)_
 
 ### Functional Requirements
 
@@ -78,11 +78,11 @@ As a player, I want the dashboard to handle API issues gracefully so that I can 
 - **FR-004**: System MUST support multiple characters per user
 - **FR-005**: System MUST authenticate users to access their character data via No authentication required for initial version, data handled client-side in browser local storage
 
-### Key Entities *(include if feature involves data)*
+### Key Entities _(include if feature involves data)_
 
 - **Character**: Represents a game character, key attributes: level (integer), experience points (integer), progress percentage (decimal), name (string), class (string), experience percentage over time (for statistics), creation_date (datetime, optional)
 
-## Success Criteria *(mandatory)*
+## Success Criteria _(mandatory)_
 
 ### Measurable Outcomes
 
@@ -90,4 +90,3 @@ As a player, I want the dashboard to handle API issues gracefully so that I can 
 - **SC-002**: Dashboard loads successfully in 95% of user sessions
 - **SC-003**: 90% of users report the leveling progress tracking as helpful in surveys
 - **SC-004**: System handles API failures without crashes in 99% of error scenarios
-

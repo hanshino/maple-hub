@@ -1,7 +1,7 @@
-'use client'
+'use client';
 
-import { createTheme, ThemeProvider } from '@mui/material/styles'
-import CssBaseline from '@mui/material/CssBaseline'
+import { createTheme, ThemeProvider } from '@mui/material/styles';
+import CssBaseline from '@mui/material/CssBaseline';
 
 const theme = createTheme({
   palette: {
@@ -20,10 +20,10 @@ const theme = createTheme({
     },
     background: {
       default: '#fff7ec', // 🏡 奶油色背景（牆面）
-      paper: '#fff3e0',   // 柔和的卡片底色
+      paper: '#fff3e0', // 柔和的卡片底色
     },
     text: {
-      primary: '#4e342e',  // 深棕文字
+      primary: '#4e342e', // 深棕文字
       secondary: '#6d4c41', // 淺棕次文字
     },
     success: {
@@ -43,7 +43,8 @@ const theme = createTheme({
     borderRadius: 16, // 圓潤可愛的風格
   },
   typography: {
-    fontFamily: '"Nunito", "Noto Sans TC", "Comic Neue", "Roboto", "Helvetica", "Arial", sans-serif',
+    fontFamily:
+      '"Nunito", "Noto Sans TC", "Comic Neue", "Roboto", "Helvetica", "Arial", sans-serif',
     h1: { fontWeight: 800 },
     h2: { fontWeight: 700 },
     h3: { fontWeight: 600 },
@@ -66,7 +67,7 @@ const theme = createTheme({
       },
     },
   },
-})
+});
 
 export default function MuiThemeProvider({ children }) {
   return (
@@ -74,5 +75,5 @@ export default function MuiThemeProvider({ children }) {
       <CssBaseline />
       {children}
     </ThemeProvider>
-  )
+  );
 }

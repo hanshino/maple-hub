@@ -1,5 +1,5 @@
-import React from 'react'
-import { Alert, AlertTitle, Button, Box } from '@mui/material'
+import React from 'react';
+import { Alert, AlertTitle, Button, Box } from '@mui/material';
 
 const ErrorMessage = ({ message, title = '錯誤', onRetry }) => {
   return (
@@ -16,7 +16,7 @@ const ErrorMessage = ({ message, title = '錯誤', onRetry }) => {
       <AlertTitle>{title}</AlertTitle>
       {message}
     </Alert>
-  )
-}
+  );
+};
 
-export default ErrorMessage
+export default ErrorMessage;

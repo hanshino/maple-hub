@@ -8,5 +8,5 @@ export default function Home() {
         Welcome to your character information dashboard.
       </p>
     </main>
-  )
+  );
 }

@@ -23,7 +23,7 @@ Create a client-side web dashboard that integrates with the game's OpenAPI to di
 
 ## Constitution Check
 
-*GATE: Must pass before Phase 0 research. Re-check after Phase 1 design.*
+_GATE: Must pass before Phase 0 research. Re-check after Phase 1 design._
 
 - [x] Library-First: Confirm feature starts as standalone library with clear purpose
 - [x] CLI Interface: Ensure library exposes functionality via CLI with text I/O
@@ -78,5 +78,4 @@ tests/
 
 ## Complexity Tracking
 
-*Fill ONLY if Constitution Check has violations that must be justified*
-
+_Fill ONLY if Constitution Check has violations that must be justified_

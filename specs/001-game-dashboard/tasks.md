@@ -1,5 +1,5 @@
 ---
-description: "Task list template for feature implementation"
+description: 'Task list template for feature implementation'
 ---
 
 # Tasks: Game Content Dashboard
@@ -12,11 +12,13 @@ description: "Task list template for feature implementation"
 **Organization**: Tasks are grouped by user story to enable independent implementation and testing of each story.
 
 ## Format: `[ID] [P?] [Story] Description`
+
 - **[P]**: Can run in parallel (different files, no dependencies)
 - **[Story]**: Which user story this task belongs to (e.g., US1, US2, US3)
 - Include exact file paths in descriptions
 
 ## Path Conventions
+
 - **Next.js app router**: `app/`, `components/`, `__tests__/`
 - Adjust based on plan.md structure
 
@@ -57,8 +59,8 @@ description: "Task list template for feature implementation"
 
 **NOTE: Write these tests FIRST, ensure they FAIL before implementation**
 
-- [x] T010 [P] [US1] Unit test for CharacterCard component in __tests__/components/CharacterCard.test.js
-- [x] T011 [P] [US1] Integration test for dashboard page in __tests__/pages/dashboard.test.js
+- [x] T010 [P] [US1] Unit test for CharacterCard component in **tests**/components/CharacterCard.test.js
+- [x] T011 [P] [US1] Integration test for dashboard page in **tests**/pages/dashboard.test.js
 
 ### Implementation for User Story 1
 
@@ -80,8 +82,8 @@ description: "Task list template for feature implementation"
 
 ### Tests for User Story 2 ⚠️
 
-- [x] T017 [P] [US2] Unit test for ProgressBar detailed view in __tests__/components/ProgressBar.test.js
-- [x] T018 [P] [US2] Integration test for progress tracking in __tests__/pages/dashboard-progress.test.js
+- [x] T017 [P] [US2] Unit test for ProgressBar detailed view in **tests**/components/ProgressBar.test.js
+- [x] T018 [P] [US2] Integration test for progress tracking in **tests**/pages/dashboard-progress.test.js
 
 ### Implementation for User Story 2
 
@@ -101,8 +103,8 @@ description: "Task list template for feature implementation"
 
 ### Tests for User Story 3 ⚠️
 
-- [x] T022 [P] [US3] Test API error handling in __tests__/api/characters.test.js
-- [x] T023 [P] [US3] Test error UI components in __tests__/components/ErrorMessage.test.js
+- [x] T022 [P] [US3] Test API error handling in **tests**/api/characters.test.js
+- [x] T023 [P] [US3] Test error UI components in **tests**/components/ErrorMessage.test.js
 
 ### Implementation for User Story 3
 

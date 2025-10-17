@@ -1,10 +1,21 @@
-import { Box, Typography, LinearProgress } from '@mui/material'
-import { calculateEstimatedTimeToLevel, formatTime } from '../lib/progressUtils'
+import { Box, Typography, LinearProgress } from '@mui/material';
+import {
+  calculateEstimatedTimeToLevel,
+  formatTime,
+} from '../lib/progressUtils';
 
-export default function ProgressBar({ progress, expRate = 5, historicalData = null }) {
-  const percentage = Math.max(0, Math.min(progress * 100, 100))
-  const remainingPercentage = Math.max(0, 100 - percentage)
-  const estimatedHours = calculateEstimatedTimeToLevel(remainingPercentage, expRate, historicalData)
+export default function ProgressBar({
+  progress,
+  expRate = 5,
+  historicalData = null,
+}) {
+  const percentage = Math.max(0, Math.min(progress * 100, 100));
+  const remainingPercentage = Math.max(0, 100 - percentage);
+  const estimatedHours = calculateEstimatedTimeToLevel(
+    remainingPercentage,
+    expRate,
+    historicalData
+  );
 
   return (
     <Box sx={{ width: '100%' }}>
@@ -25,9 +36,13 @@ export default function ProgressBar({ progress, expRate = 5, historicalData = nu
           },
         }}
       />
-      <Typography variant="caption" color="text.secondary" sx={{ mt: 1, display: 'block' }}>
+      <Typography
+        variant="caption"
+        color="text.secondary"
+        sx={{ mt: 1, display: 'block' }}
+      >
         預計時間: {formatTime(estimatedHours)}
       </Typography>
     </Box>
-  )
+  );
 }

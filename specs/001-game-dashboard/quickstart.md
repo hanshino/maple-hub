@@ -9,11 +9,13 @@
 ## Installation
 
 1. Clone the repository and checkout the feature branch:
+
    ```bash
    git checkout 001-game-dashboard
    ```
 
 2. Navigate to the project root (Next.js app):
+
    ```bash
    cd .
    ```
@@ -26,6 +28,7 @@
 ## Configuration
 
 1. Create a `.env.local` file in the project root:
+
    ```
    NEXT_PUBLIC_API_BASE_URL=https://api.game.com/v1
    API_KEY=your_api_key_here
@@ -36,6 +39,7 @@
 ## Running the Application
 
 1. Start the development server:
+
    ```bash
    npm start
    ```
@@ -47,6 +51,7 @@
 ## Testing
 
 Run the test suite:
+
 ```bash
 npm test
 ```

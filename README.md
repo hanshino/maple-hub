@@ -41,8 +41,11 @@ npm install
 在專案根目錄建立 `.env.local` 檔案：
 
 ```env
-# Nexon MapleStory OpenAPI 金鑰 (選用，用於開發環境)
-NEXT_PUBLIC_MAPLESTORY_API_KEY=your_api_key_here
+# Nexon MapleStory OpenAPI 基礎 URL
+NEXT_PUBLIC_API_BASE_URL=https://open.api.nexon.com
+
+# Nexon MapleStory OpenAPI 金鑰
+API_KEY=your_nexon_api_key_here
 ```
 
 > **注意**：如果沒有 API 金鑰，應用程式將使用模擬資料進行開發。
@@ -60,6 +63,19 @@ npm run dev
 ```bash
 npm test
 npm run lint
+npm run format:check
+```
+
+### 5. 程式碼格式化
+
+開發過程中，請記得格式化程式碼：
+
+```bash
+# 自動格式化所有檔案
+npm run format
+
+# 檢查格式是否正確（CI/CD 使用）
+npm run format:check
 ```
 
 ## 使用方式
