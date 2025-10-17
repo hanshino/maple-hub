@@ -1,10 +1,11 @@
 import Image from 'next/image';
 import { memo } from 'react';
-import { Box, Typography, Avatar, CardContent } from '@mui/material';
+import { Box, Typography, Avatar, CardContent, Divider } from '@mui/material';
 
 const CharacterCard = memo(function CharacterCard({
   character,
   historicalData = null,
+  unionData = null,
 }) {
   return (
     <CardContent
@@ -94,6 +95,49 @@ const CharacterCard = memo(function CharacterCard({
           </Box>
         )}
       </Box>
+      {unionData && (
+        <>
+          <Divider sx={{ my: 2 }} />
+          <Box sx={{ mb: 3 }}>
+            <Box
+              sx={{ display: 'flex', justifyContent: 'space-between', mb: 1 }}
+            >
+              <Typography variant="body2" component="span" fontWeight="medium">
+                戰地階級:
+              </Typography>
+              <Typography variant="body2" sx={{ wordBreak: 'break-word' }}>
+                {unionData.union_grade}
+              </Typography>
+            </Box>
+            <Box
+              sx={{ display: 'flex', justifyContent: 'space-between', mb: 1 }}
+            >
+              <Typography variant="body2" component="span" fontWeight="medium">
+                戰地等級:
+              </Typography>
+              <Typography variant="body2">{unionData.union_level}</Typography>
+            </Box>
+            <Box
+              sx={{ display: 'flex', justifyContent: 'space-between', mb: 1 }}
+            >
+              <Typography variant="body2" component="span" fontWeight="medium">
+                神器等級:
+              </Typography>
+              <Typography variant="body2">
+                {unionData.union_artifact_level}
+              </Typography>
+            </Box>
+          </Box>
+          <Divider sx={{ my: 2 }} />
+        </>
+      )}
+      {!unionData && character && (
+        <Box sx={{ mb: 3 }}>
+          <Typography variant="body2" color="text.secondary">
+            聯盟戰地資訊: 無資料
+          </Typography>
+        </Box>
+      )}
       <Typography
         variant="caption"
         color="text.secondary"

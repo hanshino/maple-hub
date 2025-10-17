@@ -1,0 +1,108 @@
+openapi: 3.0.0
+info:
+  title: MapleStory Dashboard API
+  version: 1.0.0
+  description: API for MapleStory character and Alliance Battlefield data
+
+servers:
+  - url: http://localhost:3000/api
+    description: Development server
+
+paths:
+  /character/search:
+    get:
+      summary: Search for characters by name
+      parameters:
+        - name: character_name
+          in: query
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Successful response
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Character'
+
+  /characters/{ocid}:
+    get:
+      summary: Get detailed character information
+      parameters:
+        - name: ocid
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Successful response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/CharacterDetail'
+
+  /union/{ocid}:
+    get:
+      summary: Get Alliance Battlefield information for character
+      parameters:
+        - name: ocid
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Successful response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AllianceBattlefield'
+        '404':
+          description: No Alliance Battlefield data found
+
+components:
+  schemas:
+    Character:
+      type: object
+      properties:
+        name:
+          type: string
+        ocid:
+          type: string
+
+    CharacterDetail:
+      type: object
+      properties:
+        name:
+          type: string
+        job:
+          type: string
+        level:
+          type: integer
+        gender:
+          type: string
+        create_date:
+          type: string
+        guild:
+          type: string
+
+    AllianceBattlefield:
+      type: object
+      properties:
+        date:
+          type: string
+          nullable: true
+        union_level:
+          type: integer
+        union_grade:
+          type: string
+        union_artifact_level:
+          type: integer
+        union_artifact_exp:
+          type: integer
+        union_artifact_point:
+          type: integer

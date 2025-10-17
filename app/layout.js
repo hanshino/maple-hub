@@ -13,7 +13,7 @@ import '@fontsource/comic-neue/400.css';
 import '@fontsource/comic-neue/700.css';
 
 export const metadata = {
-  title: '遊戲內容儀表板',
+  title: 'Maple Hub',
   description: 'MapleStory 角色資訊儀表板',
 };
 
