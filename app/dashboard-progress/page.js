@@ -15,6 +15,7 @@ import {
 import CharacterCard from '../../components/CharacterCard';
 import ProgressChart from '../../components/ProgressChart';
 import ErrorMessage from '../../components/ErrorMessage';
+import HexaMatrixProgress from '../../components/HexaMatrixProgress';
 import { generateDateRange } from '../../lib/progressUtils';
 import { apiCall, sequentialApiCalls } from '../../lib/apiUtils';
 
@@ -68,7 +69,7 @@ export default function DashboardProgress() {
         throw new Error('No character data available');
       }
 
-      setCharacter(latestCharacter);
+      setCharacter({ ...latestCharacter, ocid: searchData.ocid });
 
       // Prepare chart data from all valid characters
       const chartData = characterResults
@@ -192,6 +193,13 @@ export default function DashboardProgress() {
                 <Box sx={{ mt: 2 }}>
                   <ProgressChart progressData={chartData} />
                 </Box>
+              </CardContent>
+            </Card>
+          </Grid>
+          <Grid xs={12}>
+            <Card elevation={3}>
+              <CardContent>
+                <HexaMatrixProgress character={character} />
               </CardContent>
             </Card>
           </Grid>

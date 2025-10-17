@@ -1,0 +1,123 @@
+openapi: 3.0.3
+info:
+  title: MapleStory Dashboard Hexa Matrix API
+  version: 1.0.0
+  description: Internal API contract for Hexa Matrix data proxy
+
+servers:
+  - url: http://localhost:3000
+    description: Local development server
+  - url: https://open.api.nexon.com
+    description: Nexon Open API (external)
+
+paths:
+  /api/hexa-matrix:
+    get:
+      summary: Get Hexa Matrix data for a character (proxied)
+      parameters:
+        - name: ocid
+          in: query
+          required: true
+          schema:
+            type: string
+          description: Character OCID
+      responses:
+        '200':
+          description: Successful response
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  date:
+                    type: string
+                    format: date-time
+                    nullable: true
+                  character_hexa_core_equipment:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/HexaCore'
+        '400':
+          description: Bad request - invalid OCID
+        '500':
+          description: Internal server error - Nexon API failure
+      security: []
+
+  /maplestorytw/v1/character/hexamatrix:
+    get:
+      summary: Get Hexa Matrix data for a character (external Nexon API)
+      parameters:
+        - name: ocid
+          in: query
+          required: true
+          schema:
+            type: string
+          description: Character OCID
+      responses:
+        '200':
+          description: Successful response
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  date:
+                    type: string
+                    format: date-time
+                    nullable: true
+                  character_hexa_core_equipment:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/HexaCore'
+        '400':
+          description: Bad request
+        '401':
+          description: Unauthorized
+        '429':
+          description: Rate limit exceeded
+        '500':
+          description: Internal server error
+      security:
+        - apiKey: []
+
+components:
+  schemas:
+    HexaCore:
+      type: object
+      properties:
+        hexa_core_name:
+          type: string
+          example: '天堂神罰'
+        hexa_core_level:
+          type: integer
+          minimum: 0
+          maximum: 30
+          example: 30
+        hexa_core_type:
+          type: string
+          enum: ['技能核心', '精通核心', '強化核心', '共用核心']
+          example: '技能核心'
+        linked_skill:
+          type: array
+          items:
+            $ref: '#/components/schemas/LinkedSkill'
+      required:
+        - hexa_core_name
+        - hexa_core_level
+        - hexa_core_type
+        - linked_skill
+
+    LinkedSkill:
+      type: object
+      properties:
+        hexa_skill_id:
+          type: string
+          example: '天堂神罰'
+      required:
+        - hexa_skill_id
+
+  securitySchemes:
+    apiKey:
+      type: apiKey
+      in: header
+      name: x-nxopen-api-key

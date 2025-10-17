@@ -3,6 +3,7 @@
 Auto-generated from all feature plans. Last updated: 2025-10-16
 
 ## Active Technologies
+- JavaScript ES2020, Next.js 14 + Next.js 14, React 18, Axios for API calls (002-hexa-matrix-progress)
 
 - JavaScript ES2020, React 18 + React, Axios for API integration (001-game-dashboard)
 - JavaScript ES2020, Next.js 14 + Next.js, React, Axios for API integration (001-game-dashboard)
@@ -25,9 +26,10 @@ npm test; npm run lint
 JavaScript ES2020, React 18: Follow standard conventions
 
 ## Recent Changes
+- 002-hexa-matrix-progress: Added JavaScript ES2020, Next.js 14 + Next.js, React, Axios for API integration
+- 002-hexa-matrix-progress: Added JavaScript ES2020, Next.js 14 + Next.js 14, React 18, Axios for API calls
 
 - 001-game-dashboard: Added JavaScript ES2020, Next.js 14 + Next.js, React, Axios for API integration
-- 001-game-dashboard: Added JavaScript ES2020, React 18 + React, Axios for API integration
 
 <!-- MANUAL ADDITIONS START -->
 <!-- MANUAL ADDITIONS END -->

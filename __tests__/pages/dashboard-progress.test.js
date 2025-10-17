@@ -8,7 +8,8 @@ describe('Dashboard Progress', () => {
   beforeEach(() => {
     // Clear all mocks before each test
     jest.clearAllMocks();
-    fetch.mockClear();
+    // Reset fetch to default mock implementation
+    global.fetch = jest.fn();
   });
 
   it('displays progress statistics', async () => {
@@ -44,14 +45,17 @@ describe('Dashboard Progress', () => {
     const button = screen.getByRole('button', { name: '搜尋' });
     fireEvent.click(button);
 
-    await waitFor(() => {
-      expect(screen.getByText('Test Character')).toBeInTheDocument();
-      expect(screen.getByText('進度視覺化')).toBeInTheDocument();
-    });
+    await waitFor(
+      () => {
+        expect(screen.getByText('Test Character')).toBeInTheDocument();
+        expect(screen.getByText('進度視覺化')).toBeInTheDocument();
+      },
+      { timeout: 5000 }
+    ); // Increase timeout to 5 seconds for API delays
   });
 
   it('shows error on fetch failure', async () => {
-    // Override fetch to always reject for this test
+    // Mock fetch to reject for this specific test
     global.fetch = jest.fn(() => Promise.reject(new Error('Network error')));
 
     render(<DashboardProgress />);

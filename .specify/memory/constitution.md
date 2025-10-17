@@ -1,10 +1,10 @@
 <!-- Sync Impact Report
-Version change: 0.0.0 → 1.0.0
-List of modified principles: (none, all new)
-Added sections: Core Principles, Additional Constraints, Development Workflow, Governance
+Version change: 1.0.0 → 1.0.0
+List of modified principles: none
+Added sections: none
 Removed sections: none
-Templates requiring updates: ✅ updated - .specify/templates/plan-template.md (Constitution Check section), .specify/templates/tasks-template.md (tests mandatory)
-Follow-up TODOs: RATIFICATION_DATE
+Templates requiring updates: ✅ updated - .specify/templates/plan-template.md (Constitution Check section aligns), .specify/templates/spec-template.md (no specific alignment needed), .specify/templates/tasks-template.md (tests mandatory per Test-First principle)
+Follow-up TODOs: RATIFICATION_DATE (original adoption date unknown)
 -->
 
 # MapleStory Constitution
