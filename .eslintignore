@@ -1,0 +1,21 @@
+# Dependencies
+node_modules/
+
+# Build outputs
+.next/
+out/
+build/
+dist/
+
+# Coverage
+coverage/
+
+# Logs
+*.log
+
+# Environment
+.env*
+
+# Cache
+.eslintcache
+.cache
