@@ -1,16 +1,27 @@
 import { useState, useEffect } from 'react';
+import { Box, Typography } from '@mui/material';
 import {
-  Box,
-  Typography,
-  LinearProgress,
-  Accordion,
-  AccordionSummary,
-  AccordionDetails,
-} from '@mui/material';
-import ExpandMoreIcon from '@mui/icons-material/ExpandMore';
+  RadialBarChart,
+  RadialBar,
+  Legend,
+  ResponsiveContainer,
+  BarChart,
+  Bar,
+  XAxis,
+  YAxis,
+  CartesianGrid,
+  Tooltip,
+  RadarChart,
+  PolarGrid,
+  PolarAngleAxis,
+  PolarRadiusAxis,
+  Radar,
+} from 'recharts';
 import { fetchHexaMatrixData } from '../lib/hexaMatrixApi';
-import { calculateOverallProgress } from '../lib/hexaMatrixUtils';
-import HexaMatrixCoreCard from './HexaMatrixCoreCard';
+import {
+  calculateOverallProgress,
+  formatResourceAmount,
+} from '../lib/hexaMatrixUtils';
 
 export default function HexaMatrixProgress({ character }) {
   const [loading, setLoading] = useState(true);
@@ -56,13 +67,20 @@ export default function HexaMatrixProgress({ character }) {
       <Typography>No Hexa Matrix data available for this character.</Typography>
     );
 
+  // Prepare data for radar chart - create a single data point with all cores
+  const radarData = progress.coreProgress.map((core, index) => ({
+    core: core.name.length > 8 ? core.name.substring(0, 8) + '...' : core.name, // Truncate long names
+    level: core.level,
+    fullMark: 30,
+  }));
+
   return (
-    <Box sx={{ mt: 4 }}>
+    <Box>
       <Typography variant="h6" gutterBottom>
         六轉進度
       </Typography>
 
-      <Box sx={{ mb: 3 }}>
+      <Box sx={{ mb: 2 }}>
         <Typography variant="body1" sx={{ mb: 1 }}>
           總進度:{' '}
           {typeof progress.totalProgress === 'number' &&
@@ -70,38 +88,70 @@ export default function HexaMatrixProgress({ character }) {
             ? `${progress.totalProgress.toFixed(1)}%`
             : '0.0%'}
         </Typography>
-        <LinearProgress
-          variant="determinate"
-          value={Math.max(
-            0,
-            Math.min(Number(progress.totalProgress) || 0, 100)
+        <Typography variant="body2" sx={{ mb: 0.5 }}>
+          還需 靈魂艾爾達:{' '}
+          {formatResourceAmount(
+            progress.totalRequired.soul_elder - progress.totalSpent.soul_elder
           )}
-          sx={{
-            height: 10,
-            borderRadius: 5,
-            backgroundColor: 'grey.300',
-            '& .MuiLinearProgress-bar': {
-              borderRadius: 5,
-              backgroundColor: 'primary.main',
-            },
-          }}
-        />
+        </Typography>
+        <Typography variant="body2" sx={{ mb: 1 }}>
+          還需 靈魂艾爾達碎片:{' '}
+          {formatResourceAmount(
+            progress.totalRequired.soul_elder_fragment -
+              progress.totalSpent.soul_elder_fragment
+          )}
+        </Typography>
       </Box>
 
-      <Accordion defaultExpanded={false}>
-        <AccordionSummary
-          expandIcon={<ExpandMoreIcon />}
-          aria-controls="hexa-matrix-details-content"
-          id="hexa-matrix-details-header"
-        >
-          <Typography variant="h6">詳細核心進度</Typography>
-        </AccordionSummary>
-        <AccordionDetails>
-          {progress.coreProgress.map((core, index) => (
-            <HexaMatrixCoreCard key={index} core={core} />
-          ))}
-        </AccordionDetails>
-      </Accordion>
+      <ResponsiveContainer width="100%" height={400}>
+        <RadarChart data={radarData}>
+          <PolarGrid />
+          <PolarAngleAxis dataKey="core" tick={{ fontSize: 12 }} />
+          <PolarRadiusAxis
+            angle={90}
+            domain={[0, 30]}
+            tick={{ fontSize: 10 }}
+          />
+          <Radar
+            name="等級"
+            dataKey="level"
+            stroke="#8884d8"
+            fill="#8884d8"
+            fillOpacity={0.3}
+            strokeWidth={2}
+          />
+          <Tooltip
+            formatter={value => [`等級 ${value}/30`, '進度']}
+            labelFormatter={label => `核心: ${label}`}
+            wrapperStyle={{
+              maxWidth: '200px',
+              whiteSpace: 'normal',
+              wordWrap: 'break-word',
+              padding: '8px',
+              backgroundColor: 'rgba(255, 255, 255, 0.95)',
+              border: '1px solid #ccc',
+              borderRadius: '4px',
+              boxShadow: '0 2px 8px rgba(0, 0, 0, 0.15)',
+            }}
+          />
+        </RadarChart>
+      </ResponsiveContainer>
     </Box>
   );
+}
+
+// Helper function to get colors for different core types
+function getColorForCoreType(type) {
+  switch (type) {
+    case '技能核心':
+      return '#8884d8';
+    case '精通核心':
+      return '#82ca9d';
+    case '強化核心':
+      return '#ffc658';
+    case '共用核心':
+      return '#ff7300';
+    default:
+      return '#8884d8';
+  }
 }

@@ -7,7 +7,7 @@ description: 'Task list template for feature implementation'
 **Input**: Design documents from `/specs/[###-feature-name]/`
 **Prerequisites**: plan.md (required), spec.md (required for user stories), research.md, data-model.md, contracts/
 
-**Tests**: The examples below include test tasks. Tests are MANDATORY per constitution Test-First principle - include them for all user stories.
+**Tests**: Tests are MANDATORY per constitution Comprehensive Testing principle - include them for all user stories.
 
 **Organization**: Tasks are grouped by user story to enable independent implementation and testing of each story.
 

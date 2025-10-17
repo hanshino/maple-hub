@@ -1,14 +1,11 @@
 import Image from 'next/image';
 import { memo } from 'react';
 import { Box, Typography, Avatar, CardContent } from '@mui/material';
-import ProgressBar from './ProgressBar';
 
 const CharacterCard = memo(function CharacterCard({
   character,
   historicalData = null,
 }) {
-  const progress = parseFloat(character.character_exp_rate || 0) / 100;
-
   return (
     <CardContent
       role="region"
@@ -96,16 +93,6 @@ const CharacterCard = memo(function CharacterCard({
             </Typography>
           </Box>
         )}
-      </Box>
-      <Box sx={{ mb: 3 }} aria-labelledby="progress-section">
-        <Typography id="progress-section" variant="srOnly">
-          經驗值進度
-        </Typography>
-        <ProgressBar
-          progress={progress}
-          expRate={5}
-          historicalData={historicalData}
-        />
       </Box>
       <Typography
         variant="caption"

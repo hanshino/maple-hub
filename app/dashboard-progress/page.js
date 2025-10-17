@@ -16,6 +16,7 @@ import CharacterCard from '../../components/CharacterCard';
 import ProgressChart from '../../components/ProgressChart';
 import ErrorMessage from '../../components/ErrorMessage';
 import HexaMatrixProgress from '../../components/HexaMatrixProgress';
+import ProgressBar from '../../components/ProgressBar';
 import { generateDateRange } from '../../lib/progressUtils';
 import { apiCall, sequentialApiCalls } from '../../lib/apiUtils';
 
@@ -173,37 +174,49 @@ export default function DashboardProgress() {
       )}
 
       {character && (
-        <Grid container spacing={4}>
-          <Grid xs={12} md={6} lg={4}>
-            <Card elevation={3}>
-              <CardContent sx={{ p: 0 }}>
-                <CharacterCard
-                  character={character}
-                  historicalData={chartData}
-                />
-              </CardContent>
-            </Card>
+        <Box>
+          {/* Single Row: Character info, experience progress, and Hexa Matrix progress */}
+          <Grid container spacing={2} sx={{ mb: 4 }}>
+            <Grid size={{ xs: 12, md: 2 }}>
+              <Card elevation={3} sx={{ height: '100%' }}>
+                <CardContent sx={{ p: 0, height: '100%' }}>
+                  <CharacterCard
+                    character={character}
+                    historicalData={chartData}
+                  />
+                </CardContent>
+              </Card>
+            </Grid>
+            <Grid size={{ xs: 12, md: 6 }}>
+              <Card elevation={3} sx={{ height: '100%' }}>
+                <CardContent sx={{ height: '100%' }}>
+                  <Typography variant="h5" component="h3" gutterBottom>
+                    進度視覺化
+                  </Typography>
+                  <Box sx={{ mt: 2, mb: 3 }}>
+                    <ProgressBar
+                      progress={
+                        parseFloat(character.character_exp_rate || 0) / 100
+                      }
+                      expRate={parseFloat(character.character_exp_rate || 0)}
+                      historicalData={chartData}
+                    />
+                  </Box>
+                  <Box sx={{ mt: 2 }}>
+                    <ProgressChart progressData={chartData} />
+                  </Box>
+                </CardContent>
+              </Card>
+            </Grid>
+            <Grid size={{ xs: 12, md: 4 }}>
+              <Card elevation={3} sx={{ height: '100%' }}>
+                <CardContent sx={{ p: 3, height: '100%' }}>
+                  <HexaMatrixProgress character={character} />
+                </CardContent>
+              </Card>
+            </Grid>
           </Grid>
-          <Grid xs={12} md={6} lg={8}>
-            <Card elevation={3}>
-              <CardContent>
-                <Typography variant="h5" component="h3" gutterBottom>
-                  進度視覺化
-                </Typography>
-                <Box sx={{ mt: 2 }}>
-                  <ProgressChart progressData={chartData} />
-                </Box>
-              </CardContent>
-            </Card>
-          </Grid>
-          <Grid xs={12}>
-            <Card elevation={3}>
-              <CardContent>
-                <HexaMatrixProgress character={character} />
-              </CardContent>
-            </Card>
-          </Grid>
-        </Grid>
+        </Box>
       )}
     </Container>
   );
