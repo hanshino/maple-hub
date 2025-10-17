@@ -187,7 +187,7 @@
 
 - All Setup tasks marked [P] can run in parallel- [x] T022 Update quickstart.md with Hexa Matrix feature documentation
 
-- All Foundational tasks marked [P] can run in parallel (within Phase 2)- [ ] T023 Run end-to-end testing for complete feature
+- All Foundational tasks marked [P] can run in parallel (within Phase 2)- [x] T023 Run end-to-end testing for complete feature
 
 - Once Foundational phase completes, all user stories can start in parallel (if team capacity allows)
 
