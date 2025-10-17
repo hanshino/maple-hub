@@ -1,12 +1,12 @@
 import React from 'react';
 import { render, screen, waitFor, fireEvent } from '@testing-library/react';
 import '@testing-library/jest-dom';
-import DashboardProgressPage from '../../app/dashboard-progress/page.js';
+import Home from '../../app/page.js';
 
 // Mock the components and APIs
 jest.mock('../../components/CharacterCard.js', () => {
   return function MockCharacterCard({ character }) {
-    return <div data-testid="character-card">{character.name}</div>;
+    return <div data-testid="character-card">{character.character_name}</div>;
   };
 });
 
@@ -22,12 +22,12 @@ jest.mock('../../lib/apiUtils.js');
 
 import { apiCall, sequentialApiCalls } from '../../lib/apiUtils.js';
 
-describe('Dashboard Progress Page Layout', () => {
+describe('Home Page Layout', () => {
   const mockCharacter = {
     ocid: 'test-ocid-123',
-    name: 'Test Character',
+    character_name: 'Test Character',
     character_class_level: 6,
-    level: 250,
+    character_level: 250,
     character_exp_rate: '75.0',
   };
 
@@ -56,7 +56,7 @@ describe('Dashboard Progress Page Layout', () => {
   });
 
   test('renders single-row grid layout for level 6 character', async () => {
-    render(<DashboardProgressPage />);
+    render(<Home />);
 
     // Fill in the search form
     const input = screen.getByPlaceholderText('輸入角色名稱');
@@ -98,7 +98,7 @@ describe('Dashboard Progress Page Layout', () => {
       { ok: true, json: () => Promise.resolve(lowLevelCharacter) },
     ]);
 
-    render(<DashboardProgressPage />);
+    render(<Home />);
 
     // Fill in the search form
     const input = screen.getByPlaceholderText('輸入角色名稱');
@@ -121,7 +121,7 @@ describe('Dashboard Progress Page Layout', () => {
   });
 
   test('displays character information in first row', async () => {
-    render(<DashboardProgressPage />);
+    render(<Home />);
 
     // Fill in the search form
     const input = screen.getByPlaceholderText('輸入角色名稱');

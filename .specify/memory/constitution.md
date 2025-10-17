@@ -1,10 +1,10 @@
 <!-- Sync Impact Report
-Version change: 1.0.0 → 2.0.0
-List of modified principles: All principles updated to reflect web application project requirements
-Added sections: Additional Constraints, Development Workflow
+Version change: 2.0.0 → 2.0.1
+List of modified principles: none
+Added sections: none
 Removed sections: none
-Templates requiring updates: ✅ updated - .specify/templates/plan-template.md (Constitution Check section updated), ✅ updated - .specify/templates/tasks-template.md (test principle reference updated), .specify/templates/spec-template.md (no specific alignment needed)
-Follow-up TODOs: RATIFICATION_DATE (original adoption date unknown)
+Templates requiring updates: ✅ updated - .specify/templates/plan-template.md (aligns), ✅ updated - .specify/templates/tasks-template.md (aligns), .specify/templates/spec-template.md (no specific alignment needed), ⚠ pending - .specify/templates/commands/*.md (folder does not exist)
+Follow-up TODOs: none
 -->
 
 # MapleStory Constitution
@@ -55,4 +55,4 @@ Feature development follows user story prioritization; Test-first approach for c
 
 Constitution supersedes other practices; Amendments require documentation and team approval; Versioning follows semantic versioning for governance changes
 
-**Version**: 2.0.0 | **Ratified**: TODO(RATIFICATION_DATE): Original adoption date unknown | **Last Amended**: 2025-10-18
+**Version**: 2.0.1 | **Ratified**: 2025-10-16 | **Last Amended**: 2025-10-18

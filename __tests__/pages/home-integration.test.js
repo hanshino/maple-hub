@@ -1,11 +1,11 @@
 import { render, screen, waitFor, fireEvent } from '@testing-library/react';
-import DashboardProgress from '../../app/dashboard-progress/page';
+import Home from '../../app/page';
 
 // Mock the API utilities
 jest.mock('../../lib/apiUtils.js');
 import { apiCall, sequentialApiCalls } from '../../lib/apiUtils.js';
 
-describe('Dashboard Progress', () => {
+describe('Home Page (Dashboard Progress)', () => {
   const mockCharacter = {
     character_name: 'Test Character',
     character_level: 50,
@@ -39,7 +39,7 @@ describe('Dashboard Progress', () => {
   });
 
   it('renders search form', () => {
-    render(<DashboardProgress />);
+    render(<Home />);
 
     expect(screen.getByPlaceholderText('輸入角色名稱')).toBeInTheDocument();
     expect(screen.getByRole('button', { name: '搜尋' })).toBeInTheDocument();
@@ -49,7 +49,7 @@ describe('Dashboard Progress', () => {
     // Mock fetch to reject for this specific test
     apiCall.mockRejectedValue(new Error('Network error'));
 
-    render(<DashboardProgress />);
+    render(<Home />);
 
     const input = screen.getByPlaceholderText('輸入角色名稱');
     fireEvent.change(input, { target: { value: 'Test Character' } });
