@@ -1,0 +1,64 @@
+openapi: 3.0.3
+info:
+  title: Nexon MapleStory OpenAPI - Character Search
+  version: 1.0.0
+  description: API contract for character search functionality used in search history feature
+
+servers:
+  - url: https://open.api.nexon.com
+    description: Production server
+
+paths:
+  /maplestory/v1/id:
+    get:
+      summary: Search for character by name
+      description: Retrieve character OCID by character name for search history caching
+      parameters:
+        - name: character_name
+          in: query
+          required: true
+          schema:
+            type: string
+          description: Character name to search for
+      responses:
+        '200':
+          description: Successful response with character OCID
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  ocid:
+                    type: string
+                    description: Character identifier
+                    example: '12345678901234567890'
+        '400':
+          description: Invalid request or character not found
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  error:
+                    type: object
+                    properties:
+                      name:
+                        type: string
+                        example: 'OPENAPI00004'
+                      message:
+                        type: string
+                        example: 'Please check the validity of the character name.'
+        '401':
+          description: Unauthorized - invalid API key
+        '500':
+          description: Internal server error
+
+security:
+  - ApiKeyAuth: []
+
+components:
+  securitySchemes:
+    ApiKeyAuth:
+      type: apiKey
+      in: header
+      name: authorization

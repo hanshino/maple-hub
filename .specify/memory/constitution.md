@@ -1,9 +1,9 @@
 <!-- Sync Impact Report
-Version change: 2.0.0 → 2.0.1
+Version change: 2.0.1 → 2.0.1
 List of modified principles: none
 Added sections: none
 Removed sections: none
-Templates requiring updates: ✅ updated - .specify/templates/plan-template.md (aligns), ✅ updated - .specify/templates/tasks-template.md (aligns), .specify/templates/spec-template.md (no specific alignment needed), ⚠ pending - .specify/templates/commands/*.md (folder does not exist)
+Templates requiring updates: ✅ updated - .specify/templates/plan-template.md (aligns), ✅ updated - .specify/templates/tasks-template.md (aligns), ✅ updated - .specify/templates/spec-template.md (aligns), ⚠ pending - .specify/templates/commands/*.md (folder does not exist)
 Follow-up TODOs: none
 -->
 

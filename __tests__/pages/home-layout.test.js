@@ -3,6 +3,9 @@ import { render, screen, waitFor, fireEvent } from '@testing-library/react';
 import '@testing-library/jest-dom';
 import Home from '../../app/page.js';
 
+// Mock fetch globally
+global.fetch = jest.fn();
+
 // Mock the components and APIs
 jest.mock('../../components/CharacterCard.js', () => {
   return function MockCharacterCard({ character }) {
@@ -35,14 +38,15 @@ describe('Home Page Layout', () => {
 
   beforeEach(() => {
     jest.clearAllMocks();
-    // Mock the API calls
+    // Mock fetch for character search
+    fetch.mockResolvedValue({
+      ok: true,
+      json: () => Promise.resolve(mockOcidResponse),
+    });
+
+    // Mock the API calls for character data
     apiCall.mockImplementation(url => {
-      if (url.includes('/api/character/search')) {
-        return Promise.resolve({
-          ok: true,
-          json: () => Promise.resolve(mockOcidResponse),
-        });
-      } else if (url.includes('/api/characters/')) {
+      if (url.includes('/api/characters/')) {
         return Promise.resolve({
           ok: true,
           json: () => Promise.resolve(mockCharacter),
@@ -55,7 +59,33 @@ describe('Home Page Layout', () => {
     ]);
   });
 
+  afterEach(() => {
+    jest.restoreAllMocks();
+  });
+
   test('renders single-row grid layout for level 6 character', async () => {
+    const highLevelCharacter = { ...mockCharacter, character_class_level: 6 };
+
+    // Mock fetch for character search
+    fetch.mockResolvedValue({
+      ok: true,
+      json: () => Promise.resolve(mockOcidResponse),
+    });
+
+    // Mock the API calls for character data
+    apiCall.mockImplementation(url => {
+      if (url.includes('/api/characters/')) {
+        return Promise.resolve({
+          ok: true,
+          json: () => Promise.resolve(highLevelCharacter),
+        });
+      }
+      return Promise.reject(new Error('Unknown URL'));
+    });
+    sequentialApiCalls.mockResolvedValue([
+      { ok: true, json: () => Promise.resolve(highLevelCharacter) },
+    ]);
+
     render(<Home />);
 
     // Fill in the search form
@@ -80,13 +110,15 @@ describe('Home Page Layout', () => {
   test('renders single row for characters below level 6', async () => {
     const lowLevelCharacter = { ...mockCharacter, character_class_level: 5 };
 
+    // Mock fetch for character search
+    fetch.mockResolvedValue({
+      ok: true,
+      json: () => Promise.resolve(mockOcidResponse),
+    });
+
+    // Mock the API calls for character data
     apiCall.mockImplementation(url => {
-      if (url.includes('/api/character/search')) {
-        return Promise.resolve({
-          ok: true,
-          json: () => Promise.resolve(mockOcidResponse),
-        });
-      } else if (url.includes('/api/characters/')) {
+      if (url.includes('/api/characters/')) {
         return Promise.resolve({
           ok: true,
           json: () => Promise.resolve(lowLevelCharacter),

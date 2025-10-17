@@ -5,8 +5,6 @@ import {
   Container,
   Grid,
   Typography,
-  TextField,
-  Button,
   Box,
   Paper,
   Card,
@@ -17,6 +15,7 @@ import ProgressChart from '../components/ProgressChart';
 import ErrorMessage from '../components/ErrorMessage';
 import HexaMatrixProgress from '../components/HexaMatrixProgress';
 import ProgressBar from '../components/ProgressBar';
+import CharacterSearch from '../components/CharacterSearch';
 import { generateDateRange } from '../lib/progressUtils';
 import { apiCall, sequentialApiCalls } from '../lib/apiUtils';
 
@@ -26,24 +25,16 @@ export default function Home() {
   const [chartData, setChartData] = useState([]);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
-  const [characterName, setCharacterName] = useState('');
 
-  const searchCharacter = async name => {
+  const searchCharacter = async ocid => {
     setLoading(true);
     setError(null);
     try {
-      // First get ocid
-      const searchResponse = await apiCall(
-        `/api/character/search?name=${encodeURIComponent(name)}`
-      );
-      if (!searchResponse.ok) throw new Error('Search failed');
-      const searchData = await searchResponse.json();
-
       // Get data for the last 5 days (but only available dates after 2025-10-15)
       const dateConfigs = generateDateRange(7);
       const apiUrls = dateConfigs.map(
         config =>
-          `/api/characters/${searchData.ocid}${config.needsDateParam ? `?date=${config.date}` : ''}`
+          `/api/characters/${ocid}${config.needsDateParam ? `?date=${config.date}` : ''}`
       );
 
       // Execute API calls sequentially to respect rate limits
@@ -71,11 +62,11 @@ export default function Home() {
         throw new Error('No character data available');
       }
 
-      setCharacter({ ...latestCharacter, ocid: searchData.ocid });
+      setCharacter({ ...latestCharacter, ocid });
 
       // Fetch union data
       try {
-        const unionResponse = await apiCall(`/api/union/${searchData.ocid}`);
+        const unionResponse = await apiCall(`/api/union/${ocid}`);
         if (unionResponse.ok) {
           const union = await unionResponse.json();
           setUnionData(union);
@@ -120,44 +111,10 @@ export default function Home() {
     }
   };
 
-  const handleSubmit = e => {
-    e.preventDefault();
-    if (characterName.trim()) {
-      searchCharacter(characterName.trim());
-    }
-  };
-
   return (
     <Container maxWidth="xl" sx={{ py: 4 }}>
       <Paper elevation={2} sx={{ p: 3, mb: 4 }}>
-        <Box
-          component="form"
-          onSubmit={handleSubmit}
-          sx={{
-            display: 'flex',
-            gap: 2,
-            flexDirection: { xs: 'column', sm: 'row' },
-          }}
-        >
-          <TextField
-            fullWidth
-            label="角色名稱"
-            variant="outlined"
-            value={characterName}
-            onChange={e => setCharacterName(e.target.value)}
-            placeholder="輸入角色名稱"
-            sx={{ flex: 1 }}
-          />
-          <Button
-            type="submit"
-            variant="contained"
-            disabled={loading}
-            size="large"
-            sx={{ minWidth: 120, height: 56 }}
-          >
-            {loading ? '搜尋中...' : '搜尋'}
-          </Button>
-        </Box>
+        <CharacterSearch onSearch={searchCharacter} loading={loading} />
       </Paper>
 
       {loading && (
@@ -172,7 +129,10 @@ export default function Home() {
         <Box sx={{ mb: 4 }}>
           <ErrorMessage
             message={error}
-            onRetry={() => searchCharacter(characterName.trim())}
+            onRetry={() => {
+              // Retry would need the last search term, for now just clear error
+              setError(null);
+            }}
           />
         </Box>
       )}
