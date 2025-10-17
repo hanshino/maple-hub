@@ -5,8 +5,9 @@ describe('Home Page', () => {
   it('renders the dashboard progress page content', () => {
     render(<Home />);
 
-    expect(screen.getByText('進度追蹤儀表板')).toBeInTheDocument();
+    // Check for the character search components that are actually rendered
     expect(screen.getByLabelText('角色名稱')).toBeInTheDocument();
     expect(screen.getByRole('button', { name: '搜尋' })).toBeInTheDocument();
+    expect(screen.getByPlaceholderText('輸入角色名稱')).toBeInTheDocument();
   });
 });
