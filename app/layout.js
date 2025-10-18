@@ -15,6 +15,11 @@ import '@fontsource/comic-neue/700.css';
 export const metadata = {
   title: 'Maple Hub',
   description: 'MapleStory 角色資訊儀表板',
+  icons: {
+    icon: '/favicon.ico',
+    shortcut: '/favicon.ico',
+    apple: '/apple-touch-icon.png',
+  },
 };
 
 export default function RootLayout({ children }) {

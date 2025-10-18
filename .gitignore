@@ -69,7 +69,9 @@ dist
 
 # Gatsby files
 .cache/
-public
+# NOTE: `public` was removed from ignore so that project static assets (favicons, manifest)
+# can be tracked and deployed to Vercel. If you want to keep most public files ignored,
+# consider using explicit patterns and whitelist specific files instead (examples in README).
 
 # Storybook build outputs
 .out
