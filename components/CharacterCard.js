@@ -1,11 +1,20 @@
 import Image from 'next/image';
 import { memo } from 'react';
-import { Box, Typography, Avatar, CardContent, Divider } from '@mui/material';
+import {
+  Box,
+  Typography,
+  Avatar,
+  CardContent,
+  Divider,
+  Button,
+} from '@mui/material';
 
 const CharacterCard = memo(function CharacterCard({
   character,
   historicalData = null,
   unionData = null,
+  battlePower = null,
+  onEquipmentClick = null,
 }) {
   return (
     <CardContent
@@ -46,6 +55,24 @@ const CharacterCard = memo(function CharacterCard({
           </Typography>
         </Box>
       </Box>{' '}
+      {battlePower && (
+        <Box sx={{ mb: 3, p: 2, backgroundColor: '#f0f8ff', borderRadius: 1 }}>
+          <Typography
+            variant="body2"
+            component="span"
+            fontWeight="bold"
+            color="primary"
+          >
+            戰鬥力:
+          </Typography>
+          <Typography
+            variant="h6"
+            sx={{ mt: 0.5, fontWeight: 'bold', color: 'primary.main' }}
+          >
+            {battlePower.toLocaleString()}
+          </Typography>
+        </Box>
+      )}
       <Box sx={{ mb: 3 }}>
         <Box sx={{ display: 'flex', justifyContent: 'space-between', mb: 1 }}>
           <Typography variant="body2" component="span" fontWeight="medium">
@@ -136,6 +163,18 @@ const CharacterCard = memo(function CharacterCard({
           <Typography variant="body2" color="text.secondary">
             聯盟戰地資訊: 無資料
           </Typography>
+        </Box>
+      )}
+      {onEquipmentClick && (
+        <Box sx={{ mb: 2, display: { xs: 'none', sm: 'block' } }}>
+          <Button
+            variant="contained"
+            fullWidth
+            onClick={onEquipmentClick}
+            sx={{ fontWeight: 'medium' }}
+          >
+            裝備
+          </Button>
         </Box>
       )}
       <Typography

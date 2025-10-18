@@ -20,15 +20,27 @@ export default function RuneCard({ rune }) {
     >
       <CardContent>
         <Box display="flex" flexDirection="column" alignItems="center" gap={1}>
-          <Image
-            src={rune.symbol_icon}
-            alt={rune.symbol_name}
-            width={48}
-            height={48}
-            onError={e => {
-              e.target.src = '/placeholder-rune.png'; // fallback image
+          <Box
+            sx={{
+              width: 48,
+              height: 48,
+              position: 'relative',
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'center',
             }}
-          />
+          >
+            <Image
+              src={rune.symbol_icon}
+              alt={rune.symbol_name}
+              fill
+              sizes="48px"
+              style={{ objectFit: 'contain' }}
+              onError={e => {
+                e.target.src = '/placeholder-rune.png'; // fallback image
+              }}
+            />
+          </Box>
           <Typography
             variant="body2"
             noWrap

@@ -18,6 +18,8 @@ import ProgressBar from '../components/ProgressBar';
 import CharacterSearch from '../components/CharacterSearch';
 import RuneSystems from '../components/runes/RuneSystems';
 import RuneErrorBoundary from '../components/runes/ErrorBoundary';
+import EquipmentDialog from '../components/EquipmentDialog';
+import CharacterStats from '../components/CharacterStats';
 import { generateDateRange } from '../lib/progressUtils';
 import { apiCall, batchApiCalls } from '../lib/apiUtils';
 
@@ -28,6 +30,8 @@ export default function Home() {
   const [runes, setRunes] = useState([]);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
+  const [battlePower, setBattlePower] = useState(null);
+  const [equipmentDialogOpen, setEquipmentDialogOpen] = useState(false);
 
   const searchCharacter = async ocid => {
     setLoading(true);
@@ -64,6 +68,24 @@ export default function Home() {
       }
 
       setCharacter({ ...latestCharacter, ocid });
+
+      // Fetch battle power
+      try {
+        const statsResponse = await apiCall(
+          `/api/character/stats?ocid=${ocid}`
+        );
+        if (statsResponse.status >= 200 && statsResponse.status < 300) {
+          const statsData = statsResponse.data;
+          const battlePowerValue = statsData.final_stat?.find(
+            stat => stat.stat_name === '戰鬥力'
+          )?.stat_value;
+          setBattlePower(battlePowerValue ? parseInt(battlePowerValue) : null);
+        } else {
+          setBattlePower(null);
+        }
+      } catch {
+        setBattlePower(null);
+      }
 
       // Fetch union data
       try {
@@ -160,6 +182,8 @@ export default function Home() {
                     character={character}
                     historicalData={chartData}
                     unionData={unionData}
+                    battlePower={battlePower}
+                    onEquipmentClick={() => setEquipmentDialogOpen(true)}
                   />
                 </CardContent>
               </Card>
@@ -193,7 +217,24 @@ export default function Home() {
               </Card>
             </Grid>
           </Grid>
+
+          {/* Stats Section */}
+          <Grid container spacing={2} sx={{ mb: 4 }}>
+            <Grid size={{ xs: 12 }}>
+              <CharacterStats ocid={character.ocid} />
+            </Grid>
+          </Grid>
         </Box>
+      )}
+
+      {/* Equipment Dialog */}
+      {character && (
+        <EquipmentDialog
+          ocid={character.ocid}
+          character={character}
+          open={equipmentDialogOpen}
+          onClose={() => setEquipmentDialogOpen(false)}
+        />
       )}
 
       {/* Rune Systems Section */}

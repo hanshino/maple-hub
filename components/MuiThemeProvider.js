@@ -69,7 +69,7 @@ const theme = createTheme({
   },
 });
 
-export default function MuiThemeProvider({ children }) {
+export default function AppThemeProvider({ children }) {
   return (
     <ThemeProvider theme={theme}>
       <CssBaseline />

@@ -1,7 +1,7 @@
 import axios from 'axios';
 
 export async function GET(request, { params }) {
-  const { ocid } = params;
+  const { ocid } = await params;
   const apiKey = process.env.API_KEY;
 
   if (!apiKey) {
