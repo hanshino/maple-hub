@@ -6,7 +6,7 @@ global.fetch = jest.fn();
 
 // Mock the API utilities
 jest.mock('../../lib/apiUtils.js');
-import { apiCall, sequentialApiCalls } from '../../lib/apiUtils.js';
+import { apiCall, batchApiCalls } from '../../lib/apiUtils.js';
 
 describe('Home Page (Dashboard Progress)', () => {
   const mockCharacter = {
@@ -31,15 +31,13 @@ describe('Home Page (Dashboard Progress)', () => {
     apiCall.mockImplementation(url => {
       if (url.includes('/api/characters/')) {
         return Promise.resolve({
-          ok: true,
-          json: () => Promise.resolve(mockCharacter),
+          status: 200,
+          data: mockCharacter,
         });
       }
       return Promise.reject(new Error('Unknown URL'));
     });
-    sequentialApiCalls.mockResolvedValue([
-      { ok: true, json: () => Promise.resolve(mockCharacter) },
-    ]);
+    batchApiCalls.mockResolvedValue([{ status: 200, data: mockCharacter }]);
   });
 
   afterEach(() => {

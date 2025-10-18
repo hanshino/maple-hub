@@ -23,7 +23,7 @@ jest.mock('../../components/HexaMatrixProgress.js', () => {
 
 jest.mock('../../lib/apiUtils.js');
 
-import { apiCall, sequentialApiCalls } from '../../lib/apiUtils.js';
+import { apiCall, batchApiCalls } from '../../lib/apiUtils.js';
 
 describe('Home Page Layout', () => {
   const mockCharacter = {
@@ -48,15 +48,13 @@ describe('Home Page Layout', () => {
     apiCall.mockImplementation(url => {
       if (url.includes('/api/characters/')) {
         return Promise.resolve({
-          ok: true,
-          json: () => Promise.resolve(mockCharacter),
+          status: 200,
+          data: mockCharacter,
         });
       }
       return Promise.reject(new Error('Unknown URL'));
     });
-    sequentialApiCalls.mockResolvedValue([
-      { ok: true, json: () => Promise.resolve(mockCharacter) },
-    ]);
+    batchApiCalls.mockResolvedValue([{ status: 200, data: mockCharacter }]);
   });
 
   afterEach(() => {
@@ -76,14 +74,14 @@ describe('Home Page Layout', () => {
     apiCall.mockImplementation(url => {
       if (url.includes('/api/characters/')) {
         return Promise.resolve({
-          ok: true,
-          json: () => Promise.resolve(highLevelCharacter),
+          status: 200,
+          data: highLevelCharacter,
         });
       }
       return Promise.reject(new Error('Unknown URL'));
     });
-    sequentialApiCalls.mockResolvedValue([
-      { ok: true, json: () => Promise.resolve(highLevelCharacter) },
+    batchApiCalls.mockResolvedValue([
+      { status: 200, data: highLevelCharacter },
     ]);
 
     render(<Home />);
@@ -120,15 +118,13 @@ describe('Home Page Layout', () => {
     apiCall.mockImplementation(url => {
       if (url.includes('/api/characters/')) {
         return Promise.resolve({
-          ok: true,
-          json: () => Promise.resolve(lowLevelCharacter),
+          status: 200,
+          data: lowLevelCharacter,
         });
       }
       return Promise.reject(new Error('Unknown URL'));
     });
-    sequentialApiCalls.mockResolvedValue([
-      { ok: true, json: () => Promise.resolve(lowLevelCharacter) },
-    ]);
+    batchApiCalls.mockResolvedValue([{ status: 200, data: lowLevelCharacter }]);
 
     render(<Home />);
 

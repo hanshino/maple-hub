@@ -17,7 +17,7 @@ import HexaMatrixProgress from '../components/HexaMatrixProgress';
 import ProgressBar from '../components/ProgressBar';
 import CharacterSearch from '../components/CharacterSearch';
 import { generateDateRange } from '../lib/progressUtils';
-import { apiCall, sequentialApiCalls } from '../lib/apiUtils';
+import { apiCall, batchApiCalls } from '../lib/apiUtils';
 
 export default function Home() {
   const [character, setCharacter] = useState(null);
@@ -37,22 +37,20 @@ export default function Home() {
           `/api/characters/${ocid}${config.needsDateParam ? `?date=${config.date}` : ''}`
       );
 
-      // Execute API calls sequentially to respect rate limits
-      const characterResponses = await sequentialApiCalls(apiUrls);
+      // Execute API calls with environment-based strategy
+      const characterResponses = await batchApiCalls(apiUrls);
 
-      // Process responses
-      const characterResults = await Promise.all(
-        characterResponses.map(async response => {
-          if (response && response.ok) {
-            try {
-              return await response.json();
-            } catch {
-              return null;
-            }
+      // Process responses (axios format)
+      const characterResults = characterResponses.map(response => {
+        if (response && response.status >= 200 && response.status < 300) {
+          try {
+            return response.data;
+          } catch {
+            return null;
           }
-          return null;
-        })
-      );
+        }
+        return null;
+      });
 
       // Filter out failed requests and get the most recent successful data
       const validCharacters = characterResults.filter(char => char !== null);
@@ -67,9 +65,8 @@ export default function Home() {
       // Fetch union data
       try {
         const unionResponse = await apiCall(`/api/union/${ocid}`);
-        if (unionResponse.ok) {
-          const union = await unionResponse.json();
-          setUnionData(union);
+        if (unionResponse.status >= 200 && unionResponse.status < 300) {
+          setUnionData(unionResponse.data);
         } else {
           setUnionData(null);
         }
