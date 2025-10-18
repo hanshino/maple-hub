@@ -183,9 +183,9 @@ const ProgressChart = memo(function ProgressChart({ progressData }) {
           textAlign: { xs: 'center', sm: 'left' },
         }}
       >
-        資料點數量:{' '}
-        {chartData.combinedData.filter(d => d.progress !== null).length}{' '}
-        {chartData.hasPrediction ? '| 預測: 10天' : ''}
+        實際資料點數量:{' '}
+        {chartData.combinedData.filter(d => d.progress !== null).length}
+        {chartData.hasPrediction ? ' | 灰色虛線: 未來10天預測進度' : ''}
       </Box>
       <ResponsiveContainer width="100%" height={400}>
         <LineChart

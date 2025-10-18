@@ -32,9 +32,9 @@ npm test; npm run lint
 JavaScript ES2020, React 18: Follow standard conventions
 
 ## Recent Changes
+- 007-add-rune-systems: Added JavaScript ES2020 + Next.js 14, React 18, Axios, Material-UI
 - 006-add-api-call-delay: Added JavaScript ES2020, Next.js 14, React 18 + Axios for API calls, NODE_ENV for environment detection
 - 005-add-search-history: Added JavaScript ES2020, Next.js 14, React 18 + Axios, Material-UI (MUI), localStorage API
-- 004-dashboard-progress-home: Added JavaScript ES2020 + Next.js 14, React 18, Axios, Material-UI, Jest, Recharts
 
 
 <!-- MANUAL ADDITIONS START -->
