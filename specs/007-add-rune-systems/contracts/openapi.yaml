@@ -1,0 +1,90 @@
+openapi: 3.0.3
+info:
+  title: MapleStory Rune Systems API
+  description: API for retrieving character rune information
+  version: 1.0.0
+servers:
+  - url: https://open.api.nexon.com/maplestorytw/v1
+    description: Nexon MapleStory Taiwan API
+
+paths:
+  /character/symbol-equipment:
+    get:
+      summary: Get character symbol equipment (runes)
+      description: Retrieve rune information for a specific character
+      parameters:
+        - name: ocid
+          in: query
+          required: true
+          schema:
+            type: string
+          description: Character OCID
+        - name: x-nxopen-api-key
+          in: header
+          required: true
+          schema:
+            type: string
+          description: Nexon API key
+      responses:
+        '200':
+          description: Successful response
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  date:
+                    type: string
+                    nullable: true
+                  character_class:
+                    type: string
+                  symbol:
+                    type: array
+                    items:
+                      type: object
+                      properties:
+                        symbol_name:
+                          type: string
+                          example: '祕法符文：消逝的旅途'
+                        symbol_icon:
+                          type: string
+                          format: uri
+                          example: 'https://open.api.nexon.com/static/maplestorytw/item/icon/KEIDJHOA'
+                        symbol_description:
+                          type: string
+                        symbol_force:
+                          type: integer
+                          example: 220
+                        symbol_level:
+                          type: integer
+                          example: 20
+                        symbol_str:
+                          type: integer
+                        symbol_dex:
+                          type: integer
+                        symbol_int:
+                          type: integer
+                        symbol_luk:
+                          type: integer
+                        symbol_hp:
+                          type: integer
+                        symbol_drop_rate:
+                          type: string
+                        symbol_meso_rate:
+                          type: string
+                        symbol_exp_rate:
+                          type: string
+                        symbol_growth_count:
+                          type: integer
+                        symbol_require_growth_count:
+                          type: integer
+        '400':
+          description: Bad request
+        '403':
+          description: Forbidden - Invalid API key
+        '404':
+          description: Character not found
+        '429':
+          description: Rate limit exceeded
+        '500':
+          description: Internal server error

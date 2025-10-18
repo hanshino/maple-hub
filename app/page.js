@@ -16,6 +16,8 @@ import ErrorMessage from '../components/ErrorMessage';
 import HexaMatrixProgress from '../components/HexaMatrixProgress';
 import ProgressBar from '../components/ProgressBar';
 import CharacterSearch from '../components/CharacterSearch';
+import RuneSystems from '../components/runes/RuneSystems';
+import RuneErrorBoundary from '../components/runes/ErrorBoundary';
 import { generateDateRange } from '../lib/progressUtils';
 import { apiCall, batchApiCalls } from '../lib/apiUtils';
 
@@ -23,6 +25,7 @@ export default function Home() {
   const [character, setCharacter] = useState(null);
   const [unionData, setUnionData] = useState(null);
   const [chartData, setChartData] = useState([]);
+  const [runes, setRunes] = useState([]);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
 
@@ -72,6 +75,18 @@ export default function Home() {
         }
       } catch {
         setUnionData(null);
+      }
+
+      // Fetch rune data
+      try {
+        const runeResponse = await apiCall(`/api/character/${ocid}/runes`);
+        if (runeResponse.status >= 200 && runeResponse.status < 300) {
+          setRunes(runeResponse.data.symbol || []);
+        } else {
+          setRunes([]);
+        }
+      } catch {
+        setRunes([]);
       }
 
       // Prepare chart data from all valid characters
@@ -178,6 +193,22 @@ export default function Home() {
               </Card>
             </Grid>
           </Grid>
+        </Box>
+      )}
+
+      {/* Rune Systems Section */}
+      {character && (
+        <Box sx={{ mt: 4 }}>
+          <Card elevation={3}>
+            <CardContent sx={{ p: 3 }}>
+              <Typography variant="h5" component="h3" gutterBottom>
+                符文系統
+              </Typography>
+              <RuneErrorBoundary>
+                <RuneSystems runes={runes} />
+              </RuneErrorBoundary>
+            </CardContent>
+          </Card>
         </Box>
       )}
     </Container>
