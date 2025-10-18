@@ -56,13 +56,8 @@ export default function RuneSystems({ runes }) {
           >
             {runeList.map(rune => (
               <Grid
-                item
                 key={rune.symbol_name}
-                xs={12}
-                sm={6}
-                md={4}
-                lg={4}
-                xl={4}
+                size={{ xs: 12, sm: 6, md: 4, lg: 4, xl: 4 }}
               >
                 <RuneCard rune={rune} />
               </Grid>
@@ -71,13 +66,8 @@ export default function RuneSystems({ runes }) {
             {Array.from({ length: Math.max(0, 6 - runeList.length) }).map(
               (_, i) => (
                 <Grid
-                  item
                   key={`skeleton-${key}-${i}`}
-                  xs={12}
-                  sm={6}
-                  md={4}
-                  lg={4}
-                  xl={4}
+                  size={{ xs: 12, sm: 6, md: 4, lg: 4, xl: 4 }}
                 >
                   <Box
                     sx={{

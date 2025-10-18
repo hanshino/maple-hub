@@ -5,6 +5,9 @@
 ## 功能特色
 
 - **角色搜尋**：依名稱搜尋 MapleStory 角色
+- **角色詳細資料**：查看角色裝備和能力值
+- **裝備對話框**：以網格佈局查看角色裝備
+- **能力值卡片**：顯示角色統計資料
 - **進度追蹤**：查看詳細的角色統計資料和經驗值進度
 - **聯盟戰地資訊**：顯示角色的聯盟戰地階級、等級和神器等級
 - **響應式設計**：針對手機、平板和桌面裝置進行優化
@@ -100,14 +103,23 @@ npm run format:check
 ```
 ├── app/                    # Next.js app router 頁面
 │   ├── api/               # API 路由
+│   │   ├── character/     # 角色相關 API
+│   │   │   ├── equipment/ # 裝備 API
+│   │   │   └── stats/     # 能力值 API
 │   ├── dashboard/         # 角色儀表板頁面
 │   └── dashboard-progress/# 進度追蹤頁面
 ├── components/            # 可重用 React 組件
 │   ├── CharacterCard.js   # 角色顯示組件
+│   ├── CharacterStats.js  # 角色能力值組件
+│   ├── EquipmentDialog.js # 裝備對話框組件
 │   ├── ProgressChart.js   # 資料視覺化組件
 │   └── ErrorMessage.js    # 錯誤處理組件
 ├── __tests__/             # 測試檔案
 ├── lib/                   # 工具函數
+│   ├── nexonApi.js       # Nexon API 整合
+│   ├── equipmentUtils.js  # 裝備資料處理
+│   ├── statsUtils.js      # 能力值資料處理
+│   └── cache.js           # 快取管理
 └── specs/                 # 專案規格
 ```
 
@@ -117,6 +129,8 @@ npm run format:check
 
 - **角色搜尋**：`/api/character/search`
 - **角色詳細資料**：`/api/characters/{ocid}`
+- **角色裝備**：`/api/character/equipment/{ocid}`
+- **角色能力值**：`/api/character/stats/{ocid}`
 
 API 回應會在本機快取以提升效能。
 

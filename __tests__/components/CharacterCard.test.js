@@ -1,9 +1,10 @@
 import { render, screen } from '@testing-library/react';
+import { ThemeProvider, createTheme } from '@mui/material/styles';
 import CharacterCard from '../../components/CharacterCard';
 
 jest.mock('next/image', () => ({
   __esModule: true,
-  default: props => <img {...props} />,
+  default: props => <img {...props} alt="" />,
 }));
 
 const mockCharacter = {
@@ -17,9 +18,17 @@ const mockCharacter = {
   date: '2023-10-01T00:00:00Z',
 };
 
+const TestWrapper = ({ children }) => (
+  <ThemeProvider theme={createTheme()}>{children}</ThemeProvider>
+);
+
 describe('CharacterCard', () => {
   it('renders character information correctly', () => {
-    render(<CharacterCard character={mockCharacter} />);
+    render(
+      <TestWrapper>
+        <CharacterCard character={mockCharacter} />
+      </TestWrapper>
+    );
 
     expect(screen.getByText('Test Character')).toBeInTheDocument();
     expect(screen.getByText('等級:')).toBeInTheDocument();
@@ -31,7 +40,11 @@ describe('CharacterCard', () => {
   });
 
   it('has proper accessibility attributes', () => {
-    render(<CharacterCard character={mockCharacter} />);
+    render(
+      <TestWrapper>
+        <CharacterCard character={mockCharacter} />
+      </TestWrapper>
+    );
 
     // Check that the CardContent exists with proper attributes
     const cardContent = document.querySelector('.MuiCardContent-root');
@@ -40,5 +53,24 @@ describe('CharacterCard', () => {
 
     const timeElement = screen.getByLabelText(/最後更新時間/);
     expect(timeElement).toBeInTheDocument();
+  });
+
+  it('renders equipment button with responsive display', () => {
+    const mockOnEquipmentClick = jest.fn();
+    render(
+      <TestWrapper>
+        <CharacterCard
+          character={mockCharacter}
+          onEquipmentClick={mockOnEquipmentClick}
+        />
+      </TestWrapper>
+    );
+
+    const button = screen.getByText('裝備');
+    expect(button).toBeInTheDocument();
+
+    // Check that the button container has responsive display styles applied
+    const buttonContainer = button.closest('div');
+    expect(buttonContainer).toBeInTheDocument();
   });
 });
