@@ -40,7 +40,7 @@ describe('HexaStatTable', () => {
   test('renders table with activated stat cores', () => {
     render(<HexaStatTable cores={mockStatCores} />);
 
-    expect(screen.getByText('六轉屬性核心')).toBeInTheDocument();
+    expect(screen.getByText('Hexa 屬性核心')).toBeInTheDocument();
 
     // Check headers
     expect(screen.getByText('主要屬性')).toBeInTheDocument();
@@ -71,21 +71,21 @@ describe('HexaStatTable', () => {
   test('renders empty state when no cores provided', () => {
     render(<HexaStatTable cores={[]} />);
 
-    expect(screen.getByText('六轉屬性核心')).toBeInTheDocument();
+    expect(screen.getByText('Hexa 屬性核心')).toBeInTheDocument();
     expect(screen.getByText('尚未啟用任何屬性核心')).toBeInTheDocument();
   });
 
   test('renders empty state when cores is null', () => {
     render(<HexaStatTable cores={null} />);
 
-    expect(screen.getByText('六轉屬性核心')).toBeInTheDocument();
+    expect(screen.getByText('Hexa 屬性核心')).toBeInTheDocument();
     expect(screen.getByText('尚未啟用任何屬性核心')).toBeInTheDocument();
   });
 
   test('renders empty state when cores is undefined', () => {
     render(<HexaStatTable />);
 
-    expect(screen.getByText('六轉屬性核心')).toBeInTheDocument();
+    expect(screen.getByText('Hexa 屬性核心')).toBeInTheDocument();
     expect(screen.getByText('尚未啟用任何屬性核心')).toBeInTheDocument();
   });
 

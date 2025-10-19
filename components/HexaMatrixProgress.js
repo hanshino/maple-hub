@@ -1,15 +1,7 @@
 import { useState, useEffect } from 'react';
 import { Box, Typography } from '@mui/material';
 import {
-  RadialBarChart,
-  RadialBar,
-  Legend,
   ResponsiveContainer,
-  BarChart,
-  Bar,
-  XAxis,
-  YAxis,
-  CartesianGrid,
   Tooltip,
   RadarChart,
   PolarGrid,
@@ -19,7 +11,7 @@ import {
 } from 'recharts';
 import { fetchHexaMatrixData, fetchHexaStatCores } from '../lib/hexaMatrixApi';
 import {
-  calculateFilteredOverallProgress,
+  filterHexaCoreSkills,
   formatResourceAmount,
 } from '../lib/hexaMatrixUtils';
 import { calculateHexaMatrixProgress } from '../lib/progressUtils';
@@ -51,9 +43,14 @@ export default function HexaMatrixProgress({ character }) {
         ) {
           setProgress(null);
         } else {
-          // Combine equipment and stat core data for complete progress calculation
+          // Filter hexa core data first to remove irrelevant skills
+          const filteredHexaCores = filterHexaCoreSkills(
+            hexaData.character_hexa_core_equipment
+          );
+
+          // Combine filtered equipment cores with stat core data for complete progress calculation
           const combinedHexaData = {
-            ...hexaData,
+            character_hexa_core_equipment: filteredHexaCores,
             ...statData, // Include stat core data
           };
           const calculatedProgress =
@@ -86,7 +83,7 @@ export default function HexaMatrixProgress({ character }) {
     );
 
   // Prepare data for radar chart - create a single data point with all cores
-  const radarData = progress.equipmentCores.map((core, index) => ({
+  const radarData = progress.equipmentCores.map(core => ({
     core: core.name.length > 8 ? core.name.substring(0, 8) + '...' : core.name, // Truncate long names
     level: core.level,
     fullMark: 30,
@@ -164,20 +161,4 @@ export default function HexaMatrixProgress({ character }) {
       <HexaStatTable cores={statCores} />
     </Box>
   );
-}
-
-// Helper function to get colors for different core types
-function getColorForCoreType(type) {
-  switch (type) {
-    case '技能核心':
-      return '#8884d8';
-    case '精通核心':
-      return '#82ca9d';
-    case '強化核心':
-      return '#ffc658';
-    case '共用核心':
-      return '#ff7300';
-    default:
-      return '#8884d8';
-  }
 }
