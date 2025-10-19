@@ -4,6 +4,9 @@ Auto-generated from all feature plans. Last updated: 2025-10-16
 
 ## Active Technologies
 
+- JavaScript ES2020, Node.js 18+ + Next.js 14, React 18, Material-UI, Axios, Recharts (009-refine-hexa-progress-home)
+- Client-side caching (localStorage), no persistent database (009-refine-hexa-progress-home)
+
 - JavaScript ES2020, Next.js 14 + Next.js 14, React 18, Axios for API calls (002-hexa-matrix-progress)
 - JavaScript ES2020, Next.js 14 + Next.js, React 18, Material-UI, Recharts, Axios (003-dashboard-progress-ui-layout)
 - JavaScript ES2020 + Next.js 14, React 18, Axios, Material-UI, Jest, Recharts (004-dashboard-progress-home)
@@ -36,9 +39,10 @@ JavaScript ES2020, React 18: Follow standard conventions
 
 ## Recent Changes
 
+- 009-refine-hexa-progress-home: Added JavaScript ES2020, Node.js 18+ + Next.js 14, React 18, Material-UI, Axios, Recharts
+
 - 008-add-character-details-home: Added JavaScript ES2020 + Next.js 14, React 18, Material-UI, Axios
 - 008-add-character-details-home: Added JavaScript ES2020 + Next.js 14, React 18, Material-UI, Axios
-- 008-add-character-details-home: Added JavaScript ES2020 + Next.js 14, React 18, Axios, Material-UI
 
 <!-- MANUAL ADDITIONS START -->
 <!-- MANUAL ADDITIONS END -->

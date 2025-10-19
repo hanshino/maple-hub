@@ -3,6 +3,7 @@ import {
   calculateOverallProgress,
   formatResourceAmount,
   formatProgress,
+  filterHexaCoreSkills,
 } from '../../lib/hexaMatrixUtils.js';
 
 describe('HexaMatrixUtils', () => {
@@ -139,6 +140,67 @@ describe('HexaMatrixUtils', () => {
       expect(formatProgress(85.7)).toBe('85.7%');
       expect(formatProgress(100)).toBe('100.0%');
       expect(formatProgress(0)).toBe('0.0%');
+    });
+  });
+
+  describe('filterHexaCoreSkills', () => {
+    test('returns empty array for null input', () => {
+      const result = filterHexaCoreSkills(null);
+      expect(result).toEqual([]);
+    });
+
+    test('returns empty array for non-array input', () => {
+      const result = filterHexaCoreSkills('not an array');
+      expect(result).toEqual([]);
+    });
+
+    test('returns all cores when mastery count is 4 or less', () => {
+      const cores = [
+        { hexa_core_type: '精通核心', hexa_core_level: 5 },
+        { hexa_core_type: '精通核心', hexa_core_level: 0 },
+        { hexa_core_type: '強化核心', hexa_core_level: 10 },
+        { hexa_core_type: '強化核心', hexa_core_level: 0 },
+      ];
+      const result = filterHexaCoreSkills(cores);
+      expect(result).toEqual(cores);
+    });
+
+    test('filters level 0 cores when mastery count exceeds 4', () => {
+      const cores = [
+        { hexa_core_type: '精通核心', hexa_core_level: 5 },
+        { hexa_core_type: '精通核心', hexa_core_level: 0 },
+        { hexa_core_type: '精通核心', hexa_core_level: 0 },
+        { hexa_core_type: '精通核心', hexa_core_level: 10 },
+        { hexa_core_type: '精通核心', hexa_core_level: 0 }, // 5th mastery core
+        { hexa_core_type: '強化核心', hexa_core_level: 5 },
+      ];
+      const result = filterHexaCoreSkills(cores);
+      const expected = cores.filter(c => c.hexa_core_level > 0);
+      expect(result).toEqual(expected);
+    });
+
+    test('filters level 0 cores when enhancement count exceeds 4', () => {
+      const cores = [
+        { hexa_core_type: '強化核心', hexa_core_level: 5 },
+        { hexa_core_type: '強化核心', hexa_core_level: 0 },
+        { hexa_core_type: '強化核心', hexa_core_level: 0 },
+        { hexa_core_type: '強化核心', hexa_core_level: 10 },
+        { hexa_core_type: '強化核心', hexa_core_level: 0 }, // 5th enhancement core
+        { hexa_core_type: '精通核心', hexa_core_level: 5 },
+      ];
+      const result = filterHexaCoreSkills(cores);
+      const expected = cores.filter(c => c.hexa_core_level > 0);
+      expect(result).toEqual(expected);
+    });
+
+    test('does not filter when both counts are within limits', () => {
+      const cores = [
+        { hexa_core_type: '精通核心', hexa_core_level: 0 },
+        { hexa_core_type: '強化核心', hexa_core_level: 0 },
+        { hexa_core_type: '技能核心', hexa_core_level: 0 },
+      ];
+      const result = filterHexaCoreSkills(cores);
+      expect(result).toEqual(cores);
     });
   });
 });

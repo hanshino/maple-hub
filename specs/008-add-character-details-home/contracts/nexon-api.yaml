@@ -32,7 +32,7 @@ paths:
                     nullable: true
                   character_class:
                     type: string
-                    example: "英雄"
+                    example: '英雄'
                   final_stat:
                     type: array
                     items:
@@ -40,10 +40,10 @@ paths:
                       properties:
                         stat_name:
                           type: string
-                          example: "戰鬥力"
+                          example: '戰鬥力'
                         stat_value:
                           type: string
-                          example: "463821790"
+                          example: '463821790'
                   remain_ap:
                     type: integer
                     example: 0
@@ -90,5 +90,4 @@ paths:
                     description: Preset 2 equipment
                   item_equipment_preset_3:
                     type: array
-                    description: Preset 3 equipment</content>
-<parameter name="filePath">e:\workspace\maplestory\specs\008-add-character-details-home\contracts\nexon-api.yaml
+                    description: Preset 3 equipment
