@@ -14,10 +14,7 @@ import {
   Paper,
 } from '@mui/material';
 import Image from 'next/image';
-import {
-  processEquipmentData,
-  getEquipmentPosition,
-} from '../lib/equipmentUtils';
+import { processEquipmentData } from '../lib/equipmentUtils';
 import { getCachedData, setCachedData } from '../lib/cache';
 
 const EquipmentDialog = ({ ocid, character, open, onClose }) => {
@@ -77,18 +74,14 @@ const EquipmentDialog = ({ ocid, character, open, onClose }) => {
     loadEquipment();
   };
 
-  const handleClose = () => {
-    setIsOpen(false);
-  };
-
-  const handleKeyDown = (event, slot) => {
+  const handleKeyDown = event => {
     if (event.key === 'Enter' || event.key === ' ') {
       // Could add interaction if needed
       event.preventDefault();
     }
   };
 
-  const renderEquipmentSlot = (slot, position) => {
+  const renderEquipmentSlot = slot => {
     const equipmentItem = equipment?.[slot];
     const imageError = imageErrors[slot];
 

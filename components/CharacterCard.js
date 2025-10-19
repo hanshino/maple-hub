@@ -1,4 +1,3 @@
-import Image from 'next/image';
 import { memo } from 'react';
 import {
   Box,
@@ -11,7 +10,6 @@ import {
 
 const CharacterCard = memo(function CharacterCard({
   character,
-  historicalData = null,
   unionData = null,
   battlePower = null,
   onEquipmentClick = null,

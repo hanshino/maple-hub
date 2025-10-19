@@ -7,12 +7,12 @@ class RuneErrorBoundary extends React.Component {
     this.state = { hasError: false, error: null, errorInfo: null };
   }
 
-  static getDerivedStateFromError(error) {
+  static getDerivedStateFromError(_error) {
     // Update state so the next render will show the fallback UI
     return { hasError: true };
   }
 
-  componentDidCatch(error, errorInfo) {
+  componentDidCatch(_error, errorInfo) {
     // Log the error to console (and could also log to an error reporting service)
     console.error('Rune system error:', error, errorInfo);
 
