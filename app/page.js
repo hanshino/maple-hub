@@ -20,6 +20,7 @@ import RuneSystems from '../components/runes/RuneSystems';
 import RuneErrorBoundary from '../components/runes/ErrorBoundary';
 import EquipmentDialog from '../components/EquipmentDialog';
 import CharacterStats from '../components/CharacterStats';
+import HexaStatTable from '../components/HexaStatTable';
 import { generateDateRange } from '../lib/progressUtils';
 import { apiCall, batchApiCalls } from '../lib/apiUtils';
 
@@ -32,6 +33,7 @@ export default function Home() {
   const [error, setError] = useState(null);
   const [battlePower, setBattlePower] = useState(null);
   const [equipmentDialogOpen, setEquipmentDialogOpen] = useState(false);
+  const [hexaStatCores, setHexaStatCores] = useState([]);
 
   const searchCharacter = async ocid => {
     setLoading(true);
@@ -212,11 +214,27 @@ export default function Home() {
             <Grid size={{ xs: 12, md: 4 }}>
               <Card elevation={3} sx={{ height: '100%' }}>
                 <CardContent sx={{ p: 3, height: '100%' }}>
-                  <HexaMatrixProgress character={character} />
+                  <HexaMatrixProgress
+                    character={character}
+                    onStatCoresLoaded={setHexaStatCores}
+                  />
                 </CardContent>
               </Card>
             </Grid>
           </Grid>
+
+          {/* Hexa Stat Cores Section */}
+          {hexaStatCores.length > 0 && (
+            <Grid container spacing={2} sx={{ mb: 4 }}>
+              <Grid size={{ xs: 12 }}>
+                <Card elevation={3}>
+                  <CardContent sx={{ p: 3 }}>
+                    <HexaStatTable cores={hexaStatCores} />
+                  </CardContent>
+                </Card>
+              </Grid>
+            </Grid>
+          )}
 
           {/* Stats Section */}
           <Grid container spacing={2} sx={{ mb: 4 }}>

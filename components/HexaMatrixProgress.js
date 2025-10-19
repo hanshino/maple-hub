@@ -17,33 +17,55 @@ import {
   PolarRadiusAxis,
   Radar,
 } from 'recharts';
-import { fetchHexaMatrixData } from '../lib/hexaMatrixApi';
+import { fetchHexaMatrixData, fetchHexaStatCores } from '../lib/hexaMatrixApi';
 import {
   calculateFilteredOverallProgress,
   formatResourceAmount,
 } from '../lib/hexaMatrixUtils';
+import { calculateHexaMatrixProgress } from '../lib/progressUtils';
 
-export default function HexaMatrixProgress({ character }) {
+export default function HexaMatrixProgress({ character, onStatCoresLoaded }) {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
   const [progress, setProgress] = useState(null);
+  const [statCores, setStatCores] = useState([]);
 
   useEffect(() => {
     if (character.character_class_level < 6) return;
 
     const loadData = async () => {
       try {
-        const data = await fetchHexaMatrixData(character.ocid);
+        // Fetch both hexa matrix and stat core data in parallel
+        const [hexaData, statData] = await Promise.all([
+          fetchHexaMatrixData(character.ocid),
+          fetchHexaStatCores(character.ocid).catch(() => ({
+            character_hexa_stat_core: [],
+          })), // Gracefully handle stat core fetch failures
+        ]);
+
+        // Process hexa matrix data
         if (
-          !data.character_hexa_core_equipment ||
-          data.character_hexa_core_equipment.length === 0
+          !hexaData.character_hexa_core_equipment ||
+          hexaData.character_hexa_core_equipment.length === 0
         ) {
           setProgress(null);
         } else {
-          const calculatedProgress = calculateFilteredOverallProgress(
-            data.character_hexa_core_equipment
-          );
+          // Combine equipment and stat core data for complete progress calculation
+          const combinedHexaData = {
+            ...hexaData,
+            ...statData, // Include stat core data
+          };
+          const calculatedProgress =
+            calculateHexaMatrixProgress(combinedHexaData);
           setProgress(calculatedProgress);
+        }
+
+        // Set stat cores data
+        setStatCores(statData.character_hexa_stat_core || []);
+
+        // Notify parent component about loaded stat cores
+        if (onStatCoresLoaded) {
+          onStatCoresLoaded(statData.character_hexa_stat_core || []);
         }
       } catch (err) {
         setError(err.message);
@@ -53,7 +75,7 @@ export default function HexaMatrixProgress({ character }) {
     };
 
     loadData();
-  }, [character]);
+  }, [character, onStatCoresLoaded]);
 
   if (character.character_class_level < 6) return null;
 
@@ -68,7 +90,7 @@ export default function HexaMatrixProgress({ character }) {
     );
 
   // Prepare data for radar chart - create a single data point with all cores
-  const radarData = progress.coreProgress.map((core, index) => ({
+  const radarData = progress.equipmentCores.map((core, index) => ({
     core: core.name.length > 8 ? core.name.substring(0, 8) + '...' : core.name, // Truncate long names
     level: core.level,
     fullMark: 30,

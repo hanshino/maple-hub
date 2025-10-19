@@ -5,10 +5,13 @@ import HexaMatrixProgress from '../../components/HexaMatrixProgress.js';
 
 // Mock the API and utils
 jest.mock('../../lib/hexaMatrixApi.js');
-jest.mock('../../lib/hexaMatrixUtils.js');
+jest.mock('../../lib/progressUtils.js');
 
-import { fetchHexaMatrixData } from '../../lib/hexaMatrixApi.js';
-import { calculateFilteredOverallProgress } from '../../lib/hexaMatrixUtils.js';
+import {
+  fetchHexaMatrixData,
+  fetchHexaStatCores,
+} from '../../lib/hexaMatrixApi.js';
+import { calculateHexaMatrixProgress } from '../../lib/progressUtils.js';
 
 describe('HexaMatrixProgress', () => {
   const mockCharacter = {
@@ -35,10 +38,10 @@ describe('HexaMatrixProgress', () => {
   };
 
   const mockProgress = {
-    totalProgress: 75.5,
-    totalSpent: { soul_elder: 100, soul_elder_fragment: 200 },
-    totalRequired: { soul_elder: 150, soul_elder_fragment: 300 },
-    coreProgress: [
+    totalProgress: 0.6, // 210 / 33768 ≈ 0.006 = 0.6%
+    totalSpent: { soul_elder: 245, soul_elder_fragment: 6077 },
+    totalRequired: { soul_elder: 1207, soul_elder_fragment: 33768 },
+    equipmentCores: [
       {
         name: 'Test Core 1',
         type: '技能核心',
@@ -56,12 +59,30 @@ describe('HexaMatrixProgress', () => {
         required: { soul_elder: 160, soul_elder_fragment: 300 },
       },
     ],
+    statCoresCount: 1,
+    statCoreCosts: { soul_elder: 5, soul_elder_fragment: 10 },
+  };
+
+  const mockStatData = {
+    character_hexa_stat_core: [
+      {
+        slot_id: '0',
+        main_stat_name: 'boss傷害增加',
+        sub_stat_name_1: '爆擊傷害增加',
+        sub_stat_name_2: '主要屬性增加',
+        main_stat_level: 3,
+        sub_stat_level_1: 7,
+        sub_stat_level_2: 10,
+        stat_grade: 20,
+      },
+    ],
   };
 
   beforeEach(() => {
     jest.clearAllMocks();
     fetchHexaMatrixData.mockResolvedValue(mockHexaData);
-    calculateFilteredOverallProgress.mockReturnValue(mockProgress);
+    fetchHexaStatCores.mockResolvedValue(mockStatData);
+    calculateHexaMatrixProgress.mockReturnValue(mockProgress);
   });
 
   test('renders loading state initially', () => {
@@ -80,7 +101,7 @@ describe('HexaMatrixProgress', () => {
       expect(screen.getByText('六轉進度')).toBeInTheDocument();
     });
 
-    expect(screen.getByText('總進度: 75.5%')).toBeInTheDocument();
+    expect(screen.getByText('總進度: 0.6%')).toBeInTheDocument();
     // Check that the component renders without crashing
     expect(component.container).toBeInTheDocument();
   });
@@ -97,6 +118,7 @@ describe('HexaMatrixProgress', () => {
 
   test('renders error message when API fails', async () => {
     fetchHexaMatrixData.mockRejectedValue(new Error('API Error'));
+    fetchHexaStatCores.mockResolvedValue(mockStatData); // Still resolve stat cores
 
     await act(async () => {
       render(<HexaMatrixProgress character={mockCharacter} />);
@@ -113,6 +135,7 @@ describe('HexaMatrixProgress', () => {
     fetchHexaMatrixData.mockResolvedValue({
       character_hexa_core_equipment: [],
     });
+    fetchHexaStatCores.mockResolvedValue(mockStatData);
 
     await act(async () => {
       render(<HexaMatrixProgress character={mockCharacter} />);
@@ -139,10 +162,10 @@ describe('HexaMatrixProgress', () => {
     const filteredProgress = {
       ...mockProgress,
       totalProgress: 50.0, // Filtered result shows lower progress
-      coreProgress: [mockProgress.coreProgress[0]], // Only one core after filtering
+      equipmentCores: [mockProgress.equipmentCores[0]], // Only one core after filtering
     };
 
-    calculateFilteredOverallProgress.mockReturnValue(filteredProgress);
+    calculateHexaMatrixProgress.mockReturnValue(filteredProgress);
 
     await act(async () => {
       render(<HexaMatrixProgress character={mockCharacter} />);
@@ -152,15 +175,19 @@ describe('HexaMatrixProgress', () => {
       expect(screen.getByText('總進度: 50.0%')).toBeInTheDocument();
     });
 
-    expect(calculateFilteredOverallProgress).toHaveBeenCalledWith(
-      mockHexaData.character_hexa_core_equipment
+    expect(calculateHexaMatrixProgress).toHaveBeenCalledWith(
+      expect.objectContaining({
+        character_hexa_core_equipment:
+          mockHexaData.character_hexa_core_equipment,
+        character_hexa_stat_core: mockStatData.character_hexa_stat_core,
+      })
     );
   });
 
   test('displays filtered cores in radar chart', async () => {
     const filteredProgress = {
       ...mockProgress,
-      coreProgress: [
+      equipmentCores: [
         {
           name: 'Filtered Core',
           type: '技能核心',
@@ -172,7 +199,7 @@ describe('HexaMatrixProgress', () => {
       ],
     };
 
-    calculateFilteredOverallProgress.mockReturnValue(filteredProgress);
+    calculateHexaMatrixProgress.mockReturnValue(filteredProgress);
 
     await act(async () => {
       render(<HexaMatrixProgress character={mockCharacter} />);
@@ -183,6 +210,6 @@ describe('HexaMatrixProgress', () => {
     });
 
     // Verify the filtered data is used in the component
-    expect(calculateFilteredOverallProgress).toHaveBeenCalledTimes(1);
+    expect(calculateHexaMatrixProgress).toHaveBeenCalledTimes(1);
   });
 });

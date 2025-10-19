@@ -6,7 +6,7 @@ Describe changes and what they accomplish.
 
 ## Related issues
 
-- 
+-
 
 ## Checklist
 

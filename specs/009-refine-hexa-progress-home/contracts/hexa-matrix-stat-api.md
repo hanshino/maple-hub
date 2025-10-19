@@ -5,6 +5,7 @@
 **Purpose**: Retrieve hexa matrix statistical information for a character
 
 **Request**:
+
 ```
 GET https://open.api.nexon.com/maplestorytw/v1/character/hexamatrix-stat?ocid={character_ocid}
 Headers:
@@ -13,6 +14,7 @@ Headers:
 ```
 
 **Response**:
+
 ```json
 {
   "date": "string|null",
@@ -38,6 +40,7 @@ Headers:
 ```
 
 **Error Responses**:
+
 - 400: Invalid ocid
 - 403: Invalid API key
 - 404: Character not found
@@ -45,6 +48,7 @@ Headers:
 - 500: Server error
 
 **Contract Requirements**:
+
 - Response must include character_hexa_stat_core array
 - Each core object must have all specified fields
 - API must handle rate limiting gracefully

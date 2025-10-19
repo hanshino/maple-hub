@@ -76,12 +76,12 @@ User Story 1 (P1) → User Story 2 (P2) → User Story 3 (P3)
 **Priority**: P2 (Enhanced functionality)  
 **Independent Test**: Can be tested by verifying hexa stat cores are fetched, calculated, and displayed with material usage estimates.
 
-- [ ] T011 [P] [US2] Add unit tests for stat core progress calculation in **tests**/lib/progressUtils.test.js
-- [ ] T012 [US2] Implement stat core data fetching in app/api/hexa-matrix-stat/route.js
-- [ ] T013 [P] [US2] Add integration tests for stat core API and calculation in **tests**/integration/hexa-stat-integration.test.js
-- [ ] T014 [US2] Create HexaStatTable component for attribute display in components/HexaStatTable.js
-- [ ] T015 [P] [US2] Add component tests for stat table rendering in **tests**/components/HexaStatTable.test.js
-- [ ] T016 [US2] Integrate stat table into HexaMatrixProgress component in components/HexaMatrixProgress.js
+- [x] T011 [P] [US2] Add unit tests for stat core progress calculation in **tests**/lib/progressUtils.test.js
+- [x] T012 [US2] Implement stat core data fetching in app/api/hexa-matrix-stat/route.js
+- [x] T013 [P] [US2] Add integration tests for stat core API and calculation in **tests**/integration/hexa-stat-integration.test.js
+- [x] T014 [US2] Create HexaStatTable component for attribute display in components/HexaStatTable.js
+- [x] T015 [P] [US2] Add component tests for stat table rendering in **tests**/components/HexaStatTable.test.js
+- [x] T016 [US2] Integrate stat table into HexaMatrixProgress component in components/HexaMatrixProgress.js
 
 ---
 
@@ -91,8 +91,8 @@ User Story 1 (P1) → User Story 2 (P2) → User Story 3 (P3)
 **Priority**: P3 (UI polish)  
 **Independent Test**: Can be tested by verifying responsive layout accommodates all hexa information without visual issues.
 
-- [ ] T017 [US3] Update home page layout for hexa information display in app/page.js
-- [ ] T018 [P] [US3] Add visual regression tests for layout changes in **tests**/pages/home-layout.test.js
+- [x] T017 [US3] Update home page layout for hexa information display in app/page.js
+- [x] T018 [P] [US3] Add visual regression tests for layout changes in **tests**/pages/home-layout.test.js
 
 ---
 
@@ -101,11 +101,11 @@ User Story 1 (P1) → User Story 2 (P2) → User Story 3 (P3)
 **Goal**: Final quality assurance, performance optimization, and cross-cutting improvements.  
 **Independent Test**: N/A (polish across all stories)
 
-- [ ] T019 Run full test suite and verify all user stories pass independent tests
-- [ ] T020 Performance audit: Verify page load <2s and API response <500ms
-- [ ] T021 Accessibility audit: Ensure Material-UI components meet WCAG standards
+- [x] T019 Run full test suite and verify all user stories pass independent tests
+- [x] T020 Performance audit: Verify page load <2s and API response <500ms
+- [x] T021 Accessibility audit: Ensure Material-UI components meet WCAG standards
 - [ ] T022 Code review: Clean up any TODO comments and ensure ES2020 compliance
-- [ ] T023 Documentation update: Verify README.md reflects new hexa features
+- [x] T023 Documentation update: Verify README.md reflects new hexa features
 
 ---
 
