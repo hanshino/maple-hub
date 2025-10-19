@@ -14,7 +14,7 @@ export default function HexaStatTable({ cores }) {
     return (
       <Box sx={{ mt: 2 }}>
         <Typography variant="h6" gutterBottom>
-          六轉屬性核心
+          Hexa 屬性核心
         </Typography>
         <Typography variant="body2" color="text.secondary">
           尚未啟用任何屬性核心
@@ -26,7 +26,7 @@ export default function HexaStatTable({ cores }) {
   return (
     <Box sx={{ mt: 2 }}>
       <Typography variant="h6" gutterBottom>
-        六轉屬性核心
+        Hexa 屬性核心
       </Typography>
       <Table size="small">
         <TableHead>

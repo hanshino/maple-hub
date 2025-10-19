@@ -91,8 +91,8 @@ User Story 1 (P1) → User Story 2 (P2) → User Story 3 (P3)
 **Priority**: P3 (UI polish)  
 **Independent Test**: Can be tested by verifying responsive layout accommodates all hexa information without visual issues.
 
-- [x] T017 [US3] Update home page layout for hexa information display in app/page.js
-- [x] T018 [P] [US3] Add visual regression tests for layout changes in **tests**/pages/home-layout.test.js
+- [ ] T017 [US3] Update home page layout for hexa information display in app/page.js
+- [ ] T018 [P] [US3] Add visual regression tests for layout changes in **tests**/pages/home-layout.test.js
 
 ---
 
@@ -101,11 +101,11 @@ User Story 1 (P1) → User Story 2 (P2) → User Story 3 (P3)
 **Goal**: Final quality assurance, performance optimization, and cross-cutting improvements.  
 **Independent Test**: N/A (polish across all stories)
 
-- [x] T019 Run full test suite and verify all user stories pass independent tests
-- [x] T020 Performance audit: Verify page load <2s and API response <500ms
-- [x] T021 Accessibility audit: Ensure Material-UI components meet WCAG standards
+- [ ] T019 Run full test suite and verify all user stories pass independent tests
+- [ ] T020 Performance audit: Verify page load <2s and API response <500ms
+- [ ] T021 Accessibility audit: Ensure Material-UI components meet WCAG standards
 - [ ] T022 Code review: Clean up any TODO comments and ensure ES2020 compliance
-- [x] T023 Documentation update: Verify README.md reflects new hexa features
+- [ ] T023 Documentation update: Verify README.md reflects new hexa features
 
 ---
 

@@ -14,25 +14,7 @@ jest.mock('../../components/CharacterCard.js', () => {
 });
 
 jest.mock('../../components/HexaMatrixProgress.js', () => {
-  return function MockHexaMatrixProgress({ character, onStatCoresLoaded }) {
-    // Simulate loading stat cores
-    React.useEffect(() => {
-      if (onStatCoresLoaded) {
-        onStatCoresLoaded([
-          {
-            slot_id: '0',
-            main_stat_name: '爆擊傷害增加',
-            sub_stat_name_1: 'boss傷害增加',
-            sub_stat_name_2: '主要屬性增加',
-            main_stat_level: 6,
-            sub_stat_level_1: 4,
-            sub_stat_level_2: 10,
-            stat_grade: 20,
-          },
-        ]);
-      }
-    }, [onStatCoresLoaded]);
-
+  return function MockHexaMatrixProgress({ character }) {
     return character.character_class_level >= 6 ? (
       <div data-testid="hexa-matrix-progress">Hexa Matrix Progress</div>
     ) : null;
@@ -184,35 +166,5 @@ describe('Home Page Layout', () => {
     expect(screen.getByTestId('character-card')).toHaveTextContent(
       'Test Character'
     );
-  });
-
-  test('displays hexa stat cores in separate section below hexa progress', async () => {
-    render(<Home />);
-
-    // Fill in the search form
-    const input = screen.getByPlaceholderText('輸入角色名稱');
-    const button = screen.getByRole('button', { name: '搜尋' });
-
-    fireEvent.change(input, { target: { value: 'Test Character' } });
-    fireEvent.click(button);
-
-    await waitFor(() => {
-      expect(screen.getByTestId('hexa-matrix-progress')).toBeInTheDocument();
-    });
-
-    // Wait for hexa stat cores section to appear
-    await waitFor(() => {
-      expect(screen.getByText('六轉屬性核心')).toBeInTheDocument();
-    });
-
-    // Verify the stat cores table is displayed
-    expect(screen.getByText('主要屬性')).toBeInTheDocument();
-    expect(screen.getByText('副屬性1')).toBeInTheDocument();
-    expect(screen.getByText('副屬性2')).toBeInTheDocument();
-    expect(screen.getByText('等級')).toBeInTheDocument();
-
-    // Verify specific stat core data is displayed
-    expect(screen.getByText('爆擊傷害增加 (Lv 6)')).toBeInTheDocument();
-    expect(screen.getByText('boss傷害增加 (Lv 4)')).toBeInTheDocument();
   });
 });

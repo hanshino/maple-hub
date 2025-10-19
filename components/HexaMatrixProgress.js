@@ -23,8 +23,9 @@ import {
   formatResourceAmount,
 } from '../lib/hexaMatrixUtils';
 import { calculateHexaMatrixProgress } from '../lib/progressUtils';
+import HexaStatTable from './HexaStatTable';
 
-export default function HexaMatrixProgress({ character, onStatCoresLoaded }) {
+export default function HexaMatrixProgress({ character }) {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
   const [progress, setProgress] = useState(null);
@@ -62,11 +63,6 @@ export default function HexaMatrixProgress({ character, onStatCoresLoaded }) {
 
         // Set stat cores data
         setStatCores(statData.character_hexa_stat_core || []);
-
-        // Notify parent component about loaded stat cores
-        if (onStatCoresLoaded) {
-          onStatCoresLoaded(statData.character_hexa_stat_core || []);
-        }
       } catch (err) {
         setError(err.message);
       } finally {
@@ -75,7 +71,7 @@ export default function HexaMatrixProgress({ character, onStatCoresLoaded }) {
     };
 
     loadData();
-  }, [character, onStatCoresLoaded]);
+  }, [character]);
 
   if (character.character_class_level < 6) return null;
 
@@ -113,14 +109,20 @@ export default function HexaMatrixProgress({ character, onStatCoresLoaded }) {
         <Typography variant="body2" sx={{ mb: 0.5 }}>
           還需 靈魂艾爾達:{' '}
           {formatResourceAmount(
-            progress.totalRequired.soul_elder - progress.totalSpent.soul_elder
+            Math.max(
+              0,
+              progress.totalRequired.soul_elder - progress.totalSpent.soul_elder
+            )
           )}
         </Typography>
         <Typography variant="body2" sx={{ mb: 1 }}>
           還需 靈魂艾爾達碎片:{' '}
           {formatResourceAmount(
-            progress.totalRequired.soul_elder_fragment -
-              progress.totalSpent.soul_elder_fragment
+            Math.max(
+              0,
+              progress.totalRequired.soul_elder_fragment -
+                progress.totalSpent.soul_elder_fragment
+            )
           )}
         </Typography>
       </Box>
@@ -158,6 +160,8 @@ export default function HexaMatrixProgress({ character, onStatCoresLoaded }) {
           />
         </RadarChart>
       </ResponsiveContainer>
+
+      <HexaStatTable cores={statCores} />
     </Box>
   );
 }

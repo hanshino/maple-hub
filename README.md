@@ -10,8 +10,6 @@
 - **能力值卡片**：顯示角色統計資料
 - **進度追蹤**：查看詳細的角色統計資料和經驗值進度
 - **聯盟戰地資訊**：顯示角色的聯盟戰地階級、等級和神器等級
-- **六轉矩陣進度**：追蹤六轉矩陣核心進度和屬性資訊
-- **符文系統**：查看角色符文配置和效果
 - **響應式設計**：針對手機、平板和桌面裝置進行優化
 - **無障礙支援**：完整的螢幕閱讀器支援和語意化 HTML
 - **效能優化**：記憶化、延遲載入和有效率的重新渲染
@@ -107,7 +105,6 @@ npm run format:check
 │   ├── api/               # API 路由
 │   │   ├── character/     # 角色相關 API
 │   │   │   ├── equipment/ # 裝備 API
-│   │   │   ├── hexa-matrix/ # 六轉矩陣 API
 │   │   │   └── stats/     # 能力值 API
 │   ├── dashboard/         # 角色儀表板頁面
 │   └── dashboard-progress/# 進度追蹤頁面
@@ -115,16 +112,11 @@ npm run format:check
 │   ├── CharacterCard.js   # 角色顯示組件
 │   ├── CharacterStats.js  # 角色能力值組件
 │   ├── EquipmentDialog.js # 裝備對話框組件
-│   ├── HexaMatrixProgress.js # 六轉矩陣進度組件
-│   ├── HexaStatTable.js   # 六轉屬性表格組件
 │   ├── ProgressChart.js   # 資料視覺化組件
-│   ├── runes/             # 符文系統組件
 │   └── ErrorMessage.js    # 錯誤處理組件
 ├── __tests__/             # 測試檔案
 ├── lib/                   # 工具函數
 │   ├── nexonApi.js       # Nexon API 整合
-│   ├── hexaMatrixApi.js  # 六轉矩陣 API 整合
-│   ├── hexaMatrixUtils.js # 六轉矩陣資料處理
 │   ├── equipmentUtils.js  # 裝備資料處理
 │   ├── statsUtils.js      # 能力值資料處理
 │   └── cache.js           # 快取管理
@@ -139,8 +131,6 @@ npm run format:check
 - **角色詳細資料**：`/api/characters/{ocid}`
 - **角色裝備**：`/api/character/equipment/{ocid}`
 - **角色能力值**：`/api/character/stats/{ocid}`
-- **六轉矩陣資料**：`/api/character/hexa-matrix/{ocid}`
-- **六轉屬性資訊**：`/api/character/hexa-matrix-stat/{ocid}`
 
 API 回應會在本機快取以提升效能。
 
