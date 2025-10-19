@@ -19,7 +19,7 @@ import {
 } from 'recharts';
 import { fetchHexaMatrixData } from '../lib/hexaMatrixApi';
 import {
-  calculateOverallProgress,
+  calculateFilteredOverallProgress,
   formatResourceAmount,
 } from '../lib/hexaMatrixUtils';
 
@@ -40,7 +40,7 @@ export default function HexaMatrixProgress({ character }) {
         ) {
           setProgress(null);
         } else {
-          const calculatedProgress = calculateOverallProgress(
+          const calculatedProgress = calculateFilteredOverallProgress(
             data.character_hexa_core_equipment
           );
           setProgress(calculatedProgress);

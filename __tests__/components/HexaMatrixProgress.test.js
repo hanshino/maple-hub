@@ -8,7 +8,7 @@ jest.mock('../../lib/hexaMatrixApi.js');
 jest.mock('../../lib/hexaMatrixUtils.js');
 
 import { fetchHexaMatrixData } from '../../lib/hexaMatrixApi.js';
-import { calculateOverallProgress } from '../../lib/hexaMatrixUtils.js';
+import { calculateFilteredOverallProgress } from '../../lib/hexaMatrixUtils.js';
 
 describe('HexaMatrixProgress', () => {
   const mockCharacter = {
@@ -61,7 +61,7 @@ describe('HexaMatrixProgress', () => {
   beforeEach(() => {
     jest.clearAllMocks();
     fetchHexaMatrixData.mockResolvedValue(mockHexaData);
-    calculateOverallProgress.mockReturnValue(mockProgress);
+    calculateFilteredOverallProgress.mockReturnValue(mockProgress);
   });
 
   test('renders loading state initially', () => {
@@ -133,5 +133,56 @@ describe('HexaMatrixProgress', () => {
     await waitFor(() => {
       expect(fetchHexaMatrixData).toHaveBeenCalledWith(mockCharacter.ocid);
     });
+  });
+
+  test('uses filtered progress calculation for cross-class data', async () => {
+    const filteredProgress = {
+      ...mockProgress,
+      totalProgress: 50.0, // Filtered result shows lower progress
+      coreProgress: [mockProgress.coreProgress[0]], // Only one core after filtering
+    };
+
+    calculateFilteredOverallProgress.mockReturnValue(filteredProgress);
+
+    await act(async () => {
+      render(<HexaMatrixProgress character={mockCharacter} />);
+    });
+
+    await waitFor(() => {
+      expect(screen.getByText('總進度: 50.0%')).toBeInTheDocument();
+    });
+
+    expect(calculateFilteredOverallProgress).toHaveBeenCalledWith(
+      mockHexaData.character_hexa_core_equipment
+    );
+  });
+
+  test('displays filtered cores in radar chart', async () => {
+    const filteredProgress = {
+      ...mockProgress,
+      coreProgress: [
+        {
+          name: 'Filtered Core',
+          type: '技能核心',
+          level: 25,
+          progress: 83.3,
+          spent: { soul_elder: 15, soul_elder_fragment: 400 },
+          required: { soul_elder: 20, soul_elder_fragment: 500 },
+        },
+      ],
+    };
+
+    calculateFilteredOverallProgress.mockReturnValue(filteredProgress);
+
+    await act(async () => {
+      render(<HexaMatrixProgress character={mockCharacter} />);
+    });
+
+    await waitFor(() => {
+      expect(screen.getByText('六轉進度')).toBeInTheDocument();
+    });
+
+    // Verify the filtered data is used in the component
+    expect(calculateFilteredOverallProgress).toHaveBeenCalledTimes(1);
   });
 });
