@@ -1,5 +1,5 @@
 import React from 'react';
-import { Alert, AlertTitle, Button, Box } from '@mui/material';
+import { Alert, AlertTitle, Button } from '@mui/material';
 
 const ErrorMessage = ({ message, title = '錯誤', onRetry }) => {
   return (

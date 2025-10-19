@@ -143,7 +143,7 @@ const CharacterStats = ({ ocid, expanded: initialExpanded = false }) => {
                 const rowStats = statsData.slice(i, i + 2);
                 groupRows.push(
                   <TableRow key={`group-${groupIndex}-${i / 2}`}>
-                    {rowStats.map((stat, idx) => (
+                    {rowStats.map(stat => (
                       <React.Fragment key={stat.name}>
                         <TableCell
                           component="th"
