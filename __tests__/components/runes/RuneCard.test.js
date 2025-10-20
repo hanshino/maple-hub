@@ -1,5 +1,5 @@
 import React from 'react';
-import { render, screen } from '@testing-library/react';
+import { render, screen, fireEvent } from '@testing-library/react';
 import RuneCard from '../../../components/runes/RuneCard';
 
 const mockRune = {
@@ -27,9 +27,7 @@ describe('RuneCard', () => {
     const image = screen.getByAltText('祕法符文：測試');
     expect(image).toBeInTheDocument();
     expect(image).toHaveAttribute('src');
-    expect(image.getAttribute('src')).toContain(
-      'https%3A%2F%2Fexample.com%2Ficon.png'
-    );
+    expect(image.getAttribute('src')).toContain('https://example.com/icon.png');
   });
 
   it('shows progress bar', () => {
@@ -38,5 +36,15 @@ describe('RuneCard', () => {
     const progressBar = screen.getByRole('progressbar');
     expect(progressBar).toBeInTheDocument();
     expect(progressBar).toHaveAttribute('aria-valuenow', '24');
+  });
+
+  it('handles image load error gracefully', () => {
+    render(<RuneCard rune={mockRune} />);
+
+    const image = screen.getByAltText('祕法符文：測試');
+    fireEvent.error(image);
+
+    // After error, image should have fallback src
+    expect(image).toHaveAttribute('src', '/placeholder-rune.png');
   });
 });

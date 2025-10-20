@@ -38,6 +38,8 @@ _GATE: Must pass before Phase 0 research. Re-check after Phase 1 design._
 - [ ] Data Visualization: Plan for clear data visualization where applicable
 - [ ] Performance & Optimization: Include performance optimization measures
 - [ ] Simplicity & Maintainability: Start simple, apply clean code principles
+- [ ] API Security and Architecture: Ensure Nexon OpenAPI calls go through Next.js backend routes
+- [ ] Code Quality Gates: Plan for linting and formatting checks in development workflow
 
 ## Project Structure
 

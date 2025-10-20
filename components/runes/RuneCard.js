@@ -6,7 +6,6 @@ import {
   LinearProgress,
   Box,
 } from '@mui/material';
-import Image from 'next/image';
 import { calculateRuneProgress, getMaxLevel } from '../../lib/runeUtils';
 
 export default function RuneCard({ rune }) {
@@ -30,12 +29,14 @@ export default function RuneCard({ rune }) {
               justifyContent: 'center',
             }}
           >
-            <Image
+            <img
               src={rune.symbol_icon}
               alt={rune.symbol_name}
-              fill
-              sizes="48px"
-              style={{ objectFit: 'contain' }}
+              style={{
+                width: '48px',
+                height: '48px',
+                objectFit: 'contain',
+              }}
               onError={e => {
                 e.target.src = '/placeholder-rune.png'; // fallback image
               }}

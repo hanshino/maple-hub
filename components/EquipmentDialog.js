@@ -13,7 +13,6 @@ import {
   CircularProgress,
   Paper,
 } from '@mui/material';
-import Image from 'next/image';
 import { processEquipmentData } from '../lib/equipmentUtils';
 import { getCachedData, setCachedData } from '../lib/cache';
 
@@ -120,12 +119,12 @@ const EquipmentDialog = ({ ocid, character, open, onClose }) => {
               position: 'relative',
             }}
           >
-            <Image
+            <img
               src={equipmentItem.item_icon}
               alt={equipmentItem.item_name}
-              fill
-              sizes="50px"
               style={{
+                width: '50px',
+                height: '50px',
                 objectFit: 'contain',
               }}
               onError={handleImageError}
