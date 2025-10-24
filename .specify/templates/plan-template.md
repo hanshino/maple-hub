@@ -40,6 +40,7 @@ _GATE: Must pass before Phase 0 research. Re-check after Phase 1 design._
 - [ ] Simplicity & Maintainability: Start simple, apply clean code principles
 - [ ] API Security and Architecture: Ensure Nexon OpenAPI calls go through Next.js backend routes
 - [ ] Code Quality Gates: Plan for linting and formatting checks in development workflow
+- [ ] MUI Component Maximization: Maximize use of Material-UI components, avoid custom components when MUI equivalents exist
 
 ## Project Structure
 
