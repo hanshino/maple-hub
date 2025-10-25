@@ -55,7 +55,7 @@
 **NOTE: Write these tests FIRST, ensure they FAIL before implementation**
 
 - [x] T009 [P] [US1] Contract test for union API in **tests**/api/union.test.js
-- [x] T010 [P] [US1] Integration test for character search with union data in **tests**/components/CharacterCard-union.test.js
+- [x] T010 [P] [US1] Integration test for character search with union data in **tests**/components/CharacterCardUnion.test.js
 
 ### Implementation for User Story 1
 
@@ -156,7 +156,7 @@
 ```bash
 # Launch all tests for User Story 1 together:
 Task: "Contract test for union API in __tests__/api/union.test.js"
-Task: "Integration test for character search with union data in __tests__/components/CharacterCard-union.test.js"
+Task: "Integration test for character search with union data in __tests__/components/CharacterCardUnion.test.js"
 ```
 
 ---

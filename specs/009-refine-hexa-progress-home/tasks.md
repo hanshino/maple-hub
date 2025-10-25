@@ -64,7 +64,7 @@ User Story 1 (P1) → User Story 2 (P2) → User Story 3 (P3)
 
 - [x] T006 [P] Add unit tests for hexa core filtering logic in **tests**/lib/hexaMatrixUtils.test.js
 - [x] T007 Integrate filtering into existing hexa matrix data processing in lib/hexaMatrixUtils.js
-- [x] T008 [P] [US1] Add integration tests for filtered data flow in **tests**/integration/hexa-filtering.test.js
+- [x] T008 [P] [US1] Add integration tests for filtered data flow in **tests**/integration/hexaFiltering.test.js
 - [x] T009 [US1] Update HexaMatrixProgress component to use filtered data in components/HexaMatrixProgress.js
 - [x] T010 [P] [US1] Add component tests for filtered progress display in **tests**/components/HexaMatrixProgress.test.js
 
@@ -78,7 +78,7 @@ User Story 1 (P1) → User Story 2 (P2) → User Story 3 (P3)
 
 - [x] T011 [P] [US2] Add unit tests for stat core progress calculation in **tests**/lib/progressUtils.test.js
 - [x] T012 [US2] Implement stat core data fetching in app/api/hexa-matrix-stat/route.js
-- [x] T013 [P] [US2] Add integration tests for stat core API and calculation in **tests**/integration/hexa-stat-integration.test.js
+- [x] T013 [P] [US2] Add integration tests for stat core API and calculation in **tests**/integration/hexaStatIntegration.test.js
 - [x] T014 [US2] Create HexaStatTable component for attribute display in components/HexaStatTable.js
 - [x] T015 [P] [US2] Add component tests for stat table rendering in **tests**/components/HexaStatTable.test.js
 - [x] T016 [US2] Integrate stat table into HexaMatrixProgress component in components/HexaMatrixProgress.js
@@ -92,7 +92,7 @@ User Story 1 (P1) → User Story 2 (P2) → User Story 3 (P3)
 **Independent Test**: Can be tested by verifying responsive layout accommodates all hexa information without visual issues.
 
 - [ ] T017 [US3] Update home page layout for hexa information display in app/page.js
-- [ ] T018 [P] [US3] Add visual regression tests for layout changes in **tests**/pages/home-layout.test.js
+- [ ] T018 [P] [US3] Add visual regression tests for layout changes in **tests**/pages/homeLayout.test.js
 
 ---
 

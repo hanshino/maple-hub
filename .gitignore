@@ -15,6 +15,9 @@ build/
 .env*
 !.env.example
 
+# Google Sheets credentials
+google-sheets-credentials.json
+
 # Logs
 *.log
 logs/
@@ -77,9 +80,8 @@ dist
 .out
 .storybook-out
 
-# Temporary folders
-tmp/
-temp/
+# Temporary test files
+test-google-sheets.js
 
 # Editor directories and files
 .vscode/*
