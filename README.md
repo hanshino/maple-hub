@@ -169,6 +169,16 @@ GOOGLE_SHEETS_CLIENT_X509_CERT_URL=your_cert_url
 GOOGLE_SHEETS_OCID_SHEET_ID=your_sheet_id
 ```
 
+#### 自動同步 (Cron Job)
+
+應用程式已設定每 5 分鐘自動同步 OCID 到 Google Sheets：
+
+- **排程**：每 5 分鐘執行一次 (`*/5 * * * *`)
+- **安全**：使用 `CRON_SECRET` 環境變數驗證請求 (Vercel 自動添加到 Authorization header)
+- **日誌**：同步結果會記錄在 Vercel 函數日誌中
+
+在 Vercel 部署中，cron job 會自動執行，不需要額外設定。
+
 #### 手動同步 OCID
 
 ```bash

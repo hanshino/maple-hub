@@ -1,0 +1,8 @@
+{
+  "crons": [
+    {
+      "path": "/api/sync-ocids",
+      "schedule": "*/5 * * * *"
+    }
+  ]
+}
