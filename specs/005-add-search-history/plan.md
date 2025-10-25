@@ -60,9 +60,9 @@ lib/
 
 __tests__/
 ├── components/
-│   └── CharacterSearch-history.test.js
+│   └── CharacterSearchHistory.test.js
 └── lib/
-    └── localStorage-history.test.js
+    └── localStorageHistory.test.js
 ```
 
 **Structure Decision**: Feature integrates into existing Next.js app structure, adding history functionality to search component and enhancing localStorage utilities.

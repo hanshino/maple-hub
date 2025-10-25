@@ -237,7 +237,7 @@ describe('filterHexaCoreSkills', () => {
 ### Integration Tests
 
 ```javascript
-// __tests__/integration/hexa-stat-integration.test.js
+// __tests__/integration/hexaStatIntegration.test.js
 describe('Hexa Stat Integration', () => {
   it('should fetch, filter, and calculate progress', async () => {
     const ocid = 'test-ocid';

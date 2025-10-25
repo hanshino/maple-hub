@@ -10,6 +10,7 @@
 - **能力值卡片**：顯示角色統計資料
 - **進度追蹤**：查看詳細的角色統計資料和經驗值進度
 - **聯盟戰地資訊**：顯示角色的聯盟戰地階級、等級和神器等級
+- **OCID 查詢記錄**：自動記錄角色查詢並同步到 Google Sheets 以供排行榜分析
 - **響應式設計**：針對手機、平板和桌面裝置進行優化
 - **無障礙支援**：完整的螢幕閱讀器支援和語意化 HTML
 - **效能優化**：記憶化、延遲載入和有效率的重新渲染
@@ -106,6 +107,8 @@ npm run format:check
 │   │   ├── character/     # 角色相關 API
 │   │   │   ├── equipment/ # 裝備 API
 │   │   │   └── stats/     # 能力值 API
+│   │   ├── sync-ocids/    # OCID 同步 API
+│   │   └── debug-ocids/   # OCID 除錯 API
 │   ├── dashboard/         # 角色儀表板頁面
 │   └── dashboard-progress/# 進度追蹤頁面
 ├── components/            # 可重用 React 組件
@@ -119,7 +122,11 @@ npm run format:check
 │   ├── nexonApi.js       # Nexon API 整合
 │   ├── equipmentUtils.js  # 裝備資料處理
 │   ├── statsUtils.js      # 能力值資料處理
-│   └── cache.js           # 快取管理
+│   ├── cache.js           # 快取管理
+│   ├── ocid-logger.js     # OCID 記錄邏輯
+│   ├── google-sheets.js   # Google Sheets API 整合
+│   └── shared-logger.js   # 共享 logger 實例
+├── middleware.js          # Next.js middleware for OCID capture
 └── specs/                 # 專案規格
 ```
 
@@ -133,6 +140,41 @@ npm run format:check
 - **角色能力值**：`/api/character/stats/{ocid}`
 
 API 回應會在本機快取以提升效能。
+
+### OCID 查詢記錄
+
+應用程式會自動記錄所有角色查詢的 OCID（角色唯一識別碼）：
+
+- **自動記錄**：每次角色搜尋都會在 middleware 中自動記錄 OCID
+- **Google Sheets 同步**：收集的 OCID 會定期同步到 Google Sheets 以供分析
+- **重複過濾**：已存在於 Google Sheets 中的 OCID 不會重複記錄
+- **隱私保護**：只記錄 OCID，不記錄個人資訊或查詢時間
+
+#### 設定 Google Sheets 同步
+
+1. 建立 Google Sheets 試算表
+2. 設定服務帳戶金鑰（參考 `OCID_SHEET_SETUP.md`）
+3. 在 `.env.local` 中設定環境變數：
+
+```env
+# Google Sheets API 認證
+GOOGLE_SHEETS_PROJECT_ID=your_project_id
+GOOGLE_SHEETS_PRIVATE_KEY_ID=your_private_key_id
+GOOGLE_SHEETS_PRIVATE_KEY="-----BEGIN PRIVATE KEY-----\n...\n-----END PRIVATE KEY-----"
+GOOGLE_SHEETS_CLIENT_EMAIL=your_service_account_email
+GOOGLE_SHEETS_CLIENT_ID=your_client_id
+GOOGLE_SHEETS_CLIENT_X509_CERT_URL=your_cert_url
+
+# OCID 記錄試算表 ID
+GOOGLE_SHEETS_OCID_SHEET_ID=your_sheet_id
+```
+
+#### 手動同步 OCID
+
+```bash
+# 同步收集的 OCID 到 Google Sheets
+curl -X POST http://localhost:3000/api/sync-ocids
+```
 
 ### API 調節 (Throttling)
 

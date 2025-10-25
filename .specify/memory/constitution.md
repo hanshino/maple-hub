@@ -1,7 +1,7 @@
 <!-- Sync Impact Report
-Version change: 2.0.2 → 2.1.0
+Version change: 2.2.0 → 2.3.0
 List of modified principles: none
-Added sections: VIII. API Security and Architecture, IX. Code Quality Gates
+Added sections: XI. Naming Conventions, XII. Minimalist Implementation Philosophy
 Removed sections: none
 Templates requiring updates: plan-template.md (Constitution Check updated)
 Follow-up TODOs: none
@@ -47,6 +47,18 @@ Nexon OpenAPI integrations MUST be routed through Next.js backend API routes; Fr
 
 Before any commit, developers MUST run `npm run lint` and `npm run format`; All linting and formatting issues MUST be resolved before submission; Automated checks SHOULD be implemented in CI/CD pipelines
 
+### X. MUI Component Maximization
+
+Maximize utilization of Material-UI components to ensure design consistency and reduce development overhead; Avoid creating custom components when suitable MUI equivalents exist; Leverage MUI's theming and component library for all UI elements
+
+### XI. Naming Conventions
+
+Follow the project's established naming conventions: camelCase for variables and functions, PascalCase for React components, kebab-case for files and directories, consistent with the existing codebase patterns
+
+### XII. Minimalist Implementation Philosophy
+
+Avoid over-engineering; Focus on functional implementation without unnecessary abstractions; Implement only what is required for the current feature scope; Prefer simple, direct solutions over complex architectures
+
 ## Additional Constraints
 
 Technology stack: JavaScript ES2020, Next.js 14, React 18, Axios, Material-UI, Jest, Recharts, Tailwind CSS
@@ -63,4 +75,4 @@ Feature development follows user story prioritization; Test-first approach for c
 
 Constitution supersedes other practices; Amendments require documentation and team approval; Versioning follows semantic versioning for governance changes
 
-**Version**: 2.1.0 | **Ratified**: 2025-10-16 | **Last Amended**: 2025-10-20
+**Version**: 2.3.0 | **Ratified**: 2025-10-16 | **Last Amended**: 2025-10-26

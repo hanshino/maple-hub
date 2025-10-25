@@ -53,8 +53,8 @@ description: 'Task list template for feature implementation'
 
 **NOTE: Write these tests FIRST, ensure they FAIL before implementation**
 
-- [ ] T004 [P] [US1] Unit test for localStorage history functions in **tests**/lib/localStorage-history.test.js
-- [ ] T005 [P] [US1] Integration test for character search with history saving in **tests**/components/CharacterSearch-history.test.js
+- [ ] T004 [P] [US1] Unit test for localStorage history functions in **tests**/lib/localStorageHistory.test.js
+- [ ] T005 [P] [US1] Integration test for character search with history saving in **tests**/components/CharacterSearchHistory.test.js
 
 ### Implementation for User Story 1
 
@@ -75,7 +75,7 @@ description: 'Task list template for feature implementation'
 
 ### Tests for User Story 2 ⚠️
 
-- [ ] T010 [P] [US2] Integration test for history selection and cached OCID usage in **tests**/components/CharacterSearch-history.test.js
+- [ ] T010 [P] [US2] Integration test for history selection and cached OCID usage in **tests**/components/CharacterSearchHistory.test.js
 
 ### Implementation for User Story 2
 
@@ -133,8 +133,8 @@ description: 'Task list template for feature implementation'
 
 ```bash
 # Launch all tests for User Story 1 together:
-Task: "Unit test for localStorage history functions in __tests__/lib/localStorage-history.test.js"
-Task: "Integration test for character search with history saving in __tests__/components/CharacterSearch-history.test.js"
+Task: "Unit test for localStorage history functions in __tests__/lib/localStorageHistory.test.js"
+Task: "Integration test for character search with history saving in __tests__/components/CharacterSearchHistory.test.js"
 
 # Launch implementation tasks sequentially within story:
 Task: "Update CharacterSearch component to use MUI Autocomplete in components/CharacterCard.js"

@@ -55,7 +55,7 @@ description: 'Task list template for feature implementation'
 **NOTE: Write these tests FIRST, ensure they FAIL before implementation**
 
 - [x] T005 [P] [US1] Unit test for delay logic in **tests**/lib/apiInterceptor.test.js
-- [x] T006 [P] [US1] Integration test for environment detection in **tests**/integration/api-throttling.test.js
+- [x] T006 [P] [US1] Integration test for environment detection in **tests**/integration/apiThrottling.test.js
 
 ### Implementation for User Story 1
 
@@ -109,7 +109,7 @@ description: 'Task list template for feature implementation'
 ```bash
 # Launch all tests for User Story 1 together:
 Task: "Unit test for delay logic in __tests__/lib/apiInterceptor.test.js"
-Task: "Integration test for environment detection in __tests__/integration/api-throttling.test.js"
+Task: "Integration test for environment detection in __tests__/integration/apiThrottling.test.js"
 ```
 
 ---

@@ -59,7 +59,7 @@ Examples of foundational tasks (adjust based on your project):
 **NOTE: Write these tests FIRST, ensure they FAIL before implementation**
 
 - [ ] T010 [P] [US1] Unit test for RuneCard component rendering direct img tags in **tests**/components/CharacterCard.test.js
-- [ ] T011 [P] [US1] Integration test for rune image loading in **tests**/pages/home-integration.test.js
+- [ ] T011 [P] [US1] Integration test for rune image loading in **tests**/pages/homeIntegration.test.js
 
 ### Implementation for User Story 1
 
@@ -82,7 +82,7 @@ Examples of foundational tasks (adjust based on your project):
 **NOTE: Write these tests FIRST, ensure they FAIL before implementation**
 
 - [ ] T015 [P] [US3] Unit test for EquipmentDialog component rendering direct img tags in **tests**/components/EquipmentDialog.test.js
-- [ ] T016 [P] [US3] Integration test for equipment image loading in **tests**/pages/home-integration.test.js
+- [ ] T016 [P] [US3] Integration test for equipment image loading in **tests**/pages/homeIntegration.test.js
 
 ### Implementation for User Story 3
 

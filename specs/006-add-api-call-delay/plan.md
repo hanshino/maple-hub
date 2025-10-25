@@ -58,7 +58,7 @@ __tests__/
 ├── lib/
 │   └── apiInterceptor.test.js  # Unit tests for interceptor
 └── integration/
-    └── api-throttling.test.js  # Integration tests for throttling
+    └── apiThrottling.test.js  # Integration tests for throttling
 ```
 
 ## Structure Decision
