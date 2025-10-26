@@ -117,7 +117,8 @@ export default function Home() {
           char
             ? {
                 date: dateConfigs[index].date,
-                progress: parseFloat(char.character_exp_rate || 0),
+                percentage: parseFloat(char.character_exp_rate || 0),
+                level: parseInt(char.character_level || 0),
               }
             : null
         )
@@ -131,7 +132,8 @@ export default function Home() {
         const singleDataPoint = [
           {
             date: new Date().toISOString().split('T')[0],
-            progress: currentProgress,
+            percentage: currentProgress,
+            level: parseInt(latestCharacter.character_level || 0),
           },
         ];
         setChartData(singleDataPoint);
