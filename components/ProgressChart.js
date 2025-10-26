@@ -15,6 +15,174 @@ import {
   ResponsiveContainer,
 } from 'recharts';
 
+// Constants for chart configuration
+const CHART_COLORS = {
+  completed: '#3B82F6',
+  remaining: '#E5E7EB',
+};
+
+const PREDICTION_CONFIG = {
+  days: 10,
+  maxPercentage: 300, // For level-aware charts
+  maxPercentageLegacy: 100, // For legacy charts
+};
+
+const LEVEL_ADJUSTMENT = {
+  perLevel: 100, // Add 100% per level gained
+};
+
+/**
+ * Calculate prediction data for future progress based on historical data
+ * @param {Array} data - Historical progress data
+ * @param {boolean} isLevelAware - Whether to use level-aware calculations
+ * @returns {Array} Prediction data points
+ */
+const calculatePredictions = (data, isLevelAware = false) => {
+  if (!data || data.length < 2) return [];
+
+  const sortedData = data
+    .filter(item => item && typeof item.percentage === 'number')
+    .sort((a, b) => new Date(a.date) - new Date(b.date));
+
+  if (sortedData.length < 2) return [];
+
+  const firstData = sortedData[0];
+  const lastData = sortedData[sortedData.length - 1];
+  const daysDiff = Math.max(
+    1,
+    (new Date(lastData.date) - new Date(firstData.date)) / (1000 * 60 * 60 * 24)
+  );
+  const totalProgressGain = lastData.percentage - firstData.percentage;
+  const dailyGrowthRate = totalProgressGain / daysDiff;
+
+  const maxPercentage = isLevelAware
+    ? PREDICTION_CONFIG.maxPercentage
+    : PREDICTION_CONFIG.maxPercentageLegacy;
+
+  const predictionData = [];
+  const lastDate = new Date(lastData.date);
+  let currentProgress = lastData.percentage;
+
+  for (let i = 1; i <= PREDICTION_CONFIG.days; i++) {
+    const predictionDate = new Date(lastDate);
+    predictionDate.setDate(lastDate.getDate() + i);
+    currentProgress = Math.min(
+      maxPercentage,
+      currentProgress + dailyGrowthRate
+    );
+
+    predictionData.push({
+      date: predictionDate.toISOString().split('T')[0],
+      percentage: null, // Actual data is null for predictions
+      prediction: currentProgress,
+      isPrediction: true,
+    });
+  }
+
+  return predictionData;
+};
+
+/**
+ * Process data for level-aware charts with percentage adjustments
+ * @param {Array} validData - Validated progress data
+ * @returns {Object} Processed chart data
+ */
+const processLevelAwareData = validData => {
+  const baselineLevel = validData[0].level;
+
+  const processedData = validData.map(item => {
+    const rawPercentage =
+      item.percentage !== undefined
+        ? item.percentage
+        : item.progress !== undefined
+          ? item.progress * 100
+          : 0;
+
+    // Calculate level difference (only apply for level gains)
+    const levelDiff = Math.max(0, item.level - baselineLevel);
+    const levelAdjustment = levelDiff * LEVEL_ADJUSTMENT.perLevel;
+    const adjustedPercentage = rawPercentage + levelAdjustment;
+
+    return {
+      ...item,
+      percentage: adjustedPercentage,
+      progress: adjustedPercentage, // Keep progress field in percentage range for chart compatibility
+      rawPercentage,
+      levelAdjustment,
+    };
+  });
+
+  const predictionData = calculatePredictions(processedData, true);
+
+  // Combine actual and prediction data
+  const combinedData = [
+    ...processedData.map(item => ({ ...item, prediction: null })),
+    ...predictionData,
+  ];
+
+  return {
+    type: 'line',
+    combinedData,
+    hasPrediction: predictionData.length > 0,
+    hasLevelData: true,
+  };
+};
+
+/**
+ * Process data for legacy charts without level information
+ * @param {Array} validData - Validated progress data
+ * @returns {Object} Processed chart data
+ */
+const processLegacyData = validData => {
+  const processedData = validData.map(item => ({
+    ...item,
+    percentage:
+      item.percentage !== undefined
+        ? item.percentage
+        : item.progress !== undefined
+          ? item.progress * 100
+          : 0,
+    // Keep progress field in percentage range for chart compatibility
+    progress:
+      item.percentage !== undefined
+        ? item.percentage
+        : item.progress !== undefined
+          ? item.progress * 100
+          : 0,
+  }));
+
+  const predictionData = calculatePredictions(processedData, false);
+
+  // Combine actual and prediction data
+  const combinedData = [
+    ...processedData.map(item => ({ ...item, prediction: null })),
+    ...predictionData,
+  ];
+
+  return {
+    type: 'line',
+    combinedData,
+    hasPrediction: predictionData.length > 0,
+    hasLevelData: false,
+  };
+};
+
+/**
+ * ProgressChart component with level-aware percentage adjustments
+ *
+ * Displays experience progress data using pie charts (single data point) or line charts (multiple data points).
+ * For cross-level visualization, adds 100% to the percentage for each level gained above baseline.
+ *
+ * Supports both legacy format (progress: 0-1) and new format (percentage: 0-100, level: number).
+ * When level data is present, applies level-aware calculations for continuous chart visualization.
+ *
+ * @param {Object|Array} progressData - Progress data to display
+ * @param {string} progressData.date - ISO date string (for arrays)
+ * @param {number} progressData.percentage - Raw percentage within level (0-100, preferred)
+ * @param {number} progressData.progress - Legacy progress value (0-1, still supported)
+ * @param {number} progressData.level - Character level (enables level-aware calculations)
+ * @returns {JSX.Element} Chart component
+ */
 const ProgressChart = memo(function ProgressChart({ progressData }) {
   // Memoize chart data to prevent unnecessary recalculations
   const chartData = useMemo(() => {
@@ -25,79 +193,55 @@ const ProgressChart = memo(function ProgressChart({ progressData }) {
 
     // If single data point or single progress value, prepare pie chart data
     if (!Array.isArray(progressData) || progressData.length === 1) {
-      const percentage = Array.isArray(progressData)
-        ? progressData[0].progress
-        : Math.max(0, Math.min(progressData * 100, 100));
+      const item = Array.isArray(progressData) ? progressData[0] : progressData;
+      // Support both old 'progress' format and new 'percentage' + 'level' format
+      const percentage =
+        item.percentage !== undefined
+          ? item.percentage
+          : item.progress !== undefined
+            ? item.progress * 100
+            : 0;
       const remaining = 100 - percentage;
 
       return {
         type: 'pie',
         percentage,
         data: [
-          { name: 'Completed', value: percentage, color: '#3B82F6' },
-          { name: 'Remaining', value: remaining, color: '#E5E7EB' },
+          {
+            name: 'Completed',
+            value: percentage,
+            color: CHART_COLORS.completed,
+          },
+          {
+            name: 'Remaining',
+            value: remaining,
+            color: CHART_COLORS.remaining,
+          },
         ],
       };
     }
 
-    // Validate data format for line chart
+    // Validate data format for line chart - support both formats
     const validData = progressData.filter(
       item =>
-        item && typeof item === 'object' && 'date' in item && 'progress' in item
+        item &&
+        typeof item === 'object' &&
+        'date' in item &&
+        ('percentage' in item || 'progress' in item)
     );
 
     if (validData.length === 0) {
       return { type: 'invalid' };
     }
 
-    // Calculate prediction data for next 10 days
-    const predictionData = [];
-    if (validData.length >= 2) {
-      const sortedData = validData
-        .filter(item => item && typeof item.progress === 'number')
-        .sort((a, b) => new Date(a.date) - new Date(b.date));
+    // Check if data includes level information for level-aware calculations
+    const hasLevelData = validData.some(item => 'level' in item);
 
-      if (sortedData.length >= 2) {
-        const firstData = sortedData[0];
-        const lastData = sortedData[sortedData.length - 1];
-        const daysDiff = Math.max(
-          1,
-          (new Date(lastData.date) - new Date(firstData.date)) /
-            (1000 * 60 * 60 * 24)
-        );
-        const totalProgressGain = lastData.progress - firstData.progress;
-        const dailyGrowthRate = totalProgressGain / daysDiff;
+    const processedData = hasLevelData
+      ? processLevelAwareData(validData)
+      : processLegacyData(validData);
 
-        // Generate prediction for next 10 days
-        const lastDate = new Date(lastData.date);
-        let currentProgress = lastData.progress;
-
-        for (let i = 1; i <= 10; i++) {
-          const predictionDate = new Date(lastDate);
-          predictionDate.setDate(lastDate.getDate() + i);
-          currentProgress = Math.min(100, currentProgress + dailyGrowthRate); // Cap at 100%
-
-          predictionData.push({
-            date: predictionDate.toISOString().split('T')[0],
-            progress: null, // 實際數據為null
-            prediction: currentProgress, // 預測數據
-            isPrediction: true,
-          });
-        }
-      }
-    }
-
-    // Combine actual and prediction data
-    const combinedData = [
-      ...validData.map(item => ({ ...item, prediction: null })), // 實際數據的預測字段為null
-      ...predictionData,
-    ];
-
-    return {
-      type: 'line',
-      combinedData,
-      hasPrediction: predictionData.length > 0,
-    };
+    return processedData;
   }, [progressData]);
 
   // Early return for empty data
@@ -201,7 +345,14 @@ const ProgressChart = memo(function ProgressChart({ progressData }) {
             height={60}
             interval="preserveStartEnd"
           />
-          <YAxis tick={{ fontSize: 10 }} domain={[0, 100]} />
+          <YAxis
+            tick={{ fontSize: 10 }}
+            domain={
+              chartData.hasLevelData
+                ? [0, dataMax => Math.ceil(dataMax / 100) * 100]
+                : ['dataMin', 'dataMax']
+            }
+          />
           <Tooltip
             formatter={(value, name) => [
               `${value?.toFixed(2)}%`,

@@ -4,6 +4,10 @@ Auto-generated from all feature plans. Last updated: 2025-10-16
 
 ## Active Technologies
 
+- JavaScript ES2020 + Next.js 14, React 18, Axios, Material-UI, Recharts (012-fix-exp-progress-level)
+- Client-side localStorage, Google Sheets for persistence (012-fix-exp-progress-level)
+- Client-side localStorage for chart data (012-fix-exp-progress-level)
+
 - JavaScript ES2020, Node.js 18+ + Next.js 14, React 18, Axios, Material-UI, Google Sheets API, better-sqlite3 (for Vercel SQLite) (011-character-query-logging)
 - Google Sheets for persistent character data, SQLite for local OCID cache (011-character-query-logging)
 - JavaScript ES2020, Next.js 14 + Google Sheets API, Next.js middleware, Axios (011-character-query-logging)
@@ -46,10 +50,10 @@ JavaScript ES2020, React 18: Follow standard conventions
 
 ## Recent Changes
 
-- 011-character-query-logging: Added JavaScript ES2020, Next.js 14 + Google Sheets API, Next.js middleware, Axios
-- 011-character-query-logging: Added JavaScript ES2020, Node.js 18+ + Next.js 14, React 18, Axios, Material-UI, Google Sheets API, better-sqlite3 (for Vercel SQLite)
+- 012-fix-exp-progress-level: Added JavaScript ES2020 + Next.js 14, React 18, Axios, Material-UI, Recharts
+- 012-fix-exp-progress-level: Added JavaScript ES2020 + Next.js 14, React 18, Axios, Material-UI, Recharts
 
-- 010-optimize-rune-image-rendering: Added JavaScript ES2020 + Next.js 14, React 18, Material-UI
+- 011-character-query-logging: Added JavaScript ES2020, Next.js 14 + Google Sheets API, Next.js middleware, Axios
 
 <!-- MANUAL ADDITIONS START -->
 <!-- MANUAL ADDITIONS END -->
