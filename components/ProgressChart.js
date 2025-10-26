@@ -349,7 +349,13 @@ const ProgressChart = memo(function ProgressChart({ progressData }) {
             tick={{ fontSize: 10 }}
             domain={
               chartData.hasLevelData
-                ? [0, dataMax => Math.ceil(dataMax / 100) * 100]
+                ? [
+                    0,
+                    dataMax => {
+                      const calculatedMax = Math.ceil(dataMax / 100) * 100;
+                      return calculatedMax;
+                    },
+                  ]
                 : ['dataMin', 'dataMax']
             }
           />

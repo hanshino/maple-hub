@@ -201,7 +201,7 @@ export default function Home() {
                       progress={
                         parseFloat(character.character_exp_rate || 0) / 100
                       }
-                      expRate={parseFloat(character.character_exp_rate || 0)}
+                      expRate={5}
                       historicalData={chartData}
                     />
                   </Box>
