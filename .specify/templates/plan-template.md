@@ -29,26 +29,15 @@
 
 ## Constitution Check
 
-_GATE: Must pass before Phase 0 research. Re-check after Phase 1 design._
+*GATE: Must pass before Phase 0 research. Re-check after Phase 1 design.*
 
-- [ ] User-Centric Design: Confirm feature prioritizes user experience and accessibility
-- [ ] API Integration Excellence: Ensure robust external API handling with error management
-- [ ] Component Reusability: Plan for modular React components with consistent styling
-- [ ] Comprehensive Testing: Include unit, integration, and accessibility testing
-- [ ] Data Visualization: Plan for clear data visualization where applicable
-- [ ] Performance & Optimization: Include performance optimization measures
-- [ ] Simplicity & Maintainability: Start simple, apply clean code principles
-- [ ] API Security and Architecture: Ensure Nexon OpenAPI calls go through Next.js backend routes
-- [ ] Code Quality Gates: Plan for linting and formatting checks in development workflow
-- [ ] MUI Component Maximization: Maximize use of Material-UI components, avoid custom components when MUI equivalents exist
-- [ ] Naming Conventions: Follow established naming conventions (camelCase, PascalCase, kebab-case)
-- [ ] Minimalist Implementation Philosophy: Avoid over-engineering, focus on functional implementation
+[Gates determined based on constitution file]
 
 ## Project Structure
 
 ### Documentation (this feature)
 
-```
+```text
 specs/[###-feature]/
 ├── plan.md              # This file (/speckit.plan command output)
 ├── research.md          # Phase 0 output (/speckit.plan command)
@@ -59,7 +48,6 @@ specs/[###-feature]/
 ```
 
 ### Source Code (repository root)
-
 <!--
   ACTION REQUIRED: Replace the placeholder tree below with the concrete layout
   for this feature. Delete unused options and expand the chosen structure with
@@ -67,7 +55,7 @@ specs/[###-feature]/
   not include Option labels.
 -->
 
-```
+```text
 # [REMOVE IF UNUSED] Option 1: Single project (DEFAULT)
 src/
 ├── models/
@@ -108,9 +96,9 @@ directories captured above]
 
 ## Complexity Tracking
 
-_Fill ONLY if Constitution Check has violations that must be justified_
+> **Fill ONLY if Constitution Check has violations that must be justified**
 
-| Violation                  | Why Needed         | Simpler Alternative Rejected Because |
-| -------------------------- | ------------------ | ------------------------------------ |
-| [e.g., 4th project]        | [current need]     | [why 3 projects insufficient]        |
-| [e.g., Repository pattern] | [specific problem] | [why direct DB access insufficient]  |
+| Violation | Why Needed | Simpler Alternative Rejected Because |
+|-----------|------------|-------------------------------------|
+| [e.g., 4th project] | [current need] | [why 3 projects insufficient] |
+| [e.g., Repository pattern] | [specific problem] | [why direct DB access insufficient] |
