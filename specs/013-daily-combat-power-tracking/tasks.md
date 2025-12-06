@@ -27,8 +27,8 @@ Based on plan.md, this is a Next.js web application:
 
 **Purpose**: 確認專案結構和環境準備就緒
 
-- [ ] T001 確認 Google Sheet 中已建立 `CombatPower` 工作表，包含標題行（ocid, combat_power, updated_at, status）
-- [ ] T002 確認 CRON_SECRET 環境變數已設定（開發和生產環境）
+- [x] T001 確認 Google Sheet 中已建立 `CombatPower` 工作表，包含標題行（ocid, combat_power, updated_at, status）
+- [x] T002 確認 CRON_SECRET 環境變數已設定（開發和生產環境）
 
 ---
 
@@ -38,10 +38,10 @@ Based on plan.md, this is a Next.js web application:
 
 **⚠️ CRITICAL**: User Story 1 需要這些基礎方法才能實作
 
-- [ ] T003 擴展 `lib/googleSheets.js` 新增 `getAllOcids()` 方法以分頁讀取所有 OCID
-- [ ] T004 擴展 `lib/googleSheets.js` 新增 `getCombatPowerSheet()` 方法取得或建立 CombatPower 工作表
-- [ ] T005 擴展 `lib/googleSheets.js` 新增 `upsertCombatPowerRecords(records)` 方法批量覆蓋更新戰鬥力記錄
-- [ ] T006 [P] 新增 `__tests__/lib/googleSheets.combatPower.test.js` 測試新增的 Google Sheets 方法
+- [x] T003 擴展 `lib/googleSheets.js` 新增 `getAllOcids()` 方法以分頁讀取所有 OCID
+- [x] T004 擴展 `lib/googleSheets.js` 新增 `getCombatPowerSheet()` 方法取得或建立 CombatPower 工作表
+- [x] T005 擴展 `lib/googleSheets.js` 新增 `upsertCombatPowerRecords(records)` 方法批量覆蓋更新戰鬥力記錄
+- [x] T006 [P] 新增 `__tests__/lib/googleSheets.combatPower.test.js` 測試新增的 Google Sheets 方法
 
 **Checkpoint**: Foundation ready - GoogleSheetsClient 已具備戰鬥力數據操作能力
 
@@ -55,21 +55,21 @@ Based on plan.md, this is a Next.js web application:
 
 ### Tests for User Story 1
 
-- [ ] T007 [P] [US1] 建立 `__tests__/lib/combatPowerService.test.js` 測試 `fetchCombatPower()` 方法
-- [ ] T008 [P] [US1] 建立 `__tests__/lib/combatPowerService.test.js` 測試 `processBatch()` 方法的容錯處理
-- [ ] T009 [P] [US1] 建立 `__tests__/api/cron/combatPowerRefresh.test.js` 測試 API 端點認證和響應格式
+- [x] T007 [P] [US1] 建立 `__tests__/lib/combatPowerService.test.js` 測試 `fetchCombatPower()` 方法
+- [x] T008 [P] [US1] 建立 `__tests__/lib/combatPowerService.test.js` 測試 `processBatch()` 方法的容錯處理
+- [x] T009 [P] [US1] 建立 `__tests__/api/cron/combatPowerRefresh.test.js` 測試 API 端點認證和響應格式
 
 ### Implementation for User Story 1
 
-- [ ] T010 [US1] 建立 `lib/combatPowerService.js` 實作 `fetchCombatPower(ocid)` 方法
+- [x] T010 [US1] 建立 `lib/combatPowerService.js` 實作 `fetchCombatPower(ocid)` 方法
   - 呼叫 `getCharacterStats(ocid)` 獲取角色數據
   - 從 `final_stat` 中提取 `stat_name === '戰鬥力'` 的 `stat_value`
   - 實作 300ms 延遲和指數退避重試邏輯
-- [ ] T011 [US1] 擴展 `lib/combatPowerService.js` 實作 `processBatch(ocids)` 方法
+- [x] T011 [US1] 擴展 `lib/combatPowerService.js` 實作 `processBatch(ocids)` 方法
   - 迭代處理每個 OCID
   - 單一 OCID 失敗不中斷整體處理
   - 返回處理結果（success/failed/notFound 統計）
-- [ ] T012 [US1] 建立 `app/api/cron/combat-power-refresh/route.js` 實作 GET 端點
+- [x] T012 [US1] 建立 `app/api/cron/combat-power-refresh/route.js` 實作 GET 端點
   - CRON_SECRET Bearer Token 認證
   - 解析 offset 和 batchSize 查詢參數
   - 呼叫 GoogleSheetsClient 讀取 OCID 列表
@@ -89,15 +89,15 @@ Based on plan.md, this is a Next.js web application:
 
 ### Tests for User Story 2
 
-- [ ] T013 [P] [US2] 擴展 `__tests__/api/cron/combatPowerRefresh.test.js` 測試執行統計響應格式
+- [x] T013 [P] [US2] 擴展 `__tests__/api/cron/combatPowerRefresh.test.js` 測試執行統計響應格式
 
 ### Implementation for User Story 2
 
-- [ ] T014 [US2] 擴展 `lib/combatPowerService.js` 新增 `TaskExecutionStats` 統計收集
+- [x] T014 [US2] 擴展 `lib/combatPowerService.js` 新增 `TaskExecutionStats` 統計收集
   - 記錄開始時間、結束時間
   - 累計 success、failed、notFound 計數
   - 計算 executionTimeMs
-- [ ] T015 [US2] 擴展 `app/api/cron/combat-power-refresh/route.js` 在響應中包含完整統計
+- [x] T015 [US2] 擴展 `app/api/cron/combat-power-refresh/route.js` 在響應中包含完整統計
   - 添加 console.log 日誌輸出（供 Vercel 日誌查看）
   - 響應包含 stats 和 executionTimeMs
 
@@ -109,11 +109,11 @@ Based on plan.md, this is a Next.js web application:
 
 **Purpose**: 完善功能、處理邊界情況
 
-- [ ] T016 [P] 處理 Edge Case：Google Sheet 中無 OCID 時優雅返回空結果
-- [ ] T017 [P] 處理 Edge Case：Nexon API 429 速率限制的指數退避重試
-- [ ] T018 [P] 處理 Edge Case：角色不存在（404）時標記 status=not_found
-- [ ] T019 更新 `specs/013-daily-combat-power-tracking/quickstart.md` 驗證所有步驟可執行
-- [ ] T020 執行 `npm run lint` 和 `npm run format` 確保程式碼品質
+- [x] T016 [P] 處理 Edge Case：Google Sheet 中無 OCID 時優雅返回空結果
+- [x] T017 [P] 處理 Edge Case：Nexon API 429 速率限制的指數退避重試
+- [x] T018 [P] 處理 Edge Case：角色不存在（404）時標記 status=not_found
+- [x] T019 更新 `specs/013-daily-combat-power-tracking/quickstart.md` 驗證所有步驟可執行
+- [x] T020 執行 `npm run lint` 和 `npm run format` 確保程式碼品質
 
 ---
 

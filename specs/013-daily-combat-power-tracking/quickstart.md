@@ -132,11 +132,34 @@ Job 3: ?offset=30&batchSize=15  (凌晨 2:02)
 在 Vercel Dashboard 或本地終端機查看執行日誌：
 
 ```
-🚀 Combat power refresh started: offset=0, batchSize=15
-📥 Fetched 15 OCIDs from Google Sheets
-⚡ Processing OCID: abc123...
-✅ Combat power refresh completed: 15 processed (14 success, 0 failed, 1 not_found)
+[CombatPowerRefresh] Starting at 2025-12-06T16:00:00.000Z
+[CombatPowerRefresh] Params: offset=0, batchSize=15
+[CombatPowerRefresh] Fetched 15 OCIDs (total: 100, hasMore: true)
+[CombatPowerRefresh] Processing 15 OCIDs...
+[CombatPowerRefresh] Processing completed in 4500ms - Success: 14, Failed: 0, NotFound: 1
+[CombatPowerRefresh] Upserting records to Google Sheets...
+[CombatPowerRefresh] Completed in 5200ms. Processed: 15, NextOffset: 15
 ```
+
+### 使用 Vercel Cron（已設定）
+
+專案已在 `vercel.json` 中設定自動 Cron Job：
+
+```json
+{
+  "crons": [
+    {
+      "path": "/api/cron/combat-power-refresh",
+      "schedule": "0 16 * * *"
+    }
+  ]
+}
+```
+
+- **執行時間**: UTC 16:00（台灣時間凌晨 00:00）
+- **限制**: Vercel Hobby 方案每天只執行一次，且僅處理第一個 batch
+
+如需處理大量 OCID，建議使用外部 Cron 服務（如 cron-job.org）設定多個批次。
 
 ## Troubleshooting
 
