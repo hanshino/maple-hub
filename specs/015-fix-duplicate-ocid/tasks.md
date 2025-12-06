@@ -23,7 +23,7 @@ Based on plan.md structure:
 
 **Purpose**: Basic structure verification
 
-- [ ] T001 Verify existing project structure and dependencies are in place
+- [x] T001 Verify existing project structure and dependencies are in place
 
 ---
 
@@ -33,7 +33,7 @@ Based on plan.md structure:
 
 **⚠️ CRITICAL**: No user story work can begin until this phase is complete
 
-- [ ] T002 Create API route directory at app/api/cron/deduplicate-ocid/
+- [x] T002 Create API route directory at app/api/cron/deduplicate-ocid/
 
 **Checkpoint**: Foundation ready - user story implementation can now begin
 
@@ -47,11 +47,11 @@ Based on plan.md structure:
 
 ### Implementation for User Story 1
 
-- [ ] T003 [P] [US1] Implement deduplicateOcidSheet method in lib/googleSheets.js - 掃描 OCID 工作表找出重複記錄，保留第一筆出現的記錄
-- [ ] T004 [P] [US1] Implement deduplicateCombatPowerSheet method in lib/googleSheets.js - 掃描 CombatPower 工作表找出重複記錄，保留 updated_at 最新的記錄
-- [ ] T005 [US1] Create API route handler GET in app/api/cron/deduplicate-ocid/route.js - 實作驗證、呼叫去重方法、回傳結果
-- [ ] T006 [US1] Add authorization validation using CRON_SECRET in app/api/cron/deduplicate-ocid/route.js
-- [ ] T007 [US1] Handle edge cases in deduplication methods - 空工作表、不存在的工作表、空白 OCID 值
+- [x] T003 [P] [US1] Implement deduplicateOcidSheet method in lib/googleSheets.js - 掃描 OCID 工作表找出重複記錄，保留第一筆出現的記錄
+- [x] T004 [P] [US1] Implement deduplicateCombatPowerSheet method in lib/googleSheets.js - 掃描 CombatPower 工作表找出重複記錄，保留 updated_at 最新的記錄
+- [x] T005 [US1] Create API route handler GET in app/api/cron/deduplicate-ocid/route.js - 實作驗證、呼叫去重方法、回傳結果
+- [x] T006 [US1] Add authorization validation using CRON_SECRET in app/api/cron/deduplicate-ocid/route.js
+- [x] T007 [US1] Handle edge cases in deduplication methods - 空工作表、不存在的工作表、空白 OCID 值
 
 **Checkpoint**: User Story 1 完成 - API 可執行完整去重操作
 
@@ -65,10 +65,10 @@ Based on plan.md structure:
 
 ### Implementation for User Story 2
 
-- [ ] T008 [US2] Add dryRun query parameter parsing in app/api/cron/deduplicate-ocid/route.js
-- [ ] T009 [US2] Extend deduplicateOcidSheet to return duplicateDetails in dry-run mode in lib/googleSheets.js
-- [ ] T010 [US2] Extend deduplicateCombatPowerSheet to return duplicateDetails with kept record info in dry-run mode in lib/googleSheets.js
-- [ ] T011 [US2] Update API response to include detailed duplicate information when dryRun=true in app/api/cron/deduplicate-ocid/route.js
+- [x] T008 [US2] Add dryRun query parameter parsing in app/api/cron/deduplicate-ocid/route.js
+- [x] T009 [US2] Extend deduplicateOcidSheet to return duplicateDetails in dry-run mode in lib/googleSheets.js
+- [x] T010 [US2] Extend deduplicateCombatPowerSheet to return duplicateDetails with kept record info in dry-run mode in lib/googleSheets.js
+- [x] T011 [US2] Update API response to include detailed duplicate information when dryRun=true in app/api/cron/deduplicate-ocid/route.js
 
 **Checkpoint**: User Story 2 完成 - 預覽模式可正確回報重複統計而不修改數據
 
@@ -82,10 +82,10 @@ Based on plan.md structure:
 
 ### Implementation for User Story 3
 
-- [ ] T012 [US3] Add execution time tracking with startTime and executionTimeMs in app/api/cron/deduplicate-ocid/route.js
-- [ ] T013 [US3] Implement error isolation - process both sheets independently, aggregate results in app/api/cron/deduplicate-ocid/route.js
-- [ ] T014 [US3] Add console logging for operation progress and results in lib/googleSheets.js
-- [ ] T015 [US3] Add error details field to response for partial failure scenarios in app/api/cron/deduplicate-ocid/route.js
+- [x] T012 [US3] Add execution time tracking with startTime and executionTimeMs in app/api/cron/deduplicate-ocid/route.js
+- [x] T013 [US3] Implement error isolation - process both sheets independently, aggregate results in app/api/cron/deduplicate-ocid/route.js
+- [x] T014 [US3] Add console logging for operation progress and results in lib/googleSheets.js
+- [x] T015 [US3] Add error details field to response for partial failure scenarios in app/api/cron/deduplicate-ocid/route.js
 
 **Checkpoint**: User Story 3 完成 - 完整的操作日誌和錯誤處理
 
@@ -95,9 +95,9 @@ Based on plan.md structure:
 
 **Purpose**: Final cleanup and validation
 
-- [ ] T016 [P] Run quickstart.md validation - 確認實作符合快速指南
-- [ ] T017 [P] Code cleanup - 確保符合 ESLint 和 Prettier 規範
-- [ ] T018 Run npm run lint and npm run format to validate code style
+- [x] T016 [P] Run quickstart.md validation - 確認實作符合快速指南
+- [x] T017 [P] Code cleanup - 確保符合 ESLint 和 Prettier 規範
+- [x] T018 Run npm run lint and npm run format to validate code style
 
 ---
 
