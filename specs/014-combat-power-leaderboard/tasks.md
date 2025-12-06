@@ -29,10 +29,10 @@
 
 **Purpose**: Google Sheet CharacterInfo 工作表設置、服務層擴展
 
-- [ ] T001 在 `lib/googleSheets.js` 新增 `getOrCreateCharacterInfoSheet()` 方法，建立 CharacterInfo 工作表及標題列
-- [ ] T002 [P] 在 `lib/googleSheets.js` 新增 `getCharacterInfoCache(ocids)` 方法，批量讀取角色資訊快取
-- [ ] T003 [P] 在 `lib/googleSheets.js` 新增 `upsertCharacterInfoCache(records)` 方法，更新或插入角色資訊快取
-- [ ] T004 [P] 在 `lib/googleSheets.js` 新增 `getLeaderboardData(offset, limit)` 方法，取得排序後的戰力排行榜資料
+- [x] T001 在 `lib/googleSheets.js` 新增 `getOrCreateCharacterInfoSheet()` 方法，建立 CharacterInfo 工作表及標題列
+- [x] T002 [P] 在 `lib/googleSheets.js` 新增 `getCharacterInfoCache(ocids)` 方法，批量讀取角色資訊快取
+- [x] T003 [P] 在 `lib/googleSheets.js` 新增 `upsertCharacterInfoCache(records)` 方法，更新或插入角色資訊快取
+- [x] T004 [P] 在 `lib/googleSheets.js` 新增 `getLeaderboardData(offset, limit)` 方法，取得排序後的戰力排行榜資料
 
 **Checkpoint**: Google Sheet 服務層擴展完成
 
@@ -44,9 +44,9 @@
 
 **⚠️ CRITICAL**: US1 的完整功能依賴此階段完成
 
-- [ ] T005 建立 `lib/characterInfoService.js`，實作 `fetchCharacterInfo(ocid)` 呼叫 Nexon API 取得角色資訊
-- [ ] T006 在 `lib/characterInfoService.js` 新增 `updateAllCharacterInfoCache()` 方法，批量更新所有角色快取
-- [ ] T007 建立 `app/api/cron/update-character-info/route.js`，實作 CRON API 端點（含 CRON_SECRET 驗證）
+- [x] T005 建立 `lib/characterInfoService.js`，實作 `fetchCharacterInfo(ocid)` 呼叫 Nexon API 取得角色資訊
+- [x] T006 在 `lib/characterInfoService.js` 新增 `updateAllCharacterInfoCache()` 方法，批量更新所有角色快取
+- [x] T007 建立 `app/api/cron/update-character-info/route.js`，實作 CRON API 端點（含 CRON_SECRET 驗證）
 
 **Checkpoint**: 快取服務和 CRON API 就緒，可開始實作 User Story
 
@@ -60,10 +60,10 @@
 
 ### Implementation for User Story 1
 
-- [ ] T008 [US1] 建立 `app/api/leaderboard/route.js`，實作 GET API（合併 CombatPower + CharacterInfo 資料）
-- [ ] T009 [P] [US1] 建立 `components/LeaderboardCard.js`，實作單一排行項目卡片元件（顯示排名、icon、名稱、等級、伺服器、戰力）
-- [ ] T010 [US1] 建立 `components/LeaderboardList.js`，實作排行榜列表元件（呼叫 API、顯示列表、處理空狀態和錯誤狀態）
-- [ ] T011 [US1] 建立 `app/leaderboard/page.js`，實作排行榜頁面（使用 LeaderboardList 元件）
+- [x] T008 [US1] 建立 `app/api/leaderboard/route.js`，實作 GET API（合併 CombatPower + CharacterInfo 資料）
+- [x] T009 [P] [US1] 建立 `components/LeaderboardCard.js`，實作單一排行項目卡片元件（顯示排名、icon、名稱、等級、伺服器、戰力）
+- [x] T010 [US1] 建立 `components/LeaderboardList.js`，實作排行榜列表元件（呼叫 API、顯示列表、處理空狀態和錯誤狀態）
+- [x] T011 [US1] 建立 `app/leaderboard/page.js`，實作排行榜頁面（使用 LeaderboardList 元件）
 
 **Checkpoint**: User Story 1 完成 - 可訪問排行榜頁面並查看前 20 名角色
 
@@ -77,10 +77,10 @@
 
 ### Implementation for User Story 2
 
-- [ ] T012 [US2] 在 `components/LeaderboardList.js` 新增 Intersection Observer 無限滾動邏輯
-- [ ] T013 [US2] 在 `components/LeaderboardList.js` 新增載入指示器（CircularProgress）和防抖處理
-- [ ] T014 [US2] 在 `components/LeaderboardList.js` 新增「已載入 X / Y 筆」計數顯示
-- [ ] T015 [US2] 在 `components/LeaderboardList.js` 新增「已載入全部資料」提示和載入失敗重試按鈕
+- [x] T012 [US2] 在 `components/LeaderboardList.js` 新增 Intersection Observer 無限滾動邏輯
+- [x] T013 [US2] 在 `components/LeaderboardList.js` 新增載入指示器（CircularProgress）和防抖處理
+- [x] T014 [US2] 在 `components/LeaderboardList.js` 新增「已載入 X / Y 筆」計數顯示
+- [x] T015 [US2] 在 `components/LeaderboardList.js` 新增「已載入全部資料」提示和載入失敗重試按鈕
 
 **Checkpoint**: User Story 2 完成 - 可無限滾動載入所有角色資料
 
@@ -94,7 +94,7 @@
 
 ### Implementation for User Story 3
 
-- [ ] T016 [US3] 修改 `components/Navigation.js`，在導覽列新增「排行榜」連結
+- [x] T016 [US3] 修改 `components/Navigation.js`，在導覽列新增「排行榜」連結
 
 **Checkpoint**: User Story 3 完成 - 導覽列顯示排行榜入口
 
@@ -104,9 +104,9 @@
 
 **Purpose**: 跨 User Story 的改進和驗證
 
-- [ ] T017 [P] 在 `components/LeaderboardCard.js` 新增預設圖示處理（角色缺少 icon 時）
-- [ ] T018 [P] 在 `components/LeaderboardList.js` 新增空狀態友善訊息（無資料時）
-- [ ] T019 執行 `npm run lint` 和 `npm run format` 確保程式碼品質
+- [x] T017 [P] 在 `components/LeaderboardCard.js` 新增預設圖示處理（角色缺少 icon 時）
+- [x] T018 [P] 在 `components/LeaderboardList.js` 新增空狀態友善訊息（無資料時）
+- [x] T019 執行 `npm run lint` 和 `npm run format` 確保程式碼品質
 - [ ] T020 執行 quickstart.md 驗證流程，確認所有功能正常運作
 
 ---
