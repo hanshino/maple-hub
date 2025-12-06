@@ -1,0 +1,225 @@
+openapi: 3.0.3
+info:
+  title: Deduplicate OCID API
+  description: API for detecting and removing duplicate OCID records from Google Sheets
+  version: 1.0.0
+
+servers:
+  - url: /api/cron
+    description: Cron API endpoints
+
+paths:
+  /deduplicate-ocid:
+    get:
+      summary: Deduplicate OCID records
+      description: |
+        Detects and removes duplicate OCID records from both OCID sheet and CombatPower sheet.
+        Requires Bearer token authorization.
+
+        - OCID Sheet: Keeps the first occurrence of each OCID
+        - CombatPower Sheet: Keeps the record with the latest updated_at timestamp
+      operationId: deduplicateOcid
+      security:
+        - BearerAuth: []
+      parameters:
+        - name: dryRun
+          in: query
+          description: If true, returns duplicate statistics without making changes
+          required: false
+          schema:
+            type: boolean
+            default: false
+      responses:
+        '200':
+          description: Successful operation
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/DeduplicationResponse'
+              examples:
+                success:
+                  summary: Successful deduplication
+                  value:
+                    success: true
+                    dryRun: false
+                    ocidSheet:
+                      totalRecords: 1000
+                      duplicatesFound: 15
+                      removed: 15
+                    combatPowerSheet:
+                      totalRecords: 950
+                      duplicatesFound: 8
+                      removed: 8
+                    executionTimeMs: 2345
+                    timestamp: '2025-12-07T10:30:00.000Z'
+                dryRun:
+                  summary: Dry run preview
+                  value:
+                    success: true
+                    dryRun: true
+                    ocidSheet:
+                      totalRecords: 1000
+                      duplicatesFound: 15
+                      removed: 0
+                      duplicateDetails:
+                        - ocid: 'abc123...'
+                          count: 3
+                        - ocid: 'def456...'
+                          count: 2
+                    combatPowerSheet:
+                      totalRecords: 950
+                      duplicatesFound: 8
+                      removed: 0
+                      duplicateDetails:
+                        - ocid: 'ghi789...'
+                          count: 2
+                          kept:
+                            updated_at: '2025-12-07T10:00:00.000Z'
+                            combat_power: '150000000'
+                    executionTimeMs: 1234
+                    timestamp: '2025-12-07T10:30:00.000Z'
+                noDuplicates:
+                  summary: No duplicates found
+                  value:
+                    success: true
+                    dryRun: false
+                    ocidSheet:
+                      totalRecords: 1000
+                      duplicatesFound: 0
+                      removed: 0
+                    combatPowerSheet:
+                      totalRecords: 950
+                      duplicatesFound: 0
+                      removed: 0
+                    executionTimeMs: 890
+                    timestamp: '2025-12-07T10:30:00.000Z'
+        '401':
+          description: Unauthorized - Missing or invalid Bearer token
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+              example:
+                success: false
+                error: 'Unauthorized'
+                timestamp: '2025-12-07T10:30:00.000Z'
+        '500':
+          description: Internal server error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+              example:
+                success: false
+                error: 'Failed to process sheets'
+                details:
+                  ocidSheetError: null
+                  combatPowerSheetError: 'Sheet not found'
+                timestamp: '2025-12-07T10:30:00.000Z'
+
+components:
+  securitySchemes:
+    BearerAuth:
+      type: http
+      scheme: bearer
+      description: CRON_SECRET environment variable as Bearer token
+
+  schemas:
+    DeduplicationResponse:
+      type: object
+      required:
+        - success
+        - dryRun
+        - ocidSheet
+        - combatPowerSheet
+        - executionTimeMs
+        - timestamp
+      properties:
+        success:
+          type: boolean
+          description: Whether the operation completed successfully
+        dryRun:
+          type: boolean
+          description: Whether this was a preview-only operation
+        ocidSheet:
+          $ref: '#/components/schemas/SheetResult'
+        combatPowerSheet:
+          $ref: '#/components/schemas/SheetResult'
+        executionTimeMs:
+          type: integer
+          description: Total execution time in milliseconds
+        timestamp:
+          type: string
+          format: date-time
+          description: ISO 8601 timestamp of the operation
+
+    SheetResult:
+      type: object
+      required:
+        - totalRecords
+        - duplicatesFound
+        - removed
+      properties:
+        totalRecords:
+          type: integer
+          description: Total number of records in the sheet
+        duplicatesFound:
+          type: integer
+          description: Number of duplicate OCID values found
+        removed:
+          type: integer
+          description: Number of duplicate records removed (0 if dryRun)
+        duplicateDetails:
+          type: array
+          description: Detailed list of duplicates (only in dryRun mode)
+          items:
+            $ref: '#/components/schemas/DuplicateDetail'
+
+    DuplicateDetail:
+      type: object
+      required:
+        - ocid
+        - count
+      properties:
+        ocid:
+          type: string
+          description: The duplicated OCID value
+        count:
+          type: integer
+          description: Number of occurrences of this OCID
+        kept:
+          type: object
+          description: Information about the record that would be kept (CombatPower only)
+          properties:
+            updated_at:
+              type: string
+              format: date-time
+            combat_power:
+              type: string
+
+    ErrorResponse:
+      type: object
+      required:
+        - success
+        - error
+        - timestamp
+      properties:
+        success:
+          type: boolean
+          enum: [false]
+        error:
+          type: string
+          description: Error message
+        details:
+          type: object
+          description: Detailed error information per sheet
+          properties:
+            ocidSheetError:
+              type: string
+              nullable: true
+            combatPowerSheetError:
+              type: string
+              nullable: true
+        timestamp:
+          type: string
+          format: date-time
