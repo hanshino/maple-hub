@@ -1,5 +1,6 @@
 import Link from 'next/link';
-import { AppBar, Toolbar, Typography, Box } from '@mui/material';
+import { AppBar, Toolbar, Typography, Box, Button } from '@mui/material';
+import LeaderboardIcon from '@mui/icons-material/Leaderboard';
 
 export default function Navigation() {
   return (
@@ -21,7 +22,20 @@ export default function Navigation() {
           Maple Hub
         </Typography>
         <Box sx={{ display: 'flex', gap: 2 }}>
-          {/* 移除首頁按鈕，讓標題本身就是鏈接 */}
+          <Button
+            component={Link}
+            href="/leaderboard"
+            color="inherit"
+            startIcon={<LeaderboardIcon />}
+            sx={{
+              textTransform: 'none',
+              '&:hover': {
+                backgroundColor: 'rgba(255, 255, 255, 0.1)',
+              },
+            }}
+          >
+            排行榜
+          </Button>
         </Box>
       </Toolbar>
     </AppBar>
