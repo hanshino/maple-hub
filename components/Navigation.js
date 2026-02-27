@@ -1,3 +1,5 @@
+'use client';
+
 import Link from 'next/link';
 import { AppBar, Toolbar, Typography, Box, Button } from '@mui/material';
 import LeaderboardIcon from '@mui/icons-material/Leaderboard';
