@@ -98,3 +98,6 @@ test-google-sheets.js
 Thumbs.db
 ehthumbs.db
 Desktop.ini
+
+# Claude
+.claude/
