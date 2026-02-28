@@ -19,7 +19,8 @@ import {
 // Constants for chart configuration
 const CHART_COLORS = {
   completed: '#f7931e', // Primary orange (theme)
-  remaining: '#E5E7EB',
+  remainingLight: '#E5E7EB',
+  remainingDark: '#3a2f2a',
   actual: '#f7931e', // Primary orange
   prediction: '#8c6239', // Secondary brown (theme)
 };
@@ -219,7 +220,10 @@ const ProgressChart = memo(function ProgressChart({ progressData }) {
           {
             name: 'Remaining',
             value: remaining,
-            color: CHART_COLORS.remaining,
+            color:
+              theme.palette.mode === 'dark'
+                ? CHART_COLORS.remainingDark
+                : CHART_COLORS.remainingLight,
           },
         ],
       };
@@ -246,7 +250,7 @@ const ProgressChart = memo(function ProgressChart({ progressData }) {
       : processLegacyData(validData);
 
     return processedData;
-  }, [progressData]);
+  }, [progressData, theme.palette.mode]);
 
   // Early return for empty data
   if (chartData.type === 'empty') {

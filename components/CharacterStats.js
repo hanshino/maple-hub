@@ -191,7 +191,8 @@ const CharacterStats = ({ ocid, expanded: initialExpanded = true }) => {
                 <Box
                   key={`group-${groupIndex}`}
                   sx={{
-                    border: '1px solid #e0e0e0',
+                    border: (theme) =>
+                      `1px solid ${theme.palette.divider}`,
                     borderRadius: 2,
                     overflow: 'hidden',
                     mb: 2,
@@ -267,7 +268,8 @@ const CharacterStats = ({ ocid, expanded: initialExpanded = true }) => {
                 <Box
                   key="other-group"
                   sx={{
-                    border: '1px solid #e0e0e0',
+                    border: (theme) =>
+                      `1px solid ${theme.palette.divider}`,
                     borderRadius: 2,
                     overflow: 'hidden',
                     p: 1,
