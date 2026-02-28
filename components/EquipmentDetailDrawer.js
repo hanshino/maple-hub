@@ -51,6 +51,7 @@ const EquipmentDetailDrawer = ({ item, open, onClose, isMobile }) => {
       anchor={isMobile ? 'bottom' : 'right'}
       open={open && !!item}
       onClose={onClose}
+      sx={{ zIndex: 1400 }}
       PaperProps={{
         sx: {
           width: isMobile ? '100%' : 360,
