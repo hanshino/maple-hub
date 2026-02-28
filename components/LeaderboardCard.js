@@ -88,9 +88,15 @@ export default function LeaderboardCard({
         p: 1.5,
         mb: 1,
         transition: 'transform 0.2s, box-shadow 0.2s',
+        '@media (prefers-reduced-motion: reduce)': {
+          transition: 'none',
+        },
         '&:hover': {
           transform: 'translateY(-2px)',
           boxShadow: 3,
+          '@media (prefers-reduced-motion: reduce)': {
+            transform: 'none',
+          },
         },
         ...(isTopThree && {
           borderLeft: `4px solid ${rankColor}`,

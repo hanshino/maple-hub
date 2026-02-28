@@ -18,7 +18,7 @@ import { ExpandMore as ExpandMoreIcon } from '@mui/icons-material';
 import { processStatsData, formatStatValue } from '../lib/statsUtils';
 import { getCachedData, setCachedData } from '../lib/cache';
 
-const CharacterStats = ({ ocid, expanded: initialExpanded = false }) => {
+const CharacterStats = ({ ocid, expanded: initialExpanded = true }) => {
   const [stats, setStats] = useState([]);
   const [loading, setLoading] = useState(true);
   const [expanded, setExpanded] = useState(initialExpanded);

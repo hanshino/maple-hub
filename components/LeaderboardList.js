@@ -10,6 +10,7 @@ import {
   Paper,
 } from '@mui/material';
 import RefreshIcon from '@mui/icons-material/Refresh';
+import CheckCircleIcon from '@mui/icons-material/CheckCircle';
 import LeaderboardCard from './LeaderboardCard';
 
 const ITEMS_PER_PAGE = 20;
@@ -244,9 +245,17 @@ export default function LeaderboardList() {
         )}
 
         {!hasMore && entries.length > 0 && (
-          <Typography variant="body2" color="text.secondary">
-            ✓ 已載入全部資料
-          </Typography>
+          <Box
+            sx={{ display: 'flex', alignItems: 'center', gap: 0.5 }}
+          >
+            <CheckCircleIcon
+              fontSize="small"
+              sx={{ color: 'text.secondary' }}
+            />
+            <Typography variant="body2" color="text.secondary">
+              已載入全部資料
+            </Typography>
+          </Box>
         )}
       </Box>
     </Box>

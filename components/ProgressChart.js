@@ -17,8 +17,10 @@ import {
 
 // Constants for chart configuration
 const CHART_COLORS = {
-  completed: '#3B82F6',
+  completed: '#f7931e', // Primary orange (theme)
   remaining: '#E5E7EB',
+  actual: '#f7931e', // Primary orange
+  prediction: '#8c6239', // Secondary brown (theme)
 };
 
 const PREDICTION_CONFIG = {
@@ -339,10 +341,12 @@ const ProgressChart = memo(function ProgressChart({ progressData }) {
           <CartesianGrid strokeDasharray="3 3" />
           <XAxis
             dataKey="date"
-            tick={{ fontSize: 10 }}
-            angle={-45}
-            textAnchor="end"
-            height={60}
+            tick={{ fontSize: 11 }}
+            tickFormatter={value => {
+              const d = new Date(value);
+              return `${d.getMonth() + 1}/${d.getDate()}`;
+            }}
+            height={40}
             interval="preserveStartEnd"
           />
           <YAxis
@@ -369,19 +373,19 @@ const ProgressChart = memo(function ProgressChart({ progressData }) {
           <Line
             type="monotone"
             dataKey="progress"
-            stroke="#3B82F6"
+            stroke={CHART_COLORS.actual}
             strokeWidth={2}
-            dot={{ fill: '#3B82F6', strokeWidth: 2, r: 3 }}
+            dot={{ fill: CHART_COLORS.actual, strokeWidth: 2, r: 3 }}
             connectNulls={false}
           />
           {chartData.hasPrediction && (
             <Line
               type="monotone"
               dataKey="prediction"
-              stroke="#9CA3AF"
+              stroke={CHART_COLORS.prediction}
               strokeWidth={2}
               strokeDasharray="5 5"
-              dot={{ fill: '#9CA3AF', strokeWidth: 2, r: 2 }}
+              dot={{ fill: CHART_COLORS.prediction, strokeWidth: 2, r: 2 }}
               connectNulls={false}
             />
           )}

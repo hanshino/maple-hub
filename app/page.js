@@ -9,7 +9,12 @@ import {
   Paper,
   Card,
   CardContent,
+  Skeleton,
+  Button,
 } from '@mui/material';
+import SearchIcon from '@mui/icons-material/Search';
+import LeaderboardIcon from '@mui/icons-material/Leaderboard';
+import Link from 'next/link';
 import CharacterCard from '../components/CharacterCard';
 import ProgressChart from '../components/ProgressChart';
 import ErrorMessage from '../components/ErrorMessage';
@@ -32,10 +37,17 @@ export default function Home() {
   const [error, setError] = useState(null);
   const [battlePower, setBattlePower] = useState(null);
   const [equipmentDialogOpen, setEquipmentDialogOpen] = useState(false);
+  const [lastOcid, setLastOcid] = useState(null);
 
   const searchCharacter = async ocid => {
+    setLastOcid(ocid);
     setLoading(true);
     setError(null);
+    setCharacter(null);
+    setUnionData(null);
+    setChartData([]);
+    setRunes([]);
+    setBattlePower(null);
     try {
       // Get data for the last 5 days (but only available dates after 2025-10-15)
       const dateConfigs = generateDateRange(7);
@@ -69,46 +81,29 @@ export default function Home() {
 
       setCharacter({ ...latestCharacter, ocid });
 
-      // Fetch battle power
-      try {
-        const statsResponse = await apiCall(
-          `/api/character/stats?ocid=${ocid}`
-        );
-        if (statsResponse.status >= 200 && statsResponse.status < 300) {
-          const statsData = statsResponse.data;
-          const battlePowerValue = statsData.final_stat?.find(
-            stat => stat.stat_name === '戰鬥力'
-          )?.stat_value;
-          setBattlePower(battlePowerValue ? parseInt(battlePowerValue) : null);
-        } else {
-          setBattlePower(null);
-        }
-      } catch {
-        setBattlePower(null);
+      // Fetch stats, union, runes in parallel
+      const [statsResult, unionResult, runeResult] = await Promise.all([
+        apiCall(`/api/character/stats?ocid=${ocid}`).catch(() => null),
+        apiCall(`/api/union/${ocid}`).catch(() => null),
+        apiCall(`/api/character/${ocid}/runes`).catch(() => null),
+      ]);
+
+      // Process battle power
+      if (statsResult?.status >= 200 && statsResult?.status < 300) {
+        const battlePowerValue = statsResult.data.final_stat?.find(
+          stat => stat.stat_name === '戰鬥力'
+        )?.stat_value;
+        setBattlePower(battlePowerValue ? parseInt(battlePowerValue) : null);
       }
 
-      // Fetch union data
-      try {
-        const unionResponse = await apiCall(`/api/union/${ocid}`);
-        if (unionResponse.status >= 200 && unionResponse.status < 300) {
-          setUnionData(unionResponse.data);
-        } else {
-          setUnionData(null);
-        }
-      } catch {
-        setUnionData(null);
+      // Process union data
+      if (unionResult?.status >= 200 && unionResult?.status < 300) {
+        setUnionData(unionResult.data);
       }
 
-      // Fetch rune data
-      try {
-        const runeResponse = await apiCall(`/api/character/${ocid}/runes`);
-        if (runeResponse.status >= 200 && runeResponse.status < 300) {
-          setRunes(runeResponse.data.symbol || []);
-        } else {
-          setRunes([]);
-        }
-      } catch {
-        setRunes([]);
+      // Process rune data
+      if (runeResult?.status >= 200 && runeResult?.status < 300) {
+        setRunes(runeResult.data.symbol || []);
       }
 
       // Prepare chart data from all valid characters
@@ -153,11 +148,157 @@ export default function Home() {
         <CharacterSearch onSearch={searchCharacter} loading={loading} />
       </Paper>
 
-      {loading && (
-        <Box sx={{ display: 'flex', justifyContent: 'center', py: 4 }}>
-          <Typography variant="h6" color="text.secondary">
-            正在載入角色資料...
+      {/* Empty state: show when no character loaded and not loading */}
+      {!loading && !character && !error && (
+        <Paper
+          elevation={0}
+          sx={{
+            py: { xs: 6, md: 10 },
+            px: 3,
+            textAlign: 'center',
+            backgroundColor: 'transparent',
+          }}
+        >
+          <SearchIcon
+            sx={{ fontSize: 64, color: 'text.secondary', opacity: 0.4, mb: 2 }}
+          />
+          <Typography variant="h5" gutterBottom sx={{ fontWeight: 'bold' }}>
+            搜尋你的 MapleStory 角色
           </Typography>
+          <Typography
+            variant="body1"
+            color="text.secondary"
+            sx={{ mb: 4, maxWidth: 480, mx: 'auto' }}
+          >
+            輸入角色名稱即可查看詳細數據、經驗值進度、六轉核心與裝備資訊
+          </Typography>
+          <Button
+            component={Link}
+            href="/leaderboard"
+            variant="outlined"
+            startIcon={<LeaderboardIcon />}
+            sx={{ textTransform: 'none' }}
+          >
+            查看戰力排行榜
+          </Button>
+        </Paper>
+      )}
+
+      {loading && (
+        <Box>
+          {/* Hero Card Skeleton */}
+          <Card elevation={3} sx={{ mb: 3 }}>
+            <CardContent sx={{ p: 3 }}>
+              <Box
+                sx={{
+                  display: 'flex',
+                  flexDirection: { xs: 'column', md: 'row' },
+                  alignItems: { xs: 'center', md: 'flex-start' },
+                  gap: { xs: 2, md: 3 },
+                }}
+              >
+                <Skeleton
+                  variant="circular"
+                  sx={{
+                    width: { xs: 80, md: 96 },
+                    height: { xs: 80, md: 96 },
+                    flexShrink: 0,
+                  }}
+                />
+                <Box sx={{ flex: 1, width: '100%' }}>
+                  <Box
+                    sx={{
+                      display: 'flex',
+                      gap: 1,
+                      mb: 1,
+                      justifyContent: { xs: 'center', md: 'flex-start' },
+                    }}
+                  >
+                    <Skeleton variant="text" width={120} height={32} />
+                    <Skeleton
+                      variant="rounded"
+                      width={60}
+                      height={24}
+                      sx={{ borderRadius: 3 }}
+                    />
+                    <Skeleton variant="text" width={40} height={24} />
+                  </Box>
+                  <Box
+                    sx={{
+                      display: 'flex',
+                      gap: 1,
+                      mb: 1.5,
+                      justifyContent: { xs: 'center', md: 'flex-start' },
+                    }}
+                  >
+                    <Skeleton
+                      variant="rounded"
+                      width={100}
+                      height={24}
+                      sx={{ borderRadius: 3 }}
+                    />
+                    <Skeleton
+                      variant="rounded"
+                      width={80}
+                      height={24}
+                      sx={{ borderRadius: 3 }}
+                    />
+                    <Skeleton
+                      variant="rounded"
+                      width={120}
+                      height={24}
+                      sx={{ borderRadius: 3 }}
+                    />
+                  </Box>
+                  <Skeleton variant="text" width={180} height={20} />
+                </Box>
+                <Skeleton
+                  variant="rounded"
+                  width={140}
+                  height={56}
+                  sx={{
+                    flexShrink: 0,
+                    display: { xs: 'none', md: 'block' },
+                  }}
+                />
+              </Box>
+            </CardContent>
+          </Card>
+
+          {/* Two columns Skeleton */}
+          <Grid container spacing={2} sx={{ mb: 4 }}>
+            <Grid size={{ xs: 12, md: 7 }}>
+              <Card elevation={3}>
+                <CardContent>
+                  <Skeleton variant="text" width={120} height={32} />
+                  <Skeleton
+                    variant="rounded"
+                    height={10}
+                    sx={{ my: 2, borderRadius: 1 }}
+                  />
+                  <Skeleton
+                    variant="rounded"
+                    height={300}
+                    sx={{ borderRadius: 2 }}
+                  />
+                </CardContent>
+              </Card>
+            </Grid>
+            <Grid size={{ xs: 12, md: 5 }}>
+              <Card elevation={3}>
+                <CardContent sx={{ p: 3 }}>
+                  <Skeleton variant="text" width={100} height={32} />
+                  <Skeleton
+                    variant="circular"
+                    width={200}
+                    height={200}
+                    sx={{ mx: 'auto', my: 2 }}
+                  />
+                  <Skeleton variant="rounded" height={80} />
+                </CardContent>
+              </Card>
+            </Grid>
+          </Grid>
         </Box>
       )}
 
@@ -166,31 +307,32 @@ export default function Home() {
           <ErrorMessage
             message={error}
             onRetry={() => {
-              // Retry would need the last search term, for now just clear error
-              setError(null);
+              if (lastOcid) {
+                searchCharacter(lastOcid);
+              } else {
+                setError(null);
+              }
             }}
           />
         </Box>
       )}
 
-      {character && (
+      {!loading && character && (
         <Box>
-          {/* Single Row: Character info, experience progress, and Hexa Matrix progress */}
+          {/* Hero Card: Character info */}
+          <Card elevation={3} sx={{ mb: 3 }}>
+            <CharacterCard
+              character={character}
+              historicalData={chartData}
+              unionData={unionData}
+              battlePower={battlePower}
+              onEquipmentClick={() => setEquipmentDialogOpen(true)}
+            />
+          </Card>
+
+          {/* Two columns: Progress + Hexa Matrix */}
           <Grid container spacing={2} sx={{ mb: 4 }}>
-            <Grid size={{ xs: 12, md: 2 }}>
-              <Card elevation={3} sx={{ height: '100%' }}>
-                <CardContent sx={{ p: 0, height: '100%' }}>
-                  <CharacterCard
-                    character={character}
-                    historicalData={chartData}
-                    unionData={unionData}
-                    battlePower={battlePower}
-                    onEquipmentClick={() => setEquipmentDialogOpen(true)}
-                  />
-                </CardContent>
-              </Card>
-            </Grid>
-            <Grid size={{ xs: 12, md: 6 }}>
+            <Grid size={{ xs: 12, md: 7 }}>
               <Card elevation={3} sx={{ height: '100%' }}>
                 <CardContent sx={{ height: '100%' }}>
                   <Typography variant="h5" component="h3" gutterBottom>
@@ -211,7 +353,7 @@ export default function Home() {
                 </CardContent>
               </Card>
             </Grid>
-            <Grid size={{ xs: 12, md: 4 }}>
+            <Grid size={{ xs: 12, md: 5 }}>
               <Card elevation={3} sx={{ height: '100%' }}>
                 <CardContent sx={{ p: 3, height: '100%' }}>
                   <HexaMatrixProgress character={character} />
@@ -230,7 +372,7 @@ export default function Home() {
       )}
 
       {/* Equipment Dialog */}
-      {character && (
+      {!loading && character && (
         <EquipmentDialog
           ocid={character.ocid}
           character={character}
@@ -240,7 +382,7 @@ export default function Home() {
       )}
 
       {/* Rune Systems Section */}
-      {character && (
+      {!loading && character && (
         <Box sx={{ mt: 4 }}>
           <Card elevation={3}>
             <CardContent sx={{ p: 3 }}>

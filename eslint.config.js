@@ -1,19 +1,25 @@
-import { dirname } from 'path';
-import { fileURLToPath } from 'url';
-import { FlatCompat } from '@eslint/eslintrc';
-
-const __filename = fileURLToPath(import.meta.url);
-const __dirname = dirname(__filename);
-
-const compat = new FlatCompat({
-  baseDirectory: __dirname,
-});
+import nextConfig from 'eslint-config-next/core-web-vitals';
+import prettierConfig from 'eslint-config-prettier';
 
 const eslintConfig = [
-  ...compat.extends('next/core-web-vitals'),
-  ...compat.extends('prettier'),
   {
-    ignores: ['.next/**', 'node_modules/**', '__tests__/**'],
+    ignores: [
+      '.next/**',
+      'out/**',
+      'build/**',
+      'dist/**',
+      'node_modules/**',
+      'coverage/**',
+      '__tests__/**',
+      '*.log',
+      '.env*',
+      '.eslintcache',
+      '.cache',
+    ],
+  },
+  ...nextConfig,
+  prettierConfig,
+  {
     rules: {
       '@next/next/no-img-element': 'off',
       'no-unused-vars': [
