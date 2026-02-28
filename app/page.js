@@ -81,46 +81,29 @@ export default function Home() {
 
       setCharacter({ ...latestCharacter, ocid });
 
-      // Fetch battle power
-      try {
-        const statsResponse = await apiCall(
-          `/api/character/stats?ocid=${ocid}`
-        );
-        if (statsResponse.status >= 200 && statsResponse.status < 300) {
-          const statsData = statsResponse.data;
-          const battlePowerValue = statsData.final_stat?.find(
-            stat => stat.stat_name === '戰鬥力'
-          )?.stat_value;
-          setBattlePower(battlePowerValue ? parseInt(battlePowerValue) : null);
-        } else {
-          setBattlePower(null);
-        }
-      } catch {
-        setBattlePower(null);
+      // Fetch stats, union, runes in parallel
+      const [statsResult, unionResult, runeResult] = await Promise.all([
+        apiCall(`/api/character/stats?ocid=${ocid}`).catch(() => null),
+        apiCall(`/api/union/${ocid}`).catch(() => null),
+        apiCall(`/api/character/${ocid}/runes`).catch(() => null),
+      ]);
+
+      // Process battle power
+      if (statsResult?.status >= 200 && statsResult?.status < 300) {
+        const battlePowerValue = statsResult.data.final_stat?.find(
+          stat => stat.stat_name === '戰鬥力'
+        )?.stat_value;
+        setBattlePower(battlePowerValue ? parseInt(battlePowerValue) : null);
       }
 
-      // Fetch union data
-      try {
-        const unionResponse = await apiCall(`/api/union/${ocid}`);
-        if (unionResponse.status >= 200 && unionResponse.status < 300) {
-          setUnionData(unionResponse.data);
-        } else {
-          setUnionData(null);
-        }
-      } catch {
-        setUnionData(null);
+      // Process union data
+      if (unionResult?.status >= 200 && unionResult?.status < 300) {
+        setUnionData(unionResult.data);
       }
 
-      // Fetch rune data
-      try {
-        const runeResponse = await apiCall(`/api/character/${ocid}/runes`);
-        if (runeResponse.status >= 200 && runeResponse.status < 300) {
-          setRunes(runeResponse.data.symbol || []);
-        } else {
-          setRunes([]);
-        }
-      } catch {
-        setRunes([]);
+      // Process rune data
+      if (runeResult?.status >= 200 && runeResult?.status < 300) {
+        setRunes(runeResult.data.symbol || []);
       }
 
       // Prepare chart data from all valid characters
