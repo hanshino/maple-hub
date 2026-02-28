@@ -10,7 +10,11 @@ import {
   Card,
   CardContent,
   Skeleton,
+  Button,
 } from '@mui/material';
+import SearchIcon from '@mui/icons-material/Search';
+import LeaderboardIcon from '@mui/icons-material/Leaderboard';
+import Link from 'next/link';
 import CharacterCard from '../components/CharacterCard';
 import ProgressChart from '../components/ProgressChart';
 import ErrorMessage from '../components/ErrorMessage';
@@ -33,8 +37,10 @@ export default function Home() {
   const [error, setError] = useState(null);
   const [battlePower, setBattlePower] = useState(null);
   const [equipmentDialogOpen, setEquipmentDialogOpen] = useState(false);
+  const [lastOcid, setLastOcid] = useState(null);
 
   const searchCharacter = async ocid => {
+    setLastOcid(ocid);
     setLoading(true);
     setError(null);
     setCharacter(null);
@@ -159,6 +165,42 @@ export default function Home() {
         <CharacterSearch onSearch={searchCharacter} loading={loading} />
       </Paper>
 
+      {/* Empty state: show when no character loaded and not loading */}
+      {!loading && !character && !error && (
+        <Paper
+          elevation={0}
+          sx={{
+            py: { xs: 6, md: 10 },
+            px: 3,
+            textAlign: 'center',
+            backgroundColor: 'transparent',
+          }}
+        >
+          <SearchIcon
+            sx={{ fontSize: 64, color: 'text.secondary', opacity: 0.4, mb: 2 }}
+          />
+          <Typography variant="h5" gutterBottom sx={{ fontWeight: 'bold' }}>
+            搜尋你的 MapleStory 角色
+          </Typography>
+          <Typography
+            variant="body1"
+            color="text.secondary"
+            sx={{ mb: 4, maxWidth: 480, mx: 'auto' }}
+          >
+            輸入角色名稱即可查看詳細數據、經驗值進度、六轉核心與裝備資訊
+          </Typography>
+          <Button
+            component={Link}
+            href="/leaderboard"
+            variant="outlined"
+            startIcon={<LeaderboardIcon />}
+            sx={{ textTransform: 'none' }}
+          >
+            查看戰力排行榜
+          </Button>
+        </Paper>
+      )}
+
       {loading && (
         <Box>
           {/* Hero Card Skeleton */}
@@ -282,8 +324,11 @@ export default function Home() {
           <ErrorMessage
             message={error}
             onRetry={() => {
-              // Retry would need the last search term, for now just clear error
-              setError(null);
+              if (lastOcid) {
+                searchCharacter(lastOcid);
+              } else {
+                setError(null);
+              }
             }}
           />
         </Box>

@@ -31,7 +31,6 @@ export default function CharacterSearch({ onSearch, loading }) {
       onSearch(searchData.ocid);
     } catch (error) {
       console.error('Search failed:', error);
-      throw error; // Re-throw for parent handling
     }
   };
 
