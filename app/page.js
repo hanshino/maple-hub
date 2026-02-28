@@ -9,6 +9,7 @@ import {
   Paper,
   Card,
   CardContent,
+  Skeleton,
 } from '@mui/material';
 import CharacterCard from '../components/CharacterCard';
 import ProgressChart from '../components/ProgressChart';
@@ -36,6 +37,11 @@ export default function Home() {
   const searchCharacter = async ocid => {
     setLoading(true);
     setError(null);
+    setCharacter(null);
+    setUnionData(null);
+    setChartData([]);
+    setRunes([]);
+    setBattlePower(null);
     try {
       // Get data for the last 5 days (but only available dates after 2025-10-15)
       const dateConfigs = generateDateRange(7);
@@ -154,10 +160,120 @@ export default function Home() {
       </Paper>
 
       {loading && (
-        <Box sx={{ display: 'flex', justifyContent: 'center', py: 4 }}>
-          <Typography variant="h6" color="text.secondary">
-            正在載入角色資料...
-          </Typography>
+        <Box>
+          {/* Hero Card Skeleton */}
+          <Card elevation={3} sx={{ mb: 3 }}>
+            <CardContent sx={{ p: 3 }}>
+              <Box
+                sx={{
+                  display: 'flex',
+                  flexDirection: { xs: 'column', md: 'row' },
+                  alignItems: { xs: 'center', md: 'flex-start' },
+                  gap: { xs: 2, md: 3 },
+                }}
+              >
+                <Skeleton
+                  variant="circular"
+                  sx={{
+                    width: { xs: 80, md: 96 },
+                    height: { xs: 80, md: 96 },
+                    flexShrink: 0,
+                  }}
+                />
+                <Box sx={{ flex: 1, width: '100%' }}>
+                  <Box
+                    sx={{
+                      display: 'flex',
+                      gap: 1,
+                      mb: 1,
+                      justifyContent: { xs: 'center', md: 'flex-start' },
+                    }}
+                  >
+                    <Skeleton variant="text" width={120} height={32} />
+                    <Skeleton
+                      variant="rounded"
+                      width={60}
+                      height={24}
+                      sx={{ borderRadius: 3 }}
+                    />
+                    <Skeleton variant="text" width={40} height={24} />
+                  </Box>
+                  <Box
+                    sx={{
+                      display: 'flex',
+                      gap: 1,
+                      mb: 1.5,
+                      justifyContent: { xs: 'center', md: 'flex-start' },
+                    }}
+                  >
+                    <Skeleton
+                      variant="rounded"
+                      width={100}
+                      height={24}
+                      sx={{ borderRadius: 3 }}
+                    />
+                    <Skeleton
+                      variant="rounded"
+                      width={80}
+                      height={24}
+                      sx={{ borderRadius: 3 }}
+                    />
+                    <Skeleton
+                      variant="rounded"
+                      width={120}
+                      height={24}
+                      sx={{ borderRadius: 3 }}
+                    />
+                  </Box>
+                  <Skeleton variant="text" width={180} height={20} />
+                </Box>
+                <Skeleton
+                  variant="rounded"
+                  width={140}
+                  height={56}
+                  sx={{
+                    flexShrink: 0,
+                    display: { xs: 'none', md: 'block' },
+                  }}
+                />
+              </Box>
+            </CardContent>
+          </Card>
+
+          {/* Two columns Skeleton */}
+          <Grid container spacing={2} sx={{ mb: 4 }}>
+            <Grid size={{ xs: 12, md: 7 }}>
+              <Card elevation={3}>
+                <CardContent>
+                  <Skeleton variant="text" width={120} height={32} />
+                  <Skeleton
+                    variant="rounded"
+                    height={10}
+                    sx={{ my: 2, borderRadius: 1 }}
+                  />
+                  <Skeleton
+                    variant="rounded"
+                    height={300}
+                    sx={{ borderRadius: 2 }}
+                  />
+                </CardContent>
+              </Card>
+            </Grid>
+            <Grid size={{ xs: 12, md: 5 }}>
+              <Card elevation={3}>
+                <CardContent sx={{ p: 3 }}>
+                  <Skeleton variant="text" width={100} height={32} />
+                  <Skeleton
+                    variant="circular"
+                    width={200}
+                    height={200}
+                    sx={{ mx: 'auto', my: 2 }}
+                  />
+                  <Skeleton variant="rounded" height={80} />
+                </CardContent>
+              </Card>
+            </Grid>
+          </Grid>
         </Box>
       )}
 
@@ -173,24 +289,22 @@ export default function Home() {
         </Box>
       )}
 
-      {character && (
+      {!loading && character && (
         <Box>
-          {/* Single Row: Character info, experience progress, and Hexa Matrix progress */}
+          {/* Hero Card: Character info */}
+          <Card elevation={3} sx={{ mb: 3 }}>
+            <CharacterCard
+              character={character}
+              historicalData={chartData}
+              unionData={unionData}
+              battlePower={battlePower}
+              onEquipmentClick={() => setEquipmentDialogOpen(true)}
+            />
+          </Card>
+
+          {/* Two columns: Progress + Hexa Matrix */}
           <Grid container spacing={2} sx={{ mb: 4 }}>
-            <Grid size={{ xs: 12, md: 2 }}>
-              <Card elevation={3} sx={{ height: '100%' }}>
-                <CardContent sx={{ p: 0, height: '100%' }}>
-                  <CharacterCard
-                    character={character}
-                    historicalData={chartData}
-                    unionData={unionData}
-                    battlePower={battlePower}
-                    onEquipmentClick={() => setEquipmentDialogOpen(true)}
-                  />
-                </CardContent>
-              </Card>
-            </Grid>
-            <Grid size={{ xs: 12, md: 6 }}>
+            <Grid size={{ xs: 12, md: 7 }}>
               <Card elevation={3} sx={{ height: '100%' }}>
                 <CardContent sx={{ height: '100%' }}>
                   <Typography variant="h5" component="h3" gutterBottom>
@@ -211,7 +325,7 @@ export default function Home() {
                 </CardContent>
               </Card>
             </Grid>
-            <Grid size={{ xs: 12, md: 4 }}>
+            <Grid size={{ xs: 12, md: 5 }}>
               <Card elevation={3} sx={{ height: '100%' }}>
                 <CardContent sx={{ p: 3, height: '100%' }}>
                   <HexaMatrixProgress character={character} />
@@ -230,7 +344,7 @@ export default function Home() {
       )}
 
       {/* Equipment Dialog */}
-      {character && (
+      {!loading && character && (
         <EquipmentDialog
           ocid={character.ocid}
           character={character}
@@ -240,7 +354,7 @@ export default function Home() {
       )}
 
       {/* Rune Systems Section */}
-      {character && (
+      {!loading && character && (
         <Box sx={{ mt: 4 }}>
           <Card elevation={3}>
             <CardContent sx={{ p: 3 }}>

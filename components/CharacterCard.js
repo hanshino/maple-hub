@@ -4,9 +4,14 @@ import {
   Typography,
   Avatar,
   CardContent,
-  Divider,
   Button,
+  Chip,
+  Divider,
 } from '@mui/material';
+import WorkIcon from '@mui/icons-material/Work';
+import GroupsIcon from '@mui/icons-material/Groups';
+import MilitaryTechIcon from '@mui/icons-material/MilitaryTech';
+import DiamondIcon from '@mui/icons-material/Diamond';
 
 const CharacterCard = memo(function CharacterCard({
   character,
@@ -20,177 +25,172 @@ const CharacterCard = memo(function CharacterCard({
       aria-labelledby={`character-${character.ocid || character.character_name}`}
       sx={{ p: 3 }}
     >
+      {/* Hero layout: horizontal on desktop, vertical on mobile */}
       <Box
         sx={{
           display: 'flex',
-          flexDirection: { xs: 'column', sm: 'row' },
-          alignItems: { xs: 'center', sm: 'flex-start' },
-          mb: 3,
+          flexDirection: { xs: 'column', md: 'row' },
+          alignItems: { xs: 'center', md: 'flex-start' },
+          gap: { xs: 2, md: 3 },
         }}
       >
+        {/* Avatar - larger for hero style */}
         {character.character_image && (
           <Avatar
             src={character.character_image}
             alt={`${character.character_name} 角色頭像`}
-            sx={{ width: 64, height: 64, mb: { xs: 2, sm: 0 }, mr: { sm: 2 } }}
+            sx={{
+              width: { xs: 80, md: 96 },
+              height: { xs: 80, md: 96 },
+              flexShrink: 0,
+            }}
           />
         )}
-        <Box sx={{ textAlign: { xs: 'center', sm: 'left' } }}>
-          <Typography
-            id={`character-${character.ocid || character.character_name}`}
-            variant="h6"
-            component="h3"
-            sx={{ wordBreak: 'break-word', mb: 0.5 }}
+
+        {/* Character info - middle section */}
+        <Box
+          sx={{
+            flex: 1,
+            minWidth: 0,
+            textAlign: { xs: 'center', md: 'left' },
+          }}
+        >
+          {/* Name + Server + Level */}
+          <Box
+            sx={{
+              display: 'flex',
+              flexDirection: { xs: 'column', sm: 'row' },
+              alignItems: { xs: 'center', sm: 'baseline' },
+              gap: 1,
+              mb: 1,
+            }}
           >
-            {character.character_name}
-          </Typography>
-          <Typography
-            variant="body2"
-            color="text.secondary"
-            aria-label={`伺服器: ${character.world_name}`}
-          >
-            {character.world_name}
-          </Typography>
-        </Box>
-      </Box>{' '}
-      {battlePower && (
-        <Box sx={{ mb: 3, p: 2, backgroundColor: '#f0f8ff', borderRadius: 1 }}>
-          <Typography
-            variant="body2"
-            component="span"
-            fontWeight="bold"
-            color="primary"
-          >
-            戰鬥力:
-          </Typography>
-          <Typography
-            variant="h6"
-            sx={{ mt: 0.5, fontWeight: 'bold', color: 'primary.main' }}
-          >
-            {battlePower.toLocaleString()}
-          </Typography>
-        </Box>
-      )}
-      <Box sx={{ mb: 3 }}>
-        <Box sx={{ display: 'flex', justifyContent: 'space-between', mb: 1 }}>
-          <Typography variant="body2" component="span" fontWeight="medium">
-            職業:
-          </Typography>
-          <Typography variant="body2" sx={{ wordBreak: 'break-word' }}>
-            {character.character_class} {character.character_class_level}
-          </Typography>
-        </Box>
-        <Box sx={{ display: 'flex', justifyContent: 'space-between', mb: 1 }}>
-          <Typography variant="body2" component="span" fontWeight="medium">
-            等級:
-          </Typography>
-          <Typography
-            variant="body2"
-            aria-label={`等級 ${character.character_level}`}
-          >
-            {character.character_level}
-          </Typography>
-        </Box>
-        <Box sx={{ display: 'flex', justifyContent: 'space-between', mb: 1 }}>
-          <Typography variant="body2" component="span" fontWeight="medium">
-            性別:
-          </Typography>
-          <Typography variant="body2">{character.character_gender}</Typography>
-        </Box>
-        {character.character_date_create && (
-          <Box sx={{ display: 'flex', justifyContent: 'space-between', mb: 1 }}>
-            <Typography variant="body2" component="span" fontWeight="medium">
-              創建日期:
+            <Typography
+              id={`character-${character.ocid || character.character_name}`}
+              variant="h5"
+              component="h3"
+              sx={{ fontWeight: 'bold', wordBreak: 'break-word' }}
+            >
+              {character.character_name}
             </Typography>
-            <Typography variant="body2">
-              {new Date(character.character_date_create).toLocaleDateString(
-                'zh-TW'
-              )}
+            <Chip
+              label={`Lv.${character.character_level}`}
+              size="small"
+              color="primary"
+              variant="outlined"
+            />
+            <Typography variant="body2" color="text.secondary">
+              {character.world_name}
             </Typography>
           </Box>
-        )}
-        {character.character_guild_name && (
-          <Box sx={{ display: 'flex', justifyContent: 'space-between', mb: 1 }}>
-            <Typography variant="body2" component="span" fontWeight="medium">
-              公會:
-            </Typography>
-            <Typography variant="body2" sx={{ wordBreak: 'break-word' }}>
-              {character.character_guild_name}
+
+          {/* Stats row: class, guild, union as Chips */}
+          <Box
+            sx={{
+              display: 'flex',
+              flexWrap: 'wrap',
+              gap: 1,
+              justifyContent: { xs: 'center', md: 'flex-start' },
+              mb: 1.5,
+            }}
+          >
+            <Chip
+              icon={<WorkIcon />}
+              label={`${character.character_class} ${character.character_class_level}`}
+              size="small"
+              variant="outlined"
+              sx={{ px: 1 }}
+            />
+            {character.character_guild_name && (
+              <Chip
+                icon={<GroupsIcon />}
+                label={character.character_guild_name}
+                size="small"
+                variant="outlined"
+                sx={{ px: 1 }}
+              />
+            )}
+            {unionData && (
+              <>
+                <Chip
+                  icon={<MilitaryTechIcon />}
+                  label={`${unionData.union_grade} Lv.${unionData.union_level}`}
+                  size="small"
+                  variant="outlined"
+                  sx={{ px: 1 }}
+                />
+                <Chip
+                  icon={<DiamondIcon />}
+                  label={`神器 Lv.${unionData.union_artifact_level}`}
+                  size="small"
+                  variant="outlined"
+                  sx={{ px: 1 }}
+                />
+              </>
+            )}
+          </Box>
+
+          {/* Action buttons + timestamp */}
+          <Box
+            sx={{
+              display: 'flex',
+              flexWrap: 'wrap',
+              gap: 1,
+              alignItems: 'center',
+              justifyContent: { xs: 'center', md: 'flex-start' },
+            }}
+          >
+            {onEquipmentClick && (
+              <Button
+                variant="outlined"
+                size="small"
+                onClick={onEquipmentClick}
+                sx={{ fontWeight: 'medium' }}
+              >
+                裝備
+              </Button>
+            )}
+            <Typography variant="caption" color="text.secondary">
+              最後更新:{' '}
+              {character.date
+                ? new Date(character.date).toLocaleString()
+                : new Date().toLocaleString()}
             </Typography>
           </Box>
+        </Box>
+
+        {/* Battle Power - right section */}
+        {battlePower && (
+          <>
+            <Divider
+              orientation="vertical"
+              flexItem
+              sx={{ display: { xs: 'none', md: 'block' } }}
+            />
+            <Box
+              sx={{
+                textAlign: { xs: 'center', md: 'right' },
+                flexShrink: 0,
+                px: { md: 1 },
+              }}
+            >
+              <Typography
+                variant="caption"
+                color="text.secondary"
+                sx={{ display: 'block', mb: 0.5 }}
+              >
+                戰鬥力
+              </Typography>
+              <Typography
+                variant="h5"
+                sx={{ fontWeight: 'bold', color: 'primary.main' }}
+              >
+                {battlePower.toLocaleString()}
+              </Typography>
+            </Box>
+          </>
         )}
       </Box>
-      {unionData && (
-        <>
-          <Divider sx={{ my: 2 }} />
-          <Box sx={{ mb: 3 }}>
-            <Box
-              sx={{ display: 'flex', justifyContent: 'space-between', mb: 1 }}
-            >
-              <Typography variant="body2" component="span" fontWeight="medium">
-                戰地階級:
-              </Typography>
-              <Typography variant="body2" sx={{ wordBreak: 'break-word' }}>
-                {unionData.union_grade}
-              </Typography>
-            </Box>
-            <Box
-              sx={{ display: 'flex', justifyContent: 'space-between', mb: 1 }}
-            >
-              <Typography variant="body2" component="span" fontWeight="medium">
-                戰地等級:
-              </Typography>
-              <Typography variant="body2">{unionData.union_level}</Typography>
-            </Box>
-            <Box
-              sx={{ display: 'flex', justifyContent: 'space-between', mb: 1 }}
-            >
-              <Typography variant="body2" component="span" fontWeight="medium">
-                神器等級:
-              </Typography>
-              <Typography variant="body2">
-                {unionData.union_artifact_level}
-              </Typography>
-            </Box>
-          </Box>
-          <Divider sx={{ my: 2 }} />
-        </>
-      )}
-      {!unionData && character && (
-        <Box sx={{ mb: 3 }}>
-          <Typography variant="body2" color="text.secondary">
-            聯盟戰地資訊: 無資料
-          </Typography>
-        </Box>
-      )}
-      {onEquipmentClick && (
-        <Box sx={{ mb: 2, display: { xs: 'none', sm: 'block' } }}>
-          <Button
-            variant="contained"
-            fullWidth
-            onClick={onEquipmentClick}
-            sx={{ fontWeight: 'medium' }}
-          >
-            裝備
-          </Button>
-        </Box>
-      )}
-      <Typography
-        variant="caption"
-        color="text.secondary"
-        sx={{ display: 'block', textAlign: { xs: 'center', sm: 'left' } }}
-        dateTime={
-          character.date
-            ? new Date(character.date).toISOString()
-            : new Date().toISOString()
-        }
-        aria-label={`最後更新時間 ${character.date ? new Date(character.date).toLocaleString() : new Date().toLocaleString()}`}
-      >
-        最後更新:{' '}
-        {character.date
-          ? new Date(character.date).toLocaleString()
-          : new Date().toLocaleString()}
-      </Typography>
     </CardContent>
   );
 });
