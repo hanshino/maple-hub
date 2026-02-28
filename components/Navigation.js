@@ -34,41 +34,44 @@ export default function Navigation() {
         >
           Maple Hub
         </Typography>
-        <Box sx={{ display: 'flex', gap: 1 }}>
-          <Button
-            component={Link}
-            href="/"
-            color="inherit"
-            startIcon={<HomeIcon />}
-            sx={{
-              textTransform: 'none',
-              backgroundColor:
-                pathname === '/' ? 'rgba(255, 255, 255, 0.15)' : 'transparent',
-              '&:hover': {
-                backgroundColor: 'rgba(255, 255, 255, 0.1)',
-              },
-            }}
-          >
-            首頁
-          </Button>
-          <Button
-            component={Link}
-            href="/leaderboard"
-            color="inherit"
-            startIcon={<LeaderboardIcon />}
-            sx={{
-              textTransform: 'none',
-              backgroundColor:
-                pathname === '/leaderboard'
-                  ? 'rgba(255, 255, 255, 0.15)'
-                  : 'transparent',
-              '&:hover': {
-                backgroundColor: 'rgba(255, 255, 255, 0.1)',
-              },
-            }}
-          >
-            排行榜
-          </Button>
+        <Box sx={{ display: 'flex', gap: 2 }}>
+          {[
+            { href: '/', label: '首頁', icon: <HomeIcon />, exact: true },
+            {
+              href: '/leaderboard',
+              label: '排行榜',
+              icon: <LeaderboardIcon />,
+            },
+          ].map(({ href, label, icon, exact }) => {
+            const isActive = exact
+              ? pathname === href
+              : pathname.startsWith(href);
+            return (
+              <Button
+                key={href}
+                component={Link}
+                href={href}
+                color="inherit"
+                startIcon={icon}
+                sx={{
+                  textTransform: 'none',
+                  borderRadius: 0,
+                  px: 1.5,
+                  pb: 0.5,
+                  opacity: isActive ? 1 : 0.75,
+                  borderBottom: isActive
+                    ? '2px solid white'
+                    : '2px solid transparent',
+                  '&:hover': {
+                    opacity: 1,
+                    backgroundColor: 'transparent',
+                  },
+                }}
+              >
+                {label}
+              </Button>
+            );
+          })}
         </Box>
       </Toolbar>
     </AppBar>
