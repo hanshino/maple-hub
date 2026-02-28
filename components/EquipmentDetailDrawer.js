@@ -27,7 +27,7 @@ const STAT_FIELDS = [
 ];
 
 const SOURCE_COLORS = {
-  base: '#e0e0e0', // 白/淺灰 — 基礎
+  base: '#bdbdbd', // 中灰 — 基礎（明暗模式皆可辨識）
   star: '#ffd54f', // 黃色 — 星力
   add: '#81c784', // 淺綠 — 附加
   scroll: '#90caf9', // 淺藍 — 卷軸

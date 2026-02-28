@@ -2,6 +2,7 @@
 
 import { useState } from 'react';
 import { Box, Typography } from '@mui/material';
+import { alpha } from '@mui/material/styles';
 
 const gridSx = (item, selected) => ({
   width: 80,
@@ -15,27 +16,31 @@ const gridSx = (item, selected) => ({
   cursor: item ? 'pointer' : 'default',
   transition: 'transform 200ms ease-out, box-shadow 200ms ease-out',
   backgroundColor: selected
-    ? 'rgba(247,147,30,0.08)'
+    ? (theme) => alpha(theme.palette.primary.main, 0.08)
     : item
       ? 'background.paper'
       : 'background.default',
   border: selected
-    ? '2px solid #f7931e'
+    ? (theme) => `2px solid ${theme.palette.primary.main}`
     : item
-      ? '2px solid rgba(247,147,30,0.4)'
-      : '2px dashed #e0c9a8',
+      ? (theme) => `2px solid ${alpha(theme.palette.primary.main, 0.4)}`
+      : (theme) =>
+          theme.palette.mode === 'dark'
+            ? '2px dashed #5a4a38'
+            : '2px dashed #e0c9a8',
   boxShadow: item
-    ? 'inset -1px -1px 4px rgba(0,0,0,0.05), 2px 2px 8px rgba(247,147,30,0.15)'
+    ? (theme) =>
+        `inset -1px -1px 4px rgba(0,0,0,0.05), 2px 2px 8px ${alpha(theme.palette.primary.main, 0.15)}`
     : 'none',
   '&:hover': item
     ? {
         transform: 'translateY(-2px)',
-        boxShadow:
-          'inset -1px -1px 4px rgba(0,0,0,0.05), 4px 4px 12px rgba(247,147,30,0.25)',
+        boxShadow: (theme) =>
+          `inset -1px -1px 4px rgba(0,0,0,0.05), 4px 4px 12px ${alpha(theme.palette.primary.main, 0.25)}`,
       }
     : {},
   '&:focus-visible': {
-    outline: '2px solid #f7931e',
+    outline: (theme) => `2px solid ${theme.palette.primary.main}`,
     outlineOffset: '2px',
   },
   '@media (prefers-reduced-motion: reduce)': {
@@ -53,17 +58,20 @@ const listSx = (item, selected) => ({
   minHeight: 64,
   cursor: item ? 'pointer' : 'default',
   borderLeft: selected
-    ? '3px solid #f7931e'
+    ? (theme) => `3px solid ${theme.palette.primary.main}`
     : '3px solid transparent',
   backgroundColor: selected
-    ? 'rgba(247,147,30,0.08)'
+    ? (theme) => alpha(theme.palette.primary.main, 0.08)
     : 'transparent',
   transition: 'background-color 200ms ease-out',
   '&:hover': item
-    ? { backgroundColor: 'rgba(247,147,30,0.04)' }
+    ? {
+        backgroundColor: (theme) =>
+          alpha(theme.palette.primary.main, 0.04),
+      }
     : {},
   '&:focus-visible': {
-    outline: '2px solid #f7931e',
+    outline: (theme) => `2px solid ${theme.palette.primary.main}`,
     outlineOffset: '-2px',
   },
   '@media (prefers-reduced-motion: reduce)': {
@@ -168,7 +176,10 @@ const EquipmentSlot = ({
             flexShrink: 0,
             borderRadius: '8px',
             backgroundColor: 'background.paper',
-            border: '1px dashed #e0c9a8',
+            border: (theme) =>
+              theme.palette.mode === 'dark'
+                ? '1px dashed #5a4a38'
+                : '1px dashed #e0c9a8',
           }}
         />
       )}

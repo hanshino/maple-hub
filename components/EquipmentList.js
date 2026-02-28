@@ -1,6 +1,7 @@
 'use client';
 
 import { Box, Typography, Divider } from '@mui/material';
+import { alpha } from '@mui/material/styles';
 import EquipmentSlot from './EquipmentSlot';
 
 const SLOT_NAMES = {
@@ -98,7 +99,8 @@ const EquipmentList = ({ equipment, selectedSlot, onSlotClick }) => {
                 py: 0.75,
                 fontWeight: 700,
                 color: 'text.secondary',
-                backgroundColor: 'rgba(247,147,30,0.06)',
+                backgroundColor: (theme) =>
+                  alpha(theme.palette.primary.main, 0.06),
                 letterSpacing: '0.05em',
               }}
             >

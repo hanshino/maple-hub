@@ -1,4 +1,7 @@
+'use client';
+
 import { useState, useEffect } from 'react';
+import { useTheme } from '@mui/material/styles';
 import { Box, Typography } from '@mui/material';
 import {
   ResponsiveContainer,
@@ -18,6 +21,7 @@ import { calculateHexaMatrixProgress } from '../lib/progressUtils';
 import HexaStatTable from './HexaStatTable';
 
 export default function HexaMatrixProgress({ character }) {
+  const theme = useTheme();
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
   const [progress, setProgress] = useState(null);
@@ -127,11 +131,11 @@ export default function HexaMatrixProgress({ character }) {
       <ResponsiveContainer width="100%" height={400}>
         <RadarChart data={radarData}>
           <PolarGrid />
-          <PolarAngleAxis dataKey="core" tick={{ fontSize: 12 }} />
+          <PolarAngleAxis dataKey="core" tick={{ fontSize: 12, fill: theme.palette.text.primary }} />
           <PolarRadiusAxis
             angle={90}
             domain={[0, 30]}
-            tick={{ fontSize: 10 }}
+            tick={{ fontSize: 10, fill: theme.palette.text.secondary }}
           />
           <Radar
             name="等級"
@@ -149,10 +153,13 @@ export default function HexaMatrixProgress({ character }) {
               whiteSpace: 'normal',
               wordWrap: 'break-word',
               padding: '8px',
-              backgroundColor: 'rgba(255, 255, 255, 0.95)',
-              border: '1px solid #ccc',
+              backgroundColor: theme.palette.mode === 'dark'
+                ? 'rgba(42, 31, 26, 0.95)'
+                : 'rgba(255, 255, 255, 0.95)',
+              border: `1px solid ${theme.palette.mode === 'dark' ? '#5a4a38' : '#ccc'}`,
               borderRadius: '4px',
               boxShadow: '0 2px 8px rgba(0, 0, 0, 0.15)',
+              color: theme.palette.text.primary,
             }}
           />
         </RadarChart>

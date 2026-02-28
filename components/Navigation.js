@@ -2,12 +2,23 @@
 
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
-import { AppBar, Toolbar, Typography, Box, Button } from '@mui/material';
+import {
+  AppBar,
+  Toolbar,
+  Typography,
+  Box,
+  Button,
+  IconButton,
+} from '@mui/material';
 import LeaderboardIcon from '@mui/icons-material/Leaderboard';
 import HomeIcon from '@mui/icons-material/Home';
+import LightModeIcon from '@mui/icons-material/LightMode';
+import DarkModeIcon from '@mui/icons-material/DarkMode';
+import { useColorMode } from './MuiThemeProvider';
 
 export default function Navigation() {
   const pathname = usePathname();
+  const { mode, toggleColorMode } = useColorMode();
 
   return (
     <AppBar
@@ -27,14 +38,12 @@ export default function Navigation() {
             color: 'inherit',
             fontWeight: 'bold',
             letterSpacing: 0.5,
-            '&:hover': {
-              opacity: 0.85,
-            },
+            '&:hover': { opacity: 0.85 },
           }}
         >
           Maple Hub
         </Typography>
-        <Box sx={{ display: 'flex', gap: 2 }}>
+        <Box sx={{ display: 'flex', gap: 2, alignItems: 'center' }}>
           {[
             { href: '/', label: '首頁', icon: <HomeIcon />, exact: true },
             {
@@ -72,6 +81,16 @@ export default function Navigation() {
               </Button>
             );
           })}
+          <IconButton
+            color="inherit"
+            onClick={toggleColorMode}
+            aria-label={
+              mode === 'dark' ? '切換淺色模式' : '切換深色模式'
+            }
+            sx={{ ml: 1 }}
+          >
+            {mode === 'dark' ? <LightModeIcon /> : <DarkModeIcon />}
+          </IconButton>
         </Box>
       </Toolbar>
     </AppBar>

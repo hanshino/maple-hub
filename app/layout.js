@@ -1,3 +1,4 @@
+import Script from 'next/script';
 import './globals.css';
 import Navigation from '../components/Navigation';
 import MuiThemeProvider from '../components/MuiThemeProvider';
@@ -30,7 +31,23 @@ export const metadata = {
 
 export default function RootLayout({ children }) {
   return (
-    <html lang="zh-tw">
+    <html lang="zh-tw" suppressHydrationWarning>
+      <head>
+        <Script id="color-mode-init" strategy="beforeInteractive">
+          {`(function() {
+  try {
+    var mode = localStorage.getItem('color-mode');
+    if (!mode) {
+      mode = window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light';
+    }
+    document.documentElement.setAttribute('data-color-mode', mode);
+    if (mode === 'dark') {
+      document.documentElement.style.backgroundColor = '#1a1210';
+    }
+  } catch(e) {}
+})()`}
+        </Script>
+      </head>
       <body>
         <MuiThemeProvider>
           <Navigation />
