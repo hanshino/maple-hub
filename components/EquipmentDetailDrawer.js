@@ -1,20 +1,14 @@
 'use client';
 
-import {
-  Drawer,
-  Box,
-  Typography,
-  IconButton,
-  Divider,
-} from '@mui/material';
+import { Drawer, Box, Typography, IconButton, Divider } from '@mui/material';
 import CloseIcon from '@mui/icons-material/Close';
 import StarIcon from '@mui/icons-material/Star';
 
 const POTENTIAL_GRADE_COLORS = {
-  레어: '#4fc3f7', // Rare — blue
-  에픽: '#ba68c8', // Epic — purple
-  유니크: '#ffd54f', // Unique — gold
-  레전드리: '#66bb6a', // Legendary — green
+  稀有: '#4fc3f7', // Rare — blue
+  罕見: '#ba68c8', // Epic — purple
+  獨特: '#ffd54f', // Unique — gold
+  傳說: '#66bb6a', // Legendary — green
 };
 
 const STAT_FIELDS = [
@@ -48,7 +42,7 @@ const StatRow = ({ label, total, base, star, add, scroll }) => {
     { value: parseInt(star) || 0, color: SOURCE_COLORS.star },
     { value: parseInt(add) || 0, color: SOURCE_COLORS.add },
     { value: parseInt(scroll) || 0, color: SOURCE_COLORS.scroll },
-  ].filter((s) => s.value !== 0);
+  ].filter(s => s.value !== 0);
 
   return (
     <Box
@@ -92,11 +86,9 @@ const EquipmentDetailDrawer = ({ item, open, onClose, isMobile }) => {
   const hasPotential = item?.potential_option_1;
   const hasAdditionalPotential = item?.additional_potential_option_1;
   const hasStats =
-    item?.item_total_option &&
-    typeof item.item_total_option === 'object';
+    item?.item_total_option && typeof item.item_total_option === 'object';
   const potentialColor =
-    POTENTIAL_GRADE_COLORS[item?.potential_option_grade] ||
-    'text.primary';
+    POTENTIAL_GRADE_COLORS[item?.potential_option_grade] || 'text.primary';
   const additionalColor =
     POTENTIAL_GRADE_COLORS[item?.additional_potential_option_grade] ||
     'text.primary';
@@ -120,14 +112,8 @@ const EquipmentDetailDrawer = ({ item, open, onClose, isMobile }) => {
       {item && (
         <Box sx={{ p: 2.5 }}>
           {/* Close button */}
-          <Box
-            sx={{ display: 'flex', justifyContent: 'flex-end', mb: 1 }}
-          >
-            <IconButton
-              onClick={onClose}
-              aria-label="關閉"
-              size="small"
-            >
+          <Box sx={{ display: 'flex', justifyContent: 'flex-end', mb: 1 }}>
+            <IconButton onClick={onClose} aria-label="關閉" size="small">
               <CloseIcon />
             </IconButton>
           </Box>
@@ -169,10 +155,7 @@ const EquipmentDetailDrawer = ({ item, open, onClose, isMobile }) => {
                   }}
                 >
                   <StarIcon sx={{ fontSize: 16, color: '#ffd54f' }} />
-                  <Typography
-                    variant="body2"
-                    sx={{ fontWeight: 600 }}
-                  >
+                  <Typography variant="body2" sx={{ fontWeight: 600 }}>
                     {item.starforce}
                   </Typography>
                 </Box>
@@ -240,10 +223,7 @@ const EquipmentDetailDrawer = ({ item, open, onClose, isMobile }) => {
           {hasStats && (
             <>
               <Divider sx={{ my: 1.5 }} />
-              <Typography
-                variant="subtitle2"
-                sx={{ fontWeight: 700, mb: 0.5 }}
-              >
+              <Typography variant="subtitle2" sx={{ fontWeight: 700, mb: 0.5 }}>
                 裝備屬性
               </Typography>
               <Box
@@ -257,9 +237,9 @@ const EquipmentDetailDrawer = ({ item, open, onClose, isMobile }) => {
                 {[
                   { color: SOURCE_COLORS.base, label: '基礎' },
                   { color: SOURCE_COLORS.star, label: '星力' },
-                  { color: SOURCE_COLORS.add, label: '附加' },
+                  { color: SOURCE_COLORS.add, label: '星火' },
                   { color: SOURCE_COLORS.scroll, label: '卷軸' },
-                ].map((s) => (
+                ].map(s => (
                   <Box
                     key={s.label}
                     sx={{
