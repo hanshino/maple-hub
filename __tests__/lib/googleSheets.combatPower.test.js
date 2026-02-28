@@ -260,6 +260,185 @@ describe('GoogleSheetsClient - Combat Power Methods', () => {
     });
   });
 
+  describe('getLeaderboardData', () => {
+    it('should filter by worldName when characterInfo is provided', async () => {
+      mockSheets.spreadsheets.values.get.mockResolvedValue({
+        data: {
+          values: [
+            ['ocid', 'combat_power', 'updated_at', 'status'],
+            ['ocid1', '50000', '2026-01-01', 'success'],
+            ['ocid2', '40000', '2026-01-01', 'success'],
+            ['ocid3', '30000', '2026-01-01', 'success'],
+          ],
+        },
+      });
+
+      const characterInfoMap = new Map([
+        [
+          'ocid1',
+          {
+            character_name: 'A',
+            world_name: '殺人鯨',
+            character_class: '冒險家',
+          },
+        ],
+        [
+          'ocid2',
+          {
+            character_name: 'B',
+            world_name: '青橡',
+            character_class: '冒險家',
+          },
+        ],
+        [
+          'ocid3',
+          {
+            character_name: 'C',
+            world_name: '殺人鯨',
+            character_class: '騎士',
+          },
+        ],
+      ]);
+
+      const result = await client.getLeaderboardData(0, 20, {
+        worldName: '殺人鯨',
+        characterInfoMap,
+      });
+
+      expect(result.entries.length).toBe(2);
+      expect(result.totalCount).toBe(2);
+      expect(result.entries[0].ocid).toBe('ocid1');
+      expect(result.entries[1].ocid).toBe('ocid3');
+    });
+
+    it('should filter by search (character name) case-insensitively', async () => {
+      mockSheets.spreadsheets.values.get.mockResolvedValue({
+        data: {
+          values: [
+            ['ocid', 'combat_power', 'updated_at', 'status'],
+            ['ocid1', '50000', '2026-01-01', 'success'],
+            ['ocid2', '40000', '2026-01-01', 'success'],
+          ],
+        },
+      });
+
+      const characterInfoMap = new Map([
+        [
+          'ocid1',
+          {
+            character_name: 'HelloWorld',
+            world_name: '殺人鯨',
+            character_class: '冒險家',
+          },
+        ],
+        [
+          'ocid2',
+          {
+            character_name: 'GoodBye',
+            world_name: '青橡',
+            character_class: '冒險家',
+          },
+        ],
+      ]);
+
+      const result = await client.getLeaderboardData(0, 20, {
+        search: 'hello',
+        characterInfoMap,
+      });
+
+      expect(result.entries.length).toBe(1);
+      expect(result.entries[0].ocid).toBe('ocid1');
+    });
+
+    it('should filter by characterClass with substring match', async () => {
+      mockSheets.spreadsheets.values.get.mockResolvedValue({
+        data: {
+          values: [
+            ['ocid', 'combat_power', 'updated_at', 'status'],
+            ['ocid1', '50000', '2026-01-01', 'success'],
+            ['ocid2', '40000', '2026-01-01', 'success'],
+          ],
+        },
+      });
+
+      const characterInfoMap = new Map([
+        [
+          'ocid1',
+          {
+            character_name: 'A',
+            world_name: '殺人鯨',
+            character_class: '冒險家 - 乘風破浪',
+          },
+        ],
+        [
+          'ocid2',
+          {
+            character_name: 'B',
+            world_name: '青橡',
+            character_class: '冒險家 - 劍豪',
+          },
+        ],
+      ]);
+
+      const result = await client.getLeaderboardData(0, 20, {
+        characterClass: '乘風破浪',
+        characterInfoMap,
+      });
+
+      expect(result.entries.length).toBe(1);
+      expect(result.entries[0].ocid).toBe('ocid1');
+    });
+
+    it('should combine multiple filters', async () => {
+      mockSheets.spreadsheets.values.get.mockResolvedValue({
+        data: {
+          values: [
+            ['ocid', 'combat_power', 'updated_at', 'status'],
+            ['ocid1', '50000', '2026-01-01', 'success'],
+            ['ocid2', '40000', '2026-01-01', 'success'],
+            ['ocid3', '30000', '2026-01-01', 'success'],
+          ],
+        },
+      });
+
+      const characterInfoMap = new Map([
+        [
+          'ocid1',
+          {
+            character_name: 'A',
+            world_name: '殺人鯨',
+            character_class: '冒險家 - 乘風破浪',
+          },
+        ],
+        [
+          'ocid2',
+          {
+            character_name: 'B',
+            world_name: '殺人鯨',
+            character_class: '冒險家 - 劍豪',
+          },
+        ],
+        [
+          'ocid3',
+          {
+            character_name: 'C',
+            world_name: '青橡',
+            character_class: '冒險家 - 乘風破浪',
+          },
+        ],
+      ]);
+
+      const result = await client.getLeaderboardData(0, 20, {
+        worldName: '殺人鯨',
+        characterClass: '乘風破浪',
+        characterInfoMap,
+      });
+
+      expect(result.entries.length).toBe(1);
+      expect(result.entries[0].ocid).toBe('ocid1');
+    });
+  });
+
   describe('getFilterOptions', () => {
     it('should return deduplicated and sorted worlds and classes', async () => {
       mockSheets.spreadsheets.values.get.mockResolvedValue({
