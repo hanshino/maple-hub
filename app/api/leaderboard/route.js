@@ -13,102 +13,123 @@ const sleep = ms => new Promise(resolve => setTimeout(resolve, ms));
  * Query Parameters:
  * - offset: Starting position (0-based), default 0
  * - limit: Maximum entries to return (1-100), default 20
+ * - search: Filter by character name (partial match)
+ * - worldName: Filter by world name (exact match)
+ * - characterClass: Filter by character class (partial match)
  */
 export async function GET(request) {
   try {
     const { searchParams } = new URL(request.url);
 
-    // Parse and validate query parameters
+    // Parse and validate pagination parameters
     let offset = parseInt(searchParams.get('offset') || '0', 10);
     let limit = parseInt(searchParams.get('limit') || '20', 10);
 
-    // Validate offset
-    if (isNaN(offset) || offset < 0) {
-      offset = 0;
-    }
+    if (isNaN(offset) || offset < 0) offset = 0;
+    if (isNaN(limit) || limit < 1) limit = 20;
+    else if (limit > 100) limit = 100;
 
-    // Validate limit (1-100)
-    if (isNaN(limit) || limit < 1) {
-      limit = 20;
-    } else if (limit > 100) {
-      limit = 100;
-    }
+    // Parse filter parameters
+    const search = searchParams.get('search') || null;
+    const worldName = searchParams.get('worldName') || null;
+    const characterClass = searchParams.get('characterClass') || null;
+    const hasFilters = !!(search || worldName || characterClass);
 
-    console.log(`📊 Leaderboard API: offset=${offset}, limit=${limit}`);
+    console.log(
+      `📊 Leaderboard API: offset=${offset}, limit=${limit}, search=${search}, worldName=${worldName}, characterClass=${characterClass}`
+    );
 
     const sheetsClient = new GoogleSheetsClient();
+
+    let characterInfoMap = new Map();
+
+    if (hasFilters) {
+      // When filtering, we need character info for ALL entries
+      // so getLeaderboardData can filter by name/world/class
+      const existingRecords =
+        await sheetsClient.getExistingCombatPowerRecords();
+      const allOcids = [...existingRecords.keys()];
+      characterInfoMap = await sheetsClient.getCharacterInfoCache(allOcids);
+    }
 
     // Get leaderboard data from CombatPower sheet
     const {
       entries: combatPowerEntries,
       totalCount,
       hasMore,
-    } = await sheetsClient.getLeaderboardData(offset, limit);
+    } = await sheetsClient.getLeaderboardData(offset, limit, {
+      search,
+      worldName,
+      characterClass,
+      characterInfoMap: hasFilters ? characterInfoMap : undefined,
+    });
 
     if (combatPowerEntries.length === 0) {
       return NextResponse.json({
         entries: [],
-        totalCount: 0,
+        totalCount,
         hasMore: false,
         offset,
         limit,
       });
     }
 
-    // Get character info cache for the OCIDs
-    const ocids = combatPowerEntries.map(entry => entry.ocid);
-    const characterInfoMap = await sheetsClient.getCharacterInfoCache(ocids);
+    // For non-filtered requests, fetch character info for this page only
+    if (!hasFilters) {
+      const ocids = combatPowerEntries.map(entry => entry.ocid);
+      characterInfoMap = await sheetsClient.getCharacterInfoCache(ocids);
 
-    // Find OCIDs that are missing from cache
-    const missingOcids = ocids.filter(ocid => !characterInfoMap.has(ocid));
+      // Find OCIDs that are missing from cache
+      const missingOcids = ocids.filter(ocid => !characterInfoMap.has(ocid));
 
-    // Fetch missing character info from Nexon API (with rate limiting)
-    if (missingOcids.length > 0) {
-      console.log(
-        `🔄 Fetching ${missingOcids.length} missing character info from Nexon API...`
-      );
+      // Fetch missing character info from Nexon API (with rate limiting)
+      if (missingOcids.length > 0) {
+        console.log(
+          `🔄 Fetching ${missingOcids.length} missing character info from Nexon API...`
+        );
 
-      const newRecords = [];
+        const newRecords = [];
 
-      for (const ocid of missingOcids) {
-        try {
-          const characterInfo = await fetchCharacterInfo(ocid);
+        for (const ocid of missingOcids) {
+          try {
+            const characterInfo = await fetchCharacterInfo(ocid);
 
-          if (characterInfo) {
-            characterInfoMap.set(ocid, {
-              character_name: characterInfo.character_name,
-              character_level: characterInfo.character_level,
-              character_image: characterInfo.character_image,
-              world_name: characterInfo.world_name,
-              character_class: characterInfo.character_class,
-              cached_at: new Date().toISOString(),
-            });
+            if (characterInfo) {
+              characterInfoMap.set(ocid, {
+                character_name: characterInfo.character_name,
+                character_level: characterInfo.character_level,
+                character_image: characterInfo.character_image,
+                world_name: characterInfo.world_name,
+                character_class: characterInfo.character_class,
+                cached_at: new Date().toISOString(),
+              });
 
-            newRecords.push({
-              ocid,
-              character_name: characterInfo.character_name,
-              character_level: characterInfo.character_level,
-              character_image: characterInfo.character_image,
-              world_name: characterInfo.world_name,
-              character_class: characterInfo.character_class,
-              cached_at: new Date().toISOString(),
-            });
+              newRecords.push({
+                ocid,
+                character_name: characterInfo.character_name,
+                character_level: characterInfo.character_level,
+                character_image: characterInfo.character_image,
+                world_name: characterInfo.world_name,
+                character_class: characterInfo.character_class,
+                cached_at: new Date().toISOString(),
+              });
 
-            console.log(`✅ Fetched: ${characterInfo.character_name}`);
+              console.log(`✅ Fetched: ${characterInfo.character_name}`);
+            }
+
+            // Rate limiting
+            await sleep(API_DELAY_MS);
+          } catch (error) {
+            console.error(`❌ Failed to fetch ${ocid}:`, error.message);
           }
-
-          // Rate limiting
-          await sleep(API_DELAY_MS);
-        } catch (error) {
-          console.error(`❌ Failed to fetch ${ocid}:`, error.message);
         }
-      }
 
-      // Save to cache (async, don't wait)
-      if (newRecords.length > 0) {
-        sheetsClient.upsertCharacterInfoCache(newRecords).catch(err => {
-          console.error('Failed to cache character info:', err.message);
-        });
+        // Save to cache (async, don't wait)
+        if (newRecords.length > 0) {
+          sheetsClient.upsertCharacterInfoCache(newRecords).catch(err => {
+            console.error('Failed to cache character info:', err.message);
+          });
+        }
       }
     }
 
