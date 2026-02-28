@@ -341,10 +341,12 @@ const ProgressChart = memo(function ProgressChart({ progressData }) {
           <CartesianGrid strokeDasharray="3 3" />
           <XAxis
             dataKey="date"
-            tick={{ fontSize: 10 }}
-            angle={-45}
-            textAnchor="end"
-            height={60}
+            tick={{ fontSize: 11 }}
+            tickFormatter={value => {
+              const d = new Date(value);
+              return `${d.getMonth() + 1}/${d.getDate()}`;
+            }}
+            height={40}
             interval="preserveStartEnd"
           />
           <YAxis
