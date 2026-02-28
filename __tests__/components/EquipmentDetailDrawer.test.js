@@ -21,6 +21,38 @@ const mockItem = {
     max_hp: '3000',
     attack_power: '50',
   },
+  item_base_option: {
+    str: '50',
+    dex: '50',
+    int: '0',
+    luk: '0',
+    max_hp: '0',
+    attack_power: '6',
+  },
+  item_starforce_option: {
+    str: '80',
+    dex: '30',
+    int: '0',
+    luk: '0',
+    max_hp: '2500',
+    attack_power: '34',
+  },
+  item_add_option: {
+    str: '20',
+    dex: '20',
+    int: '0',
+    luk: '0',
+    max_hp: '500',
+    attack_power: '10',
+  },
+  item_etc_option: {
+    str: '0',
+    dex: '0',
+    int: '0',
+    luk: '0',
+    max_hp: '0',
+    attack_power: '0',
+  },
 };
 
 describe('EquipmentDetailDrawer', () => {
@@ -101,6 +133,27 @@ describe('EquipmentDetailDrawer', () => {
     );
     fireEvent.click(screen.getByLabelText('關閉'));
     expect(handleClose).toHaveBeenCalled();
+  });
+
+  it('renders stat breakdown with source values', () => {
+    render(
+      <EquipmentDetailDrawer
+        item={mockItem}
+        open={true}
+        onClose={() => {}}
+        isMobile={false}
+      />
+    );
+    // STR total is 150
+    expect(screen.getByText('+150')).toBeInTheDocument();
+    // DEX total is 100
+    expect(screen.getByText('+100')).toBeInTheDocument();
+    // Color legend should be present
+    expect(screen.getByText('基礎')).toBeInTheDocument();
+    expect(screen.getByText('星力')).toBeInTheDocument();
+    expect(screen.getByText('附加')).toBeInTheDocument();
+    // Stats section header
+    expect(screen.getByText('裝備屬性')).toBeInTheDocument();
   });
 
   it('renders nothing when item is null', () => {
