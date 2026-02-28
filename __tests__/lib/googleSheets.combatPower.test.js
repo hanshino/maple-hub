@@ -155,9 +155,17 @@ describe('GoogleSheetsClient - Combat Power Methods', () => {
       expect(mockSheets.spreadsheets.batchUpdate).toHaveBeenCalled();
       expect(mockSheets.spreadsheets.values.update).toHaveBeenCalledWith(
         expect.objectContaining({
-          range: 'CombatPower!A1:D1',
+          range: 'CombatPower!A1:E1',
           resource: {
-            values: [['ocid', 'combat_power', 'updated_at', 'status']],
+            values: [
+              [
+                'ocid',
+                'combat_power',
+                'updated_at',
+                'status',
+                'not_found_count',
+              ],
+            ],
           },
         })
       );
@@ -223,6 +231,34 @@ describe('GoogleSheetsClient - Combat Power Methods', () => {
       expect(result.updated).toBe(0);
       expect(result.inserted).toBe(1);
       expect(mockSheets.spreadsheets.values.append).toHaveBeenCalled();
+    });
+
+    it('should use provided existingData instead of reading from sheet', async () => {
+      const existingData = [
+        ['ocid', 'combat_power', 'updated_at', 'status'],
+        ['ocid1', '1000000', '2025-12-05T00:00:00.000Z', 'success'],
+      ];
+
+      mockSheets.spreadsheets.values.batchUpdate.mockResolvedValue({});
+
+      const records = [
+        {
+          ocid: 'ocid1',
+          combat_power: '2000000',
+          updated_at: '2025-12-06T00:00:00.000Z',
+          status: 'success',
+        },
+      ];
+
+      const result = await client.upsertCombatPowerRecords(
+        records,
+        existingData
+      );
+
+      expect(result.updated).toBe(1);
+      expect(result.inserted).toBe(0);
+      // Should NOT have called values.get since we passed existingData
+      expect(mockSheets.spreadsheets.values.get).not.toHaveBeenCalled();
     });
 
     it('should handle mixed update and insert', async () => {
@@ -436,6 +472,167 @@ describe('GoogleSheetsClient - Combat Power Methods', () => {
 
       expect(result.entries.length).toBe(1);
       expect(result.entries[0].ocid).toBe('ocid1');
+    });
+  });
+
+  describe('upsertCharacterInfoCache', () => {
+    it('should use provided existingData instead of reading from sheet', async () => {
+      const existingData = [
+        [
+          'ocid',
+          'character_name',
+          'character_level',
+          'character_image',
+          'world_name',
+          'character_class',
+          'cached_at',
+        ],
+        [
+          'ocid1',
+          'Player1',
+          '275',
+          'img1',
+          '殺人鯨',
+          '冒險家',
+          '2025-12-05T00:00:00.000Z',
+        ],
+      ];
+
+      mockSheets.spreadsheets.values.batchUpdate.mockResolvedValue({});
+
+      jest
+        .spyOn(client, 'getOrCreateCharacterInfoSheet')
+        .mockResolvedValue({
+          sheetId: 1,
+          sheetName: 'CharacterInfo',
+        });
+
+      const records = [
+        {
+          ocid: 'ocid1',
+          character_name: 'Player1Updated',
+          character_level: 276,
+          character_image: 'img1',
+          world_name: '殺人鯨',
+          character_class: '冒險家',
+          cached_at: '2025-12-06T00:00:00.000Z',
+        },
+      ];
+
+      const result = await client.upsertCharacterInfoCache(
+        records,
+        existingData
+      );
+
+      expect(result.updated).toBe(1);
+      expect(result.inserted).toBe(0);
+      // Should NOT have called values.get since we passed existingData
+      expect(mockSheets.spreadsheets.values.get).not.toHaveBeenCalled();
+    });
+  });
+
+  describe('getExistingCombatPowerRecords', () => {
+    it('should parse not_found_count from 5th column', async () => {
+      mockSheets.spreadsheets.values.get.mockResolvedValue({
+        data: {
+          values: [
+            ['ocid', 'combat_power', 'updated_at', 'status', 'not_found_count'],
+            ['ocid1', '1000000', '2026-01-01', 'success', '0'],
+            ['ocid2', '0', '2026-01-01', 'not_found', '2'],
+          ],
+        },
+      });
+
+      const result = await client.getExistingCombatPowerRecords();
+
+      expect(result.get('ocid1').not_found_count).toBe(0);
+      expect(result.get('ocid2').not_found_count).toBe(2);
+    });
+
+    it('should default not_found_count to 0 when column is missing', async () => {
+      mockSheets.spreadsheets.values.get.mockResolvedValue({
+        data: {
+          values: [
+            ['ocid', 'combat_power', 'updated_at', 'status'],
+            ['ocid1', '1000000', '2026-01-01', 'success'],
+          ],
+        },
+      });
+
+      const result = await client.getExistingCombatPowerRecords();
+
+      expect(result.get('ocid1').not_found_count).toBe(0);
+    });
+  });
+
+  describe('removeOcids', () => {
+    it('should return zeros for empty input', async () => {
+      const result = await client.removeOcids([]);
+      expect(result).toEqual({ sheet1: 0, combatPower: 0, characterInfo: 0 });
+    });
+
+    it('should delete rows from all three sheets', async () => {
+      mockSheets.spreadsheets.get.mockResolvedValue({
+        data: {
+          sheets: [
+            { properties: { sheetId: 0, title: 'Sheet1' } },
+            { properties: { sheetId: 1, title: 'CombatPower' } },
+            { properties: { sheetId: 2, title: 'CharacterInfo' } },
+          ],
+        },
+      });
+
+      // Sheet1 column A
+      mockSheets.spreadsheets.values.get
+        .mockResolvedValueOnce({
+          data: { values: [['ocid'], ['ocid1'], ['ocid2'], ['ocid3']] },
+        })
+        // CombatPower column A
+        .mockResolvedValueOnce({
+          data: {
+            values: [
+              ['ocid'],
+              ['ocid1'],
+              ['ocid2'],
+              ['ocid3'],
+            ],
+          },
+        })
+        // CharacterInfo column A
+        .mockResolvedValueOnce({
+          data: { values: [['ocid'], ['ocid1'], ['ocid2'], ['ocid3']] },
+        });
+
+      mockSheets.spreadsheets.batchUpdate.mockResolvedValue({});
+
+      const result = await client.removeOcids(['ocid1', 'ocid3']);
+
+      expect(result.sheet1).toBe(2);
+      expect(result.combatPower).toBe(2);
+      expect(result.characterInfo).toBe(2);
+      expect(mockSheets.spreadsheets.batchUpdate).toHaveBeenCalledTimes(3);
+    });
+
+    it('should skip sheets that do not exist', async () => {
+      mockSheets.spreadsheets.get.mockResolvedValue({
+        data: {
+          sheets: [
+            { properties: { sheetId: 0, title: 'Sheet1' } },
+          ],
+        },
+      });
+
+      mockSheets.spreadsheets.values.get.mockResolvedValueOnce({
+        data: { values: [['ocid'], ['ocid1']] },
+      });
+
+      mockSheets.spreadsheets.batchUpdate.mockResolvedValue({});
+
+      const result = await client.removeOcids(['ocid1']);
+
+      expect(result.sheet1).toBe(1);
+      expect(result.combatPower).toBe(0);
+      expect(result.characterInfo).toBe(0);
     });
   });
 

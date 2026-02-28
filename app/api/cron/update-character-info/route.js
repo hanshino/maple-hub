@@ -2,6 +2,8 @@ import { NextResponse } from 'next/server';
 import { updateAllCharacterInfoCache } from '../../../../lib/characterInfoService';
 
 /**
+ * @deprecated Use /api/cron/refresh-all instead.
+ *
  * CRON API endpoint for updating character info cache
  * Triggered by external CRON service (e.g., cron-job.org) every 6 hours
  *

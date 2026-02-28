@@ -1,4 +1,6 @@
 /**
+ * @deprecated Use /api/cron/refresh-all instead.
+ *
  * Combat Power Refresh Cron API
  *
  * GET /api/cron/combat-power-refresh

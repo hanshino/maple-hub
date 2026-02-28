@@ -26,6 +26,7 @@ describe('Combat Power Refresh API Route', () => {
 
     GoogleSheetsClient.mockImplementation(() => ({
       getAllOcids: mockGetAllOcids,
+      getExistingCombatPowerRecords: jest.fn().mockResolvedValue(new Map()),
       upsertCombatPowerRecords: mockUpsertCombatPowerRecords,
       getCombatPowerSheet: jest.fn(),
     }));
@@ -188,7 +189,12 @@ describe('Combat Power Refresh API Route', () => {
       expect(data.batchSize).toBe(15);
       expect(data.totalCount).toBe(0);
       expect(data.hasMore).toBe(false);
-      expect(data.stats).toEqual({ success: 0, failed: 0, notFound: 0 });
+      expect(data.stats).toEqual({
+        success: 0,
+        failed: 0,
+        notFound: 0,
+        skipped: 0,
+      });
       expect(data.timestamp).toBeDefined();
     });
 
@@ -214,7 +220,8 @@ describe('Combat Power Refresh API Route', () => {
             status: 'not_found',
           },
         ],
-        stats: { success: 1, failed: 0, notFound: 1 },
+        characterInfoRecords: [],
+        stats: { success: 1, failed: 0, notFound: 1, skipped: 0 },
         executionTimeMs: 500,
       });
 
