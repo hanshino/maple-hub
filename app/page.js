@@ -1,6 +1,7 @@
 'use client';
 
-import { useState } from 'react';
+import { Suspense, useState, useEffect } from 'react';
+import { useSearchParams } from 'next/navigation';
 import {
   Container,
   Grid,
@@ -29,6 +30,15 @@ import { generateDateRange } from '../lib/progressUtils';
 import { apiCall, batchApiCalls } from '../lib/apiUtils';
 
 export default function Home() {
+  return (
+    <Suspense>
+      <HomeContent />
+    </Suspense>
+  );
+}
+
+function HomeContent() {
+  const searchParams = useSearchParams();
   const [character, setCharacter] = useState(null);
   const [unionData, setUnionData] = useState(null);
   const [chartData, setChartData] = useState([]);
@@ -141,6 +151,15 @@ export default function Home() {
       setLoading(false);
     }
   };
+
+  // Auto-search when navigated with ?ocid= query param (e.g. from leaderboard)
+  useEffect(() => {
+    const ocid = searchParams.get('ocid');
+    if (ocid) {
+      searchCharacter(ocid);
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
 
   return (
     <Container maxWidth="xl" sx={{ py: 4 }}>

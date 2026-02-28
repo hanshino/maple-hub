@@ -1,6 +1,7 @@
 'use client';
 
 import { useState, useEffect, useRef, useCallback } from 'react';
+import { useRouter } from 'next/navigation';
 import {
   Box,
   Typography,
@@ -29,6 +30,7 @@ const DEBOUNCE_DELAY = 300; // ms
  * Displays combat power leaderboard with infinite scroll and filters
  */
 export default function LeaderboardList() {
+  const router = useRouter();
   const [entries, setEntries] = useState([]);
   const [totalCount, setTotalCount] = useState(0);
   const [isLoading, setIsLoading] = useState(true);
@@ -417,6 +419,9 @@ export default function LeaderboardList() {
             worldName={entry.world_name}
             characterClass={entry.character_class}
             combatPower={entry.combat_power}
+            onClick={() =>
+              router.push(`/?ocid=${entry.ocid}`)
+            }
           />
         ))}
       </Box>

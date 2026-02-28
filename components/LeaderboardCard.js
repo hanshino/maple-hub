@@ -56,6 +56,7 @@ export default function LeaderboardCard({
   characterClass,
   combatPower,
   loading = false,
+  onClick,
 }) {
   if (loading) {
     return (
@@ -82,11 +83,13 @@ export default function LeaderboardCard({
 
   return (
     <Card
+      onClick={onClick}
       sx={{
         display: 'flex',
         alignItems: 'center',
         p: 1.5,
         mb: 1,
+        cursor: onClick ? 'pointer' : 'default',
         transition: 'transform 0.2s, box-shadow 0.2s',
         '@media (prefers-reduced-motion: reduce)': {
           transition: 'none',
