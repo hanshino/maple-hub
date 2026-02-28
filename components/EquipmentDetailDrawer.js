@@ -5,9 +5,9 @@ import CloseIcon from '@mui/icons-material/Close';
 import StarIcon from '@mui/icons-material/Star';
 
 const POTENTIAL_GRADE_COLORS = {
-  稀有: '#4fc3f7', // Rare — blue
-  罕見: '#ba68c8', // Epic — purple
-  獨特: '#ffd54f', // Unique — gold
+  特殊: '#4fc3f7', // Rare — blue
+  稀有: '#ba68c8', // Epic — purple
+  罕見: '#ffd54f', // Unique — gold
   傳說: '#66bb6a', // Legendary — green
 };
 
