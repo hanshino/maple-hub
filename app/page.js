@@ -206,7 +206,7 @@ function HomeContent() {
       {loading && (
         <Box>
           {/* Hero Card Skeleton */}
-          <Card elevation={3} sx={{ mb: 3 }}>
+          <Card elevation={4} sx={{ mb: 3 }}>
             <CardContent sx={{ p: 3 }}>
               <Box
                 sx={{
@@ -287,7 +287,7 @@ function HomeContent() {
           {/* Two columns Skeleton */}
           <Grid container spacing={2} sx={{ mb: 4 }}>
             <Grid size={{ xs: 12, md: 7 }}>
-              <Card elevation={3}>
+              <Card elevation={2}>
                 <CardContent>
                   <Skeleton variant="text" width={120} height={32} />
                   <Skeleton
@@ -304,7 +304,7 @@ function HomeContent() {
               </Card>
             </Grid>
             <Grid size={{ xs: 12, md: 5 }}>
-              <Card elevation={3}>
+              <Card elevation={2}>
                 <CardContent sx={{ p: 3 }}>
                   <Skeleton variant="text" width={100} height={32} />
                   <Skeleton
@@ -339,7 +339,7 @@ function HomeContent() {
       {!loading && character && (
         <Box>
           {/* Hero Card: Character info */}
-          <Card elevation={3} sx={{ mb: 3 }}>
+          <Card elevation={4} sx={{ mb: 3 }}>
             <CharacterCard
               character={character}
               historicalData={chartData}
@@ -352,7 +352,7 @@ function HomeContent() {
           {/* Two columns: Progress + Hexa Matrix */}
           <Grid container spacing={2} sx={{ mb: 4 }}>
             <Grid size={{ xs: 12, md: 7 }}>
-              <Card elevation={3} sx={{ height: '100%' }}>
+              <Card elevation={2} sx={{ height: '100%' }}>
                 <CardContent sx={{ height: '100%' }}>
                   <Typography variant="h5" component="h3" gutterBottom>
                     進度視覺化
@@ -373,7 +373,7 @@ function HomeContent() {
               </Card>
             </Grid>
             <Grid size={{ xs: 12, md: 5 }}>
-              <Card elevation={3} sx={{ height: '100%' }}>
+              <Card elevation={2} sx={{ height: '100%' }}>
                 <CardContent sx={{ p: 3, height: '100%' }}>
                   <HexaMatrixProgress character={character} />
                 </CardContent>
@@ -403,7 +403,7 @@ function HomeContent() {
       {/* Rune Systems Section */}
       {!loading && character && (
         <Box sx={{ mt: 4 }}>
-          <Card elevation={3}>
+          <Card elevation={2}>
             <CardContent sx={{ p: 3 }}>
               <Typography variant="h5" component="h3" gutterBottom>
                 符文系統
