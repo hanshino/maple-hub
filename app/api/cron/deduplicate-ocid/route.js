@@ -6,6 +6,7 @@
  * Detects and removes duplicate OCID records from Google Sheets:
  * - OCID Sheet (Sheet1): Keeps the first occurrence of each OCID
  * - CombatPower Sheet: Keeps the record with the latest updated_at timestamp
+ * - CharacterInfo Sheet: Keeps the record with the latest cached_at timestamp
  *
  * Query Parameters:
  * - dryRun (boolean, default: false): If true, returns statistics without making changes
@@ -19,6 +20,7 @@
  *   dryRun: boolean,
  *   ocidSheet: { totalRecords, duplicatesFound, removed, duplicateDetails? },
  *   combatPowerSheet: { totalRecords, duplicatesFound, removed, duplicateDetails? },
+ *   characterInfoSheet: { totalRecords, duplicatesFound, removed, duplicateDetails? },
  *   executionTimeMs: number,
  *   timestamp: string
  * }
@@ -85,11 +87,13 @@ export async function GET(request) {
     // Initialize Google Sheets client
     const sheetsClient = new GoogleSheetsClient();
 
-    // Process both sheets independently to isolate errors
+    // Process all sheets independently to isolate errors
     let ocidSheetResult = null;
     let combatPowerSheetResult = null;
+    let characterInfoSheetResult = null;
     let ocidSheetError = null;
     let combatPowerSheetError = null;
+    let characterInfoSheetError = null;
 
     // Process OCID sheet
     try {
@@ -126,10 +130,32 @@ export async function GET(request) {
       };
     }
 
+    // Process CharacterInfo sheet
+    try {
+      characterInfoSheetResult =
+        await sheetsClient.deduplicateCharacterInfoSheet(dryRun);
+      console.log(
+        `[DeduplicateOcid] CharacterInfo sheet: ${characterInfoSheetResult.duplicatesFound} duplicates found, ${characterInfoSheetResult.removed} removed`
+      );
+    } catch (error) {
+      console.error(
+        '[DeduplicateOcid] CharacterInfo sheet error:',
+        error
+      );
+      characterInfoSheetError = error.message || 'Unknown error';
+      characterInfoSheetResult = {
+        totalRecords: 0,
+        duplicatesFound: 0,
+        removed: 0,
+        error: characterInfoSheetError,
+      };
+    }
+
     const executionTimeMs = Date.now() - startTime;
 
-    // Determine overall success (both sheets processed without errors)
-    const success = !ocidSheetError && !combatPowerSheetError;
+    // Determine overall success (all sheets processed without errors)
+    const success =
+      !ocidSheetError && !combatPowerSheetError && !characterInfoSheetError;
 
     console.log(
       `[DeduplicateOcid] Completed in ${executionTimeMs}ms (success=${success}, dryRun=${dryRun})`
@@ -140,15 +166,17 @@ export async function GET(request) {
       dryRun,
       ocidSheet: ocidSheetResult,
       combatPowerSheet: combatPowerSheetResult,
+      characterInfoSheet: characterInfoSheetResult,
       executionTimeMs,
       timestamp,
     };
 
     // Add error details if partial failure
-    if (ocidSheetError || combatPowerSheetError) {
+    if (ocidSheetError || combatPowerSheetError || characterInfoSheetError) {
       response.details = {
         ocidSheetError,
         combatPowerSheetError,
+        characterInfoSheetError,
       };
     }
 
