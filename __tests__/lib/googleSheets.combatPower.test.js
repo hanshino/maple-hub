@@ -259,4 +259,104 @@ describe('GoogleSheetsClient - Combat Power Methods', () => {
       expect(result.inserted).toBe(1);
     });
   });
+
+  describe('getFilterOptions', () => {
+    it('should return deduplicated and sorted worlds and classes', async () => {
+      mockSheets.spreadsheets.values.get.mockResolvedValue({
+        data: {
+          values: [
+            [
+              'ocid',
+              'character_name',
+              'character_level',
+              'character_image',
+              'world_name',
+              'character_class',
+              'cached_at',
+            ],
+            [
+              'ocid1',
+              'Player1',
+              '275',
+              'img1',
+              '殺人鯨',
+              '冒險家 - 乘風破浪',
+              '2026-01-01',
+            ],
+            [
+              'ocid2',
+              'Player2',
+              '280',
+              'img2',
+              '青橡',
+              '冒險家 - 乘風破浪',
+              '2026-01-01',
+            ],
+            [
+              'ocid3',
+              'Player3',
+              '270',
+              'img3',
+              '殺人鯨',
+              '冒險家 - 乘風破浪',
+              '2026-01-01',
+            ],
+            [
+              'ocid4',
+              'Player4',
+              '260',
+              'img4',
+              '青橡',
+              '冒險家 - 乘風破浪',
+              '2026-01-01',
+            ],
+          ],
+        },
+      });
+
+      jest
+        .spyOn(client, 'getOrCreateCharacterInfoSheet')
+        .mockResolvedValue({
+          sheetId: 1,
+          sheetName: 'CharacterInfo',
+        });
+
+      const result = await client.getFilterOptions();
+
+      expect(result.worlds).toEqual(['殺人鯨', '青橡']);
+      expect(result.classes).toEqual(['冒險家 - 乘風破浪']);
+      // Should be deduplicated
+      expect(result.worlds.length).toBe(2);
+    });
+
+    it('should return empty arrays when no data exists', async () => {
+      mockSheets.spreadsheets.values.get.mockResolvedValue({
+        data: {
+          values: [
+            [
+              'ocid',
+              'character_name',
+              'character_level',
+              'character_image',
+              'world_name',
+              'character_class',
+              'cached_at',
+            ],
+          ],
+        },
+      });
+
+      jest
+        .spyOn(client, 'getOrCreateCharacterInfoSheet')
+        .mockResolvedValue({
+          sheetId: 1,
+          sheetName: 'CharacterInfo',
+        });
+
+      const result = await client.getFilterOptions();
+
+      expect(result.worlds).toEqual([]);
+      expect(result.classes).toEqual([]);
+    });
+  });
 });
