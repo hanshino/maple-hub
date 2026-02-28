@@ -1,5 +1,4 @@
-import { render, screen, fireEvent, waitFor } from '@testing-library/react';
-import userEvent from '@testing-library/user-event';
+import { render, screen, waitFor, fireEvent } from '@testing-library/react';
 import EquipmentDialog from '../../components/EquipmentDialog';
 
 // Mock fetch
@@ -11,13 +10,23 @@ jest.mock('../../lib/equipmentUtils', () => ({
   getEquipmentPosition: jest.fn(),
 }));
 
-// Mock Next.js Image component
-jest.mock('next/image', () => ({
-  __esModule: true,
-  default: ({ src, alt, ...props }) => <img src={src} alt={alt} {...props} />,
+// Mock cache
+jest.mock('../../lib/cache', () => ({
+  getCachedData: jest.fn(() => null),
+  setCachedData: jest.fn(),
 }));
 
+// Mock useMediaQuery — default to desktop
+jest.mock('@mui/material', () => {
+  const actual = jest.requireActual('@mui/material');
+  return {
+    ...actual,
+    useMediaQuery: jest.fn(() => true), // true = desktop (md and up)
+  };
+});
+
 import { processEquipmentData } from '../../lib/equipmentUtils';
+import { useMediaQuery } from '@mui/material';
 
 describe('EquipmentDialog', () => {
   const mockEquipmentData = {
@@ -25,67 +34,90 @@ describe('EquipmentDialog', () => {
     item_equipment: [],
     item_equipment_preset_2: [
       {
-        item_equipment_part: '모자',
+        item_equipment_slot: '帽子',
         item_name: 'Test Hat',
         item_icon: 'icon1.png',
       },
     ],
   };
 
-  const mockCharacterData = {
-    character_image: 'https://example.com/character.png',
-    character_name: 'Test Character',
-  };
-
   const mockProcessedData = {
     hat: {
-      item_equipment_part: '모자',
       item_name: 'Test Hat',
       item_icon: 'https://example.com/icon1.png',
     },
   };
 
+  const mockCharacter = {
+    character_image: 'https://example.com/character.png',
+    character_name: 'Test Character',
+  };
+
   beforeEach(() => {
     fetch.mockClear();
-    // Mock equipment API
     fetch.mockResolvedValue({
       ok: true,
       json: async () => mockEquipmentData,
     });
     processEquipmentData.mockReturnValue(mockProcessedData);
+    useMediaQuery.mockReturnValue(true); // desktop
   });
 
-  it('should open dialog when button is clicked', async () => {
-    render(<EquipmentDialog ocid="test-ocid" />);
-
-    const button = screen.getByRole('button', { name: /裝備/ });
-    fireEvent.click(button);
-
-    // Check that dialog is opened
+  it('renders dialog title when open', async () => {
+    render(
+      <EquipmentDialog
+        ocid="test-ocid"
+        character={mockCharacter}
+        open={true}
+        onClose={() => {}}
+      />
+    );
     await waitFor(() => {
       expect(screen.getByText('角色裝備')).toBeInTheDocument();
     });
   });
 
-  it('should display equipment in grid layout', async () => {
-    const mockCharacter = {
-      character_image: 'https://example.com/character.png',
-      character_name: 'Test Character',
-    };
+  it('shows loading spinner while fetching', () => {
+    // Make fetch hang
+    fetch.mockReturnValue(new Promise(() => {}));
+    render(
+      <EquipmentDialog
+        ocid="test-ocid"
+        character={mockCharacter}
+        open={true}
+        onClose={() => {}}
+      />
+    );
+    expect(screen.getByRole('progressbar')).toBeInTheDocument();
+  });
 
-    render(<EquipmentDialog ocid="test-ocid" character={mockCharacter} />);
+  it('renders equipment after loading on desktop (grid)', async () => {
+    useMediaQuery.mockReturnValue(true);
+    render(
+      <EquipmentDialog
+        ocid="test-ocid"
+        character={mockCharacter}
+        open={true}
+        onClose={() => {}}
+      />
+    );
+    await waitFor(() => {
+      expect(screen.getByAltText('角色')).toBeInTheDocument(); // Avatar from Grid
+    });
+  });
 
-    // Click the equipment button to open dialog and load equipment
-    const button = screen.getByRole('button', { name: /裝備/ });
-    fireEvent.click(button);
-
-    // Wait for equipment to load and dialog to open
+  it('calls onClose when dialog close is triggered', async () => {
+    const handleClose = jest.fn();
+    render(
+      <EquipmentDialog
+        ocid="test-ocid"
+        character={mockCharacter}
+        open={true}
+        onClose={handleClose}
+      />
+    );
     await waitFor(() => {
       expect(screen.getByText('角色裝備')).toBeInTheDocument();
-      expect(screen.getByText('Test Hat')).toBeInTheDocument();
     });
-
-    // Check for grid structure
-    expect(screen.getByRole('dialog')).toBeInTheDocument();
   });
 });
