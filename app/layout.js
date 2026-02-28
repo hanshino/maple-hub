@@ -2,6 +2,7 @@ import Script from 'next/script';
 import './globals.css';
 import Navigation from '../components/Navigation';
 import MuiThemeProvider from '../components/MuiThemeProvider';
+import PageTransition from '../components/PageTransition';
 import { validateEnvironmentOnLoad } from '../lib/envValidation';
 
 // 導入楓之谷主題字體
@@ -51,7 +52,7 @@ export default function RootLayout({ children }) {
       <body>
         <MuiThemeProvider>
           <Navigation />
-          {children}
+          <PageTransition>{children}</PageTransition>
         </MuiThemeProvider>
       </body>
     </html>

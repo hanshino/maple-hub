@@ -6,6 +6,7 @@ import {
   Box,
   Typography,
   CircularProgress,
+  Skeleton,
   Alert,
   Button,
   Paper,
@@ -314,14 +315,14 @@ export default function LeaderboardList() {
   // Initial loading state
   if (isLoading && entries.length === 0) {
     return (
-      <Box
-        sx={{
-          display: 'flex',
-          justifyContent: 'center',
-          py: 4,
-        }}
-      >
-        <CircularProgress />
+      <Box>
+        {filterBar}
+        <Box sx={{ mb: 2 }}>
+          <Skeleton variant="text" width={120} height={20} />
+        </Box>
+        {Array.from({ length: 5 }, (_, i) => (
+          <LeaderboardCard key={i} loading />
+        ))}
       </Box>
     );
   }

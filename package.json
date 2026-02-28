@@ -24,6 +24,7 @@
     "autoprefixer": "^10.4.27",
     "axios": "^1.13.6",
     "better-sqlite3": "^12.6.2",
+    "framer-motion": "^12.34.3",
     "googleapis": "^171.4.0",
     "lodash": "^4.17.23",
     "next": "^16.1.6",
