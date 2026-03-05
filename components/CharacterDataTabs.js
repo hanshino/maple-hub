@@ -1,7 +1,7 @@
 'use client';
 
-import React, { useState, useCallback } from 'react';
-import { Box, Card, CardContent, Tab, Tabs, Typography } from '@mui/material';
+import { useState, useCallback } from 'react';
+import { Box, Card, CardContent, Tab, Tabs } from '@mui/material';
 import CharacterStats from './CharacterStats';
 import RuneSystems from './runes/RuneSystems';
 import UnionRaiderPanel from './UnionRaiderPanel';
@@ -76,7 +76,7 @@ const CharacterDataTabs = ({
     [ocid]
   );
 
-  const handleTabChange = (event, newValue) => {
+  const handleTabChange = (_event, newValue) => {
     setActiveTab(newValue);
 
     if (newValue === TAB_UNION_RAIDER && !unionRaiderLoaded) {
