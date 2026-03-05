@@ -3,6 +3,7 @@ import {
   getEquipmentPosition,
   getEquipmentCategory,
   analyzeScrolls,
+  processCashItemEquipmentData,
 } from '../../lib/equipmentUtils';
 
 describe('equipmentUtils', () => {
@@ -374,6 +375,72 @@ describe('equipmentUtils', () => {
     it('should treat 機器心臟 as weapon', () => {
       const result = analyzeScrolls(makeItem('機器心臟', 3, 42, 42));
       expect(result).toEqual({ type: 'single', name: '究極黑暗', count: 3 });
+    });
+  });
+
+  describe('processCashItemEquipmentData', () => {
+    it('should normalize cash items from base array to keyed object', () => {
+      const data = {
+        cash_item_equipment_base: [
+          {
+            cash_item_equipment_part: '帽子',
+            cash_item_equipment_slot: '帽子',
+            cash_item_name: '帽子內襯',
+            cash_item_icon: 'https://example.com/hat.png',
+            cash_item_option: [
+              { option_type: 'LUK', option_value: '15' },
+              { option_type: '攻擊力', option_value: '35' },
+            ],
+            date_expire: null,
+          },
+          {
+            cash_item_equipment_part: '套服',
+            cash_item_equipment_slot: '上衣',
+            cash_item_name: '套服內襯',
+            cash_item_icon: 'https://example.com/top.png',
+            cash_item_option: [
+              { option_type: '攻擊力', option_value: '20' },
+            ],
+            date_expire: '2026-12-31T00:00+08:00',
+          },
+          {
+            cash_item_equipment_part: '戒指',
+            cash_item_equipment_slot: '戒指1',
+            cash_item_name: '凝聚的戒指',
+            cash_item_icon: 'https://example.com/ring.png',
+            cash_item_option: [],
+            date_expire: null,
+          },
+        ],
+      };
+
+      const result = processCashItemEquipmentData(data);
+
+      expect(result.hat).toEqual({
+        item_name: '帽子內襯',
+        item_icon: 'https://example.com/hat.png',
+        item_equipment_slot: '帽子',
+        cash_item_equipment_part: '帽子',
+        cash_item_option: [
+          { option_type: 'LUK', option_value: '15' },
+          { option_type: '攻擊力', option_value: '35' },
+        ],
+        date_expire: null,
+      });
+      expect(result.top.item_name).toBe('套服內襯');
+      expect(result.top.date_expire).toBe('2026-12-31T00:00+08:00');
+      expect(result.ring.item_name).toBe('凝聚的戒指');
+    });
+
+    it('should return empty object when base is empty', () => {
+      const data = { cash_item_equipment_base: [] };
+      const result = processCashItemEquipmentData(data);
+      expect(result).toEqual({});
+    });
+
+    it('should return empty object when data is null', () => {
+      const result = processCashItemEquipmentData(null);
+      expect(result).toEqual({});
     });
   });
 });
