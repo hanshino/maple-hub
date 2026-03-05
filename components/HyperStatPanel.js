@@ -4,54 +4,29 @@ import { useState } from 'react';
 import {
   Box,
   Typography,
-  CircularProgress,
-  Alert,
-  Button,
-  Tabs,
-  Tab,
+  Chip,
+  ToggleButtonGroup,
+  ToggleButton,
   Table,
   TableBody,
   TableRow,
   TableCell,
 } from '@mui/material';
+import PanelSkeleton from './panel/PanelSkeleton';
+import PanelError from './panel/PanelError';
+import PanelEmpty from './panel/PanelEmpty';
+import SectionHeader from './panel/SectionHeader';
 
 const HyperStatPanel = ({ loading, error, data, onRetry }) => {
-  const [tabIndex, setTabIndex] = useState(0);
+  const [presetIndex, setPresetIndex] = useState(0);
 
-  if (loading) {
-    return (
-      <Box sx={{ display: 'flex', justifyContent: 'center', p: 4 }}>
-        <CircularProgress />
-      </Box>
-    );
-  }
+  if (loading) return <PanelSkeleton rows={5} />;
 
   if (error) {
-    return (
-      <Box sx={{ p: 2 }}>
-        <Alert
-          severity="error"
-          action={
-            onRetry && (
-              <Button color="inherit" size="small" onClick={onRetry}>
-                重試
-              </Button>
-            )
-          }
-        >
-          {error}
-        </Alert>
-      </Box>
-    );
+    return <PanelError message="無法載入極限屬性資料" onRetry={onRetry} />;
   }
 
-  if (!data) {
-    return (
-      <Box sx={{ p: 4, textAlign: 'center' }}>
-        <Typography color="text.secondary">尚無超級能力值資料</Typography>
-      </Box>
-    );
-  }
+  if (!data) return <PanelEmpty message="尚無極限屬性資料" />;
 
   const activePreset = data.use_preset_no ?? '1';
   const presets = [
@@ -60,67 +35,85 @@ const HyperStatPanel = ({ loading, error, data, onRetry }) => {
     data.hyper_stat_preset_3 ?? [],
   ];
 
-  const currentStats = (presets[tabIndex] ?? []).filter(
-    (s) => s.stat_level > 0
+  const currentStats = (presets[presetIndex] ?? []).filter(
+    s => s.stat_level > 0
   );
 
   return (
-    <Box
-      sx={{
-        border: '1px solid',
-        borderColor: 'divider',
-        borderRadius: 2,
-        overflow: 'hidden',
-        p: 1,
-      }}
-    >
-      <Tabs
-        value={tabIndex}
-        onChange={(_, v) => setTabIndex(v)}
-        variant="fullWidth"
-        sx={{ mb: 1 }}
+    <Box sx={{ mt: 1 }}>
+      <SectionHeader description="極限屬性各項目的等級與加成效果" />
+
+      <ToggleButtonGroup
+        value={presetIndex}
+        exclusive
+        onChange={(_, v) => v !== null && setPresetIndex(v)}
+        size="small"
+        sx={{ mb: 2 }}
+        aria-label="極限屬性預設選擇"
       >
-        {[1, 2, 3].map((n, i) => (
-          <Tab
-            key={n}
-            label={`預設 ${n}${activePreset === String(n) ? ' (使用中)' : ''}`}
+        {[0, 1, 2].map(i => (
+          <ToggleButton
+            key={i}
             value={i}
-          />
+            sx={{ px: 2, borderRadius: '20px !important', gap: 0.5 }}
+          >
+            預設 {i + 1}
+            {activePreset === String(i + 1) && (
+              <Chip
+                label="使用中"
+                size="small"
+                color="primary"
+                sx={{ ml: 0.5, height: 20, fontSize: '0.7rem' }}
+              />
+            )}
+          </ToggleButton>
         ))}
-      </Tabs>
+      </ToggleButtonGroup>
 
       {currentStats.length === 0 ? (
-        <Box sx={{ p: 3, textAlign: 'center' }}>
-          <Typography color="text.secondary">此預設無超級能力值資料</Typography>
-        </Box>
+        <PanelEmpty message="此預設尚未設定極限屬性" />
       ) : (
-        <Table
-          size="small"
-          sx={{ '& .MuiTableCell-root': { border: 'none' } }}
-        >
-          <TableBody>
-            {currentStats.map((stat, i) => (
-              <TableRow key={i}>
-                <TableCell>
-                  <Typography variant="body2">{stat.stat_type}</Typography>
-                </TableCell>
-                <TableCell>
-                  <Typography variant="body2" color="text.secondary">
-                    Lv.{stat.stat_level}
-                  </Typography>
-                </TableCell>
-                <TableCell>
-                  <Typography
-                    variant="body2"
-                    sx={{ fontWeight: 600, color: 'primary.main' }}
-                  >
-                    {stat.stat_increase}
-                  </Typography>
-                </TableCell>
-              </TableRow>
-            ))}
-          </TableBody>
-        </Table>
+        <Box sx={{ overflowX: 'auto' }}>
+          <Table
+            size="small"
+            sx={{ '& .MuiTableCell-root': { border: 'none' } }}
+          >
+            <TableBody>
+              {currentStats.map((stat, i) => (
+                <TableRow
+                  key={i}
+                  sx={{
+                    '&:hover': {
+                      bgcolor: theme => `${theme.palette.primary.main}0a`,
+                    },
+                  }}
+                >
+                  <TableCell>
+                    <Typography variant="body2" sx={{ fontWeight: 600 }}>
+                      {stat.stat_type}
+                    </Typography>
+                  </TableCell>
+                  <TableCell>
+                    <Chip
+                      label={`Lv.${stat.stat_level}`}
+                      size="small"
+                      variant="outlined"
+                      sx={{ height: 22, fontSize: '0.75rem' }}
+                    />
+                  </TableCell>
+                  <TableCell>
+                    <Typography
+                      variant="body2"
+                      sx={{ fontWeight: 700, color: 'primary.main' }}
+                    >
+                      {stat.stat_increase}
+                    </Typography>
+                  </TableCell>
+                </TableRow>
+              ))}
+            </TableBody>
+          </Table>
+        </Box>
       )}
     </Box>
   );
