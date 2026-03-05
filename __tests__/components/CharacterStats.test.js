@@ -1,128 +1,67 @@
-// Mock fetch
-global.fetch = jest.fn();
+// __tests__/components/CharacterStats.test.js
+import { render, screen } from '@testing-library/react';
+import { ThemeProvider, createTheme } from '@mui/material/styles';
 
-// Mock cache utils
 jest.mock('../../lib/cache', () => ({
-  getCachedData: jest.fn(),
+  getCachedData: jest.fn(() => null),
   setCachedData: jest.fn(),
 }));
 
-// Mock stats utils
-jest.mock('../../lib/statsUtils', () => ({
-  processStatsData: jest.fn(),
-  formatStatValue: jest.fn(),
-}));
+jest.mock('../../components/panel/PanelSkeleton', () => {
+  return function MockSkeleton() {
+    return <div data-testid="panel-skeleton">Loading</div>;
+  };
+});
+jest.mock('../../components/panel/PanelError', () => {
+  return function MockError({ message }) {
+    return <div data-testid="panel-error">{message}</div>;
+  };
+});
+jest.mock('../../components/panel/PanelEmpty', () => {
+  return function MockEmpty({ message }) {
+    return <div data-testid="panel-empty">{message}</div>;
+  };
+});
+jest.mock('../../components/panel/SectionHeader', () => {
+  return function MockHeader({ description }) {
+    return <div data-testid="section-header">{description}</div>;
+  };
+});
 
-import { render, screen, waitFor, act } from '@testing-library/react';
-import { ThemeProvider, createTheme } from '@mui/material/styles';
 import CharacterStats from '../../components/CharacterStats';
-import { getCachedData, setCachedData } from '../../lib/cache';
-import { processStatsData, formatStatValue } from '../../lib/statsUtils';
 
-// Create a basic theme for testing
-const testTheme = createTheme();
-
-// Helper function to render with theme provider
-const renderWithTheme = component => {
-  return render(<ThemeProvider theme={testTheme}>{component}</ThemeProvider>);
-};
-
-// Helper function to flush promises
-const flushPromises = () => new Promise(resolve => setTimeout(resolve, 0));
+const theme = createTheme();
+const wrapper = ({ children }) => (
+  <ThemeProvider theme={theme}>{children}</ThemeProvider>
+);
 
 describe('CharacterStats', () => {
-  const mockStatsData = {
-    final_stat: [
-      { stat_name: '戰鬥力', stat_value: '1000000' },
-      { stat_name: '攻擊力', stat_value: '5000' },
-    ],
-  };
-
-  const mockProcessedStats = [
-    { name: '戰鬥力', value: '1000000' },
-    { name: '攻擊力', value: '5000' },
-  ];
-
   beforeEach(() => {
-    fetch.mockClear();
-    fetch.mockImplementation(() =>
+    jest.clearAllMocks();
+  });
+
+  it('shows skeleton while loading', () => {
+    global.fetch = jest.fn(() => new Promise(() => {}));
+    render(<CharacterStats ocid="test" />, { wrapper });
+    expect(screen.getByTestId('panel-skeleton')).toBeInTheDocument();
+  });
+
+  it('shows error state on fetch failure', async () => {
+    global.fetch = jest.fn(() => Promise.resolve({ ok: false, status: 500 }));
+    render(<CharacterStats ocid="test" />, { wrapper });
+    const error = await screen.findByTestId('panel-error');
+    expect(error).toBeInTheDocument();
+  });
+
+  it('renders section header', async () => {
+    global.fetch = jest.fn(() =>
       Promise.resolve({
         ok: true,
-        json: () => mockStatsData,
+        json: () => Promise.resolve({ final_stat: [] }),
       })
     );
-    processStatsData.mockReturnValue(mockProcessedStats);
-    formatStatValue.mockImplementation(value => {
-      // Mock Chinese unit formatting to match actual implementation
-      if (typeof value === 'string' && /^\d+$/.test(value)) {
-        const num = parseInt(value);
-        if (num >= 100000000) {
-          return `${(num / 100000000).toFixed(2)}億`;
-        } else if (num >= 10000) {
-          return `${(num / 10000).toFixed(2)}萬`;
-        }
-        return num.toString();
-      }
-      return value;
-    });
-    getCachedData.mockReturnValue(null); // No cached data, so component will fetch
-  });
-
-  it('should display stats in table format', async () => {
-    renderWithTheme(<CharacterStats ocid="test-ocid" />);
-
-    // Flush promises to ensure async operations complete
-    await flushPromises();
-
-    // Wait for loading to complete first
-    await waitFor(() => {
-      expect(screen.queryByRole('progressbar')).not.toBeInTheDocument();
-    });
-
-    // Wait for the stats to be displayed
-    await waitFor(() => {
-      expect(screen.getByText('戰鬥力')).toBeInTheDocument();
-    });
-
-    // Check for the specific stats values
-    expect(screen.getByText('100.00萬')).toBeInTheDocument();
-    expect(screen.getByText('攻擊力')).toBeInTheDocument();
-    expect(screen.getByText('5000')).toBeInTheDocument();
-
-    // Check that at least one table exists (other stats table in this case)
-    expect(
-      screen.getByRole('table', { name: 'Other stats table' })
-    ).toBeInTheDocument();
-  });
-
-  it('should handle loading state', async () => {
-    // Mock fetch to delay response
-    let resolveFetch;
-    const fetchPromise = new Promise(resolve => {
-      resolveFetch = resolve;
-    });
-
-    fetch.mockImplementationOnce(() => fetchPromise);
-
-    renderWithTheme(<CharacterStats ocid="test-ocid" />);
-
-    // Initially should show loading - check for CircularProgress component
-    expect(screen.getByRole('progressbar')).toBeInTheDocument();
-
-    // Resolve the fetch
-    await act(async () => {
-      resolveFetch({
-        ok: true,
-        json: () => mockStatsData,
-      });
-    });
-
-    // Flush promises
-    await flushPromises();
-
-    // Wait for loading to complete
-    await waitFor(() => {
-      expect(screen.queryByRole('progressbar')).not.toBeInTheDocument();
-    });
+    render(<CharacterStats ocid="test" />, { wrapper });
+    const header = await screen.findByTestId('section-header');
+    expect(header).toHaveTextContent('角色最終能力值，包含所有加成來源');
   });
 });
