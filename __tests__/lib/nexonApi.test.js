@@ -19,12 +19,14 @@ describe('nexonApi', () => {
   let getCharacterBasicInfo;
   let getCharacterStats;
   let getCharacterEquipment;
+  let getCharacterCashItemEquipment;
 
   beforeAll(async () => {
     const mod = await import('../../lib/nexonApi');
     getCharacterBasicInfo = mod.getCharacterBasicInfo;
     getCharacterStats = mod.getCharacterStats;
     getCharacterEquipment = mod.getCharacterEquipment;
+    getCharacterCashItemEquipment = mod.getCharacterCashItemEquipment;
   });
 
   beforeEach(() => {
@@ -104,6 +106,30 @@ describe('nexonApi', () => {
         getCharacterEquipment('test-ocid')
       ).rejects.toThrow(
         'Failed to fetch character equipment: Network Error'
+      );
+    });
+  });
+
+  describe('getCharacterCashItemEquipment', () => {
+    it('should return cash item equipment on success', async () => {
+      const mockData = { cash_item_equipment_base: [] };
+      mockGet.mockResolvedValue({ data: mockData });
+
+      const result = await getCharacterCashItemEquipment('test-ocid');
+
+      expect(mockGet).toHaveBeenCalledWith(
+        '/character/cashitem-equipment?ocid=test-ocid'
+      );
+      expect(result).toEqual(mockData);
+    });
+
+    it('should throw an error on failure', async () => {
+      mockGet.mockRejectedValue(new Error('Network Error'));
+
+      await expect(
+        getCharacterCashItemEquipment('test-ocid')
+      ).rejects.toThrow(
+        'Failed to fetch cash item equipment: Network Error'
       );
     });
   });
