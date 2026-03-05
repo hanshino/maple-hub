@@ -1693,13 +1693,14 @@ export default function CharacterDataTabs({
           onChange={handleTabChange}
           variant="scrollable"
           scrollButtons="auto"
+          aria-label="角色資料分頁"
           sx={{ borderBottom: 1, borderColor: 'divider', mb: 2 }}
         >
           {TAB_CONFIG.map((tab) => (
             <Tab key={tab.key} label={tab.label} />
           ))}
         </Tabs>
-        <Box>{renderTabContent()}</Box>
+        <Box aria-live="polite">{renderTabContent()}</Box>
       </CardContent>
     </Card>
   );
@@ -1805,6 +1806,7 @@ const CharacterCard = memo(function CharacterCard({
           flexShrink: 0,
           px: { md: 1 },
           minWidth: { md: 160 },
+          minHeight: { md: 80 },
         }}
       >
         {presetAnalysis && presetAnalysis.bossing ? (
@@ -1845,7 +1847,10 @@ const CharacterCard = memo(function CharacterCard({
                   {formatPower(data.power)}
                 </Typography>
                 {data.presetNo && (
-                  <Typography variant="caption" color="text.secondary">
+                  <Typography
+                    variant="caption"
+                    sx={{ color: 'text.primary', opacity: 0.7 }}
+                  >
                     P{data.presetNo}
                   </Typography>
                 )}
