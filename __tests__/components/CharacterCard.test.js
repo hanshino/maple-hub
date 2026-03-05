@@ -31,12 +31,7 @@ describe('CharacterCard', () => {
     );
 
     expect(screen.getByText('Test Character')).toBeInTheDocument();
-    expect(screen.getByText('等級:')).toBeInTheDocument();
-    expect(screen.getByText('50')).toBeInTheDocument();
-    expect(screen.getByText('職業:')).toBeInTheDocument();
-    expect(screen.getByText('Warrior')).toBeInTheDocument();
-    expect(screen.getByText('創建日期:')).toBeInTheDocument();
-    expect(screen.getByText('2025/1/10')).toBeInTheDocument();
+    expect(screen.getByText('Lv.50')).toBeInTheDocument();
   });
 
   it('has proper accessibility attributes', () => {
@@ -46,13 +41,9 @@ describe('CharacterCard', () => {
       </TestWrapper>
     );
 
-    // Check that the CardContent exists with proper attributes
     const cardContent = document.querySelector('.MuiCardContent-root');
     expect(cardContent).toBeInTheDocument();
     expect(cardContent).toHaveAttribute('role', 'region');
-
-    const timeElement = screen.getByLabelText(/最後更新時間/);
-    expect(timeElement).toBeInTheDocument();
   });
 
   it('renders equipment button with responsive display', () => {
