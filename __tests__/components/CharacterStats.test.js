@@ -13,21 +13,8 @@ jest.mock('../../lib/statsUtils', () => ({
   formatStatValue: jest.fn(),
 }));
 
-import {
-  render,
-  screen,
-  waitFor,
-  fireEvent,
-  act,
-} from '@testing-library/react';
+import { render, screen, waitFor, act } from '@testing-library/react';
 import { ThemeProvider, createTheme } from '@mui/material/styles';
-import {
-  Accordion,
-  AccordionSummary,
-  AccordionDetails,
-  Typography,
-} from '@mui/material';
-import ExpandMoreIcon from '@mui/icons-material/ExpandMore';
 import CharacterStats from '../../components/CharacterStats';
 import { getCachedData, setCachedData } from '../../lib/cache';
 import { processStatsData, formatStatValue } from '../../lib/statsUtils';
@@ -44,23 +31,6 @@ const renderWithTheme = component => {
 const flushPromises = () => new Promise(resolve => setTimeout(resolve, 0));
 
 describe('CharacterStats', () => {
-  // Test basic Accordion rendering first
-  it('should render Accordion components correctly', () => {
-    renderWithTheme(
-      <Accordion>
-        <AccordionSummary expandIcon={<ExpandMoreIcon />}>
-          <Typography>Test Accordion</Typography>
-        </AccordionSummary>
-        <AccordionDetails>
-          <Typography>Test content</Typography>
-        </AccordionDetails>
-      </Accordion>
-    );
-
-    expect(screen.getByText('Test Accordion')).toBeInTheDocument();
-    expect(screen.getByText('Test content')).toBeInTheDocument();
-  });
-
   const mockStatsData = {
     final_stat: [
       { stat_name: '戰鬥力', stat_value: '1000000' },
@@ -109,25 +79,15 @@ describe('CharacterStats', () => {
       expect(screen.queryByRole('progressbar')).not.toBeInTheDocument();
     });
 
-    // Accordion should be collapsed by default
-    const accordionSummary = screen.getByRole('button', { name: /角色能力值/ });
-    expect(accordionSummary).toHaveAttribute('aria-expanded', 'false');
-
-    // Click to expand the accordion
-    fireEvent.click(accordionSummary);
-
     // Wait for the stats to be displayed
     await waitFor(() => {
       expect(screen.getByText('戰鬥力')).toBeInTheDocument();
     });
 
-    // Now check for the specific stats values
+    // Check for the specific stats values
     expect(screen.getByText('100.00萬')).toBeInTheDocument();
     expect(screen.getByText('攻擊力')).toBeInTheDocument();
     expect(screen.getByText('5000')).toBeInTheDocument();
-
-    // Check for table structure - now we have multiple tables for different groups
-    expect(screen.getByText('角色能力值')).toBeInTheDocument();
 
     // Check that at least one table exists (other stats table in this case)
     expect(

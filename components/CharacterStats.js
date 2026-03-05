@@ -2,10 +2,6 @@
 
 import React, { useState, useEffect, useCallback } from 'react';
 import {
-  Accordion,
-  AccordionSummary,
-  AccordionDetails,
-  Typography,
   Table,
   TableBody,
   TableCell,
@@ -14,14 +10,12 @@ import {
   Box,
   CircularProgress,
 } from '@mui/material';
-import { ExpandMore as ExpandMoreIcon } from '@mui/icons-material';
 import { processStatsData, formatStatValue } from '../lib/statsUtils';
 import { getCachedData, setCachedData } from '../lib/cache';
 
-const CharacterStats = ({ ocid, expanded: initialExpanded = true }) => {
+const CharacterStats = ({ ocid }) => {
   const [stats, setStats] = useState([]);
   const [loading, setLoading] = useState(true);
-  const [expanded, setExpanded] = useState(initialExpanded);
 
   const loadStats = useCallback(async () => {
     setLoading(true);
@@ -53,48 +47,24 @@ const CharacterStats = ({ ocid, expanded: initialExpanded = true }) => {
     loadStats();
   }, [loadStats]);
 
-  const handleChange = (event, isExpanded) => {
-    setExpanded(isExpanded);
-  };
-
   if (loading) {
     return (
-      <Accordion expanded={true}>
-        <AccordionSummary
-          expandIcon={<ExpandMoreIcon />}
-          aria-controls="stats-content"
-          id="stats-header"
-        >
-          <Typography variant="h6">角色能力值</Typography>
-        </AccordionSummary>
-        <AccordionDetails>
-          <Box
-            sx={{
-              display: 'flex',
-              justifyContent: 'center',
-              alignItems: 'center',
-              height: 200,
-              p: 2,
-            }}
-          >
-            <CircularProgress />
-          </Box>
-        </AccordionDetails>
-      </Accordion>
+      <Box
+        sx={{
+          display: 'flex',
+          justifyContent: 'center',
+          alignItems: 'center',
+          height: 200,
+          p: 2,
+        }}
+      >
+        <CircularProgress />
+      </Box>
     );
   }
 
   return (
-    <Accordion expanded={expanded} onChange={handleChange}>
-      <AccordionSummary
-        expandIcon={<ExpandMoreIcon />}
-        aria-controls="stats-content"
-        id="stats-header"
-      >
-        <Typography variant="h6">角色能力值</Typography>
-      </AccordionSummary>
-      <AccordionDetails>
-        <Box sx={{ mt: 2 }}>
+    <Box sx={{ mt: 2 }}>
           {(() => {
             // Define the core stats groups (API returns English names)
             const coreStatsGroup1 = ['STR', 'DEX', 'INT', 'LUK', 'HP', 'MP'];
@@ -295,8 +265,6 @@ const CharacterStats = ({ ocid, expanded: initialExpanded = true }) => {
             return groups;
           })()}
         </Box>
-      </AccordionDetails>
-    </Accordion>
   );
 };
 
