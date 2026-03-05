@@ -74,3 +74,63 @@ describe('CharacterCard', () => {
     expect(buttonContainer).toBeInTheDocument();
   });
 });
+
+describe('preset combat power display', () => {
+  it('should display three-line combat power when presetAnalysis is provided', () => {
+    const presetAnalysis = {
+      current: { power: 11200000, presetNo: 3 },
+      bossing: { power: 12345678, presetNo: 1 },
+      leveling: { power: 9800000, presetNo: 2 },
+    };
+
+    render(
+      <TestWrapper>
+        <CharacterCard
+          character={mockCharacter}
+          battlePower={11200000}
+          presetAnalysis={presetAnalysis}
+        />
+      </TestWrapper>
+    );
+
+    expect(screen.getByText('打王')).toBeInTheDocument();
+    expect(screen.getByText('目前')).toBeInTheDocument();
+    expect(screen.getByText('練等')).toBeInTheDocument();
+  });
+
+  it('should fallback to single battle power when presetAnalysis is null', () => {
+    render(
+      <TestWrapper>
+        <CharacterCard
+          character={mockCharacter}
+          battlePower={11200000}
+          presetAnalysis={null}
+        />
+      </TestWrapper>
+    );
+
+    expect(screen.getByText('戰鬥力')).toBeInTheDocument();
+  });
+
+  it('should not show leveling line when no leveling preset detected', () => {
+    const presetAnalysis = {
+      current: { power: 11200000, presetNo: 3 },
+      bossing: { power: 12345678, presetNo: 1 },
+      leveling: null,
+    };
+
+    render(
+      <TestWrapper>
+        <CharacterCard
+          character={mockCharacter}
+          battlePower={11200000}
+          presetAnalysis={presetAnalysis}
+        />
+      </TestWrapper>
+    );
+
+    expect(screen.getByText('打王')).toBeInTheDocument();
+    expect(screen.getByText('目前')).toBeInTheDocument();
+    expect(screen.queryByText('練等')).not.toBeInTheDocument();
+  });
+});

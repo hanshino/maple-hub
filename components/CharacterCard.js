@@ -18,7 +18,10 @@ const CharacterCard = memo(function CharacterCard({
   unionData = null,
   battlePower = null,
   onEquipmentClick = null,
+  presetAnalysis = null,
 }) {
+  const formatPower = (num) => num?.toLocaleString() || '-';
+
   return (
     <CardContent
       role="region"
@@ -160,7 +163,7 @@ const CharacterCard = memo(function CharacterCard({
         </Box>
 
         {/* Battle Power - right section */}
-        {battlePower && (
+        {(presetAnalysis || battlePower) && (
           <>
             <Divider
               orientation="vertical"
@@ -172,21 +175,76 @@ const CharacterCard = memo(function CharacterCard({
                 textAlign: { xs: 'center', md: 'right' },
                 flexShrink: 0,
                 px: { md: 1 },
+                minWidth: { md: 160 },
+                minHeight: { md: 80 },
               }}
             >
-              <Typography
-                variant="caption"
-                color="text.secondary"
-                sx={{ display: 'block', mb: 0.5 }}
-              >
-                戰鬥力
-              </Typography>
-              <Typography
-                variant="h5"
-                sx={{ fontWeight: 'bold', color: 'primary.main' }}
-              >
-                {battlePower.toLocaleString()}
-              </Typography>
+              {presetAnalysis && presetAnalysis.bossing ? (
+                <>
+                  <Typography
+                    variant="caption"
+                    color="text.secondary"
+                    sx={{ display: 'block', mb: 0.5 }}
+                  >
+                    戰鬥力
+                  </Typography>
+                  {[
+                    { label: '打王', data: presetAnalysis.bossing },
+                    { label: '目前', data: presetAnalysis.current },
+                    ...(presetAnalysis.leveling
+                      ? [{ label: '練等', data: presetAnalysis.leveling }]
+                      : []),
+                  ].map(({ label, data }) => (
+                    <Box
+                      key={label}
+                      sx={{
+                        display: 'flex',
+                        justifyContent: { xs: 'center', md: 'space-between' },
+                        alignItems: 'baseline',
+                        gap: 1,
+                      }}
+                    >
+                      <Typography variant="body2" color="text.secondary">
+                        {label}
+                      </Typography>
+                      <Typography
+                        variant="body1"
+                        sx={{
+                          fontWeight: 'bold',
+                          color:
+                            label === '打王' ? 'primary.main' : 'text.primary',
+                        }}
+                      >
+                        {formatPower(data.power)}
+                      </Typography>
+                      {data.presetNo && (
+                        <Typography
+                          variant="caption"
+                          sx={{ color: 'text.primary', opacity: 0.7 }}
+                        >
+                          P{data.presetNo}
+                        </Typography>
+                      )}
+                    </Box>
+                  ))}
+                </>
+              ) : (
+                <>
+                  <Typography
+                    variant="caption"
+                    color="text.secondary"
+                    sx={{ display: 'block', mb: 0.5 }}
+                  >
+                    戰鬥力
+                  </Typography>
+                  <Typography
+                    variant="h5"
+                    sx={{ fontWeight: 'bold', color: 'primary.main' }}
+                  >
+                    {battlePower?.toLocaleString()}
+                  </Typography>
+                </>
+              )}
             </Box>
           </>
         )}
