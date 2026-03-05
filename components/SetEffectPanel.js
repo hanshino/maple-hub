@@ -3,101 +3,87 @@
 import {
   Box,
   Typography,
-  CircularProgress,
-  Alert,
-  Button,
   Chip,
   Accordion,
   AccordionSummary,
   AccordionDetails,
 } from '@mui/material';
 import ExpandMoreIcon from '@mui/icons-material/ExpandMore';
+import PanelSkeleton from './panel/PanelSkeleton';
+import PanelError from './panel/PanelError';
+import PanelEmpty from './panel/PanelEmpty';
+import SectionHeader from './panel/SectionHeader';
 
 const SetEffectPanel = ({ loading, error, data, onRetry }) => {
-  if (loading) {
-    return (
-      <Box sx={{ display: 'flex', justifyContent: 'center', p: 4 }}>
-        <CircularProgress />
-      </Box>
-    );
-  }
+  if (loading) return <PanelSkeleton rows={4} />;
 
   if (error) {
-    return (
-      <Box sx={{ p: 2 }}>
-        <Alert
-          severity="error"
-          action={
-            onRetry && (
-              <Button color="inherit" size="small" onClick={onRetry}>
-                重試
-              </Button>
-            )
-          }
-        >
-          {error}
-        </Alert>
-      </Box>
-    );
+    return <PanelError message="無法載入套裝效果資料" onRetry={onRetry} />;
   }
 
   const sets = data?.set_effect ?? [];
 
   if (sets.length === 0) {
-    return (
-      <Box sx={{ p: 4, textAlign: 'center' }}>
-        <Typography color="text.secondary">尚無套裝效果資料</Typography>
-      </Box>
-    );
+    return <PanelEmpty message="尚無套裝效果資料" />;
   }
 
+  const sortedSets = [...sets].sort(
+    (a, b) => b.total_set_count - a.total_set_count
+  );
+
   return (
-    <Box
-      sx={{
-        border: '1px solid',
-        borderColor: 'divider',
-        borderRadius: 2,
-        overflow: 'hidden',
-        p: 1,
-      }}
-    >
-      {sets.map((set, i) => {
+    <Box sx={{ mt: 1 }}>
+      <SectionHeader description="目前裝備的套裝組合與生效的套裝效果" />
+      {sortedSets.map((set, i) => {
         const activeEffects = (set.set_effect_info ?? []).filter(
-          (e) => e.set_count <= set.total_set_count
+          e => e.set_count <= set.total_set_count
         );
         return (
           <Accordion key={i} defaultExpanded={false} disableGutters>
             <AccordionSummary expandIcon={<ExpandMoreIcon />}>
-              <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
-                <Typography variant="body2" sx={{ fontWeight: 600 }}>
+              <Box sx={{ display: 'flex', alignItems: 'center', gap: 1.5 }}>
+                <Typography variant="body2" sx={{ fontWeight: 700 }}>
                   {set.set_name}
                 </Typography>
                 <Chip
                   label={`${set.total_set_count}件`}
                   size="small"
                   color="primary"
-                  variant="outlined"
-                  sx={{ height: 20, fontSize: '0.7rem' }}
+                  variant="filled"
+                  sx={{ fontWeight: 700, height: 22, fontSize: '0.75rem' }}
                 />
               </Box>
             </AccordionSummary>
             <AccordionDetails sx={{ pt: 0 }}>
               {activeEffects.length === 0 ? (
                 <Typography variant="body2" color="text.secondary">
-                  無主動效果
+                  此套裝目前無生效的效果
                 </Typography>
               ) : (
-                activeEffects.map((effect, j) => (
-                  <Box key={j} sx={{ mb: 1 }}>
-                    <Typography
-                      variant="caption"
-                      sx={{ fontWeight: 600, color: 'text.secondary' }}
+                <Box
+                  sx={{ display: 'flex', flexDirection: 'column', gap: 0.75 }}
+                >
+                  {activeEffects.map((effect, j) => (
+                    <Box
+                      key={j}
+                      sx={{
+                        pl: 1.5,
+                        borderLeft: '2px solid',
+                        borderColor: 'primary.light',
+                      }}
                     >
-                      {effect.set_count}件效果
-                    </Typography>
-                    <Typography variant="body2">{effect.set_option}</Typography>
-                  </Box>
-                ))
+                      <Typography
+                        variant="caption"
+                        sx={{ fontWeight: 600, color: 'text.secondary' }}
+                      >
+                        {effect.set_count}件
+                      </Typography>
+                      <Typography variant="body2">
+                        {effect.set_option}
+                      </Typography>
+                    </Box>
+                  ))}
+                </Box>
               )}
             </AccordionDetails>
           </Accordion>
