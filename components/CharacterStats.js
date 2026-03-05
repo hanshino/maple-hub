@@ -264,7 +264,7 @@ const CharacterStats = ({ ocid }) => {
 
             return groups;
           })()}
-        </Box>
+    </Box>
   );
 };
 
