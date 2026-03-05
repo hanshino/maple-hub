@@ -1,8 +1,17 @@
 'use client';
 
-import { Drawer, Box, Typography, IconButton, Divider } from '@mui/material';
+import {
+  Drawer,
+  Box,
+  Typography,
+  IconButton,
+  Divider,
+  Chip,
+  LinearProgress,
+} from '@mui/material';
 import CloseIcon from '@mui/icons-material/Close';
 import StarIcon from '@mui/icons-material/Star';
+import { analyzeScrolls } from '../lib/equipmentUtils';
 
 const POTENTIAL_GRADE_COLORS = {
   特殊: '#4fc3f7', // Rare — blue
@@ -82,11 +91,75 @@ const StatRow = ({ label, total, base, star, add, scroll }) => {
   );
 };
 
+const SCROLL_COLORS = {
+  究極黑暗: '#9c27b0',
+  V: '#1976d2',
+  X: '#00897b',
+  RED: '#e53935',
+  極電: '#ff9800',
+  優質: '#757575',
+  '15%咒文': '#78909c',
+  '30%咒文': '#78909c',
+  '70%咒文': '#78909c',
+  '100%咒文': '#78909c',
+};
+
+const SCROLL_ICONS = {
+  究極黑暗: '/images/scrolls/beyond.png',
+  V: '/images/scrolls/v.png',
+  X: '/images/scrolls/x.png',
+  RED: '/images/scrolls/red.png',
+  優質: '/images/scrolls/premium.png',
+};
+
+const ScrollIcon = ({ name }) => {
+  const src = SCROLL_ICONS[name];
+  if (!src) return null;
+  return (
+    <img
+      src={src}
+      alt={name}
+      style={{
+        width: 16,
+        height: 16,
+        objectFit: 'contain',
+        marginRight: 2,
+      }}
+    />
+  );
+};
+
+const getScrollChips = result => {
+  if (!result) return [];
+  switch (result.type) {
+    case 'single':
+      return [{ label: `${result.name} x${result.count}`, color: SCROLL_COLORS[result.name], icon: result.name }];
+    case 'trace':
+      return [{ label: `${result.name} x${result.count}`, color: SCROLL_COLORS[result.name] }];
+    case 'mix':
+      return result.scrolls.map(s => ({
+        label: `${s.name} x${s.count}`,
+        color: SCROLL_COLORS[s.name],
+        icon: SCROLL_ICONS[s.name] ? s.name : undefined,
+      }));
+    case 'random':
+      return [{ label: `平均 +${result.avg} x${result.scrollCount}張`, gradient: true }];
+    default:
+      return [];
+  }
+};
+
 const EquipmentDetailDrawer = ({ item, open, onClose, isMobile }) => {
   const hasPotential = item?.potential_option_1;
   const hasAdditionalPotential = item?.additional_potential_option_1;
   const hasStats =
     item?.item_total_option && typeof item.item_total_option === 'object';
+  const scrollResult = item ? analyzeScrolls(item) : null;
+  const scrollCount = parseInt(item?.scroll_upgrade) || 0;
+  const upgradeableCount =
+    parseInt(item?.scroll_upgradeable_count) || 0;
+  const totalSlots = scrollCount + upgradeableCount;
+  const hasScrollInfo = scrollCount > 0 && scrollResult;
   const potentialColor =
     POTENTIAL_GRADE_COLORS[item?.potential_option_grade] || 'text.primary';
   const additionalColor =
@@ -276,6 +349,95 @@ const EquipmentDetailDrawer = ({ item, open, onClose, isMobile }) => {
                   scroll={item.item_etc_option?.[key]}
                 />
               ))}
+            </>
+          )}
+
+          {/* Scroll Analysis */}
+          {hasScrollInfo && (
+            <>
+              <Divider sx={{ my: 1.5 }} />
+              <Box
+                sx={{
+                  display: 'flex',
+                  alignItems: 'baseline',
+                  justifyContent: 'space-between',
+                  mb: 1,
+                }}
+              >
+                <Typography
+                  variant="subtitle2"
+                  sx={{ fontWeight: 700 }}
+                >
+                  卷軸
+                </Typography>
+                <Typography
+                  variant="caption"
+                  sx={{ color: 'text.secondary' }}
+                >
+                  {scrollCount}/{totalSlots}
+                </Typography>
+              </Box>
+              <LinearProgress
+                variant="determinate"
+                value={
+                  totalSlots > 0
+                    ? (scrollCount / totalSlots) * 100
+                    : 0
+                }
+                sx={{
+                  height: 6,
+                  borderRadius: 3,
+                  mb: 1.5,
+                  backgroundColor: 'action.hover',
+                  '& .MuiLinearProgress-bar': {
+                    borderRadius: 3,
+                    backgroundColor: SOURCE_COLORS.scroll,
+                  },
+                }}
+              />
+              <Box
+                sx={{
+                  display: 'flex',
+                  gap: 0.75,
+                  flexWrap: 'wrap',
+                }}
+              >
+                {getScrollChips(scrollResult).map((chip, i) => (
+                  <Chip
+                    key={i}
+                    icon={
+                      chip.icon ? (
+                        <ScrollIcon name={chip.icon} />
+                      ) : undefined
+                    }
+                    label={chip.label}
+                    size="small"
+                    sx={{
+                      fontWeight: 600,
+                      fontSize: '0.75rem',
+                      px: 1,
+                      '& .MuiChip-label': {
+                        px: 0.75,
+                      },
+                      '& .MuiChip-icon': {
+                        ml: 0.5,
+                        mr: -0.25,
+                      },
+                      ...(chip.gradient
+                        ? {
+                            background:
+                              'linear-gradient(135deg, #f7931e, #ff6b6b)',
+                            color: '#fff',
+                          }
+                        : {
+                            backgroundColor: `${chip.color}18`,
+                            color: chip.color,
+                            border: `1px solid ${chip.color}40`,
+                          }),
+                    }}
+                  />
+                ))}
+              </Box>
             </>
           )}
         </Box>
