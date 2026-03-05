@@ -101,3 +101,6 @@ Desktop.ini
 
 # Claude
 .claude/
+
+# oh-my-claudecode
+.omc/
