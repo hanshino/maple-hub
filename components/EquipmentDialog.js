@@ -23,6 +23,9 @@ import EquipmentList from './EquipmentList';
 import EquipmentDetailDrawer from './EquipmentDetailDrawer';
 import CashItemGrid from './CashItemGrid';
 import CashItemDetailDrawer from './CashItemDetailDrawer';
+import PetEquipmentPanel, {
+  processPetEquipmentData,
+} from './PetEquipmentPanel';
 
 const EquipmentDialog = ({ ocid, character, open, onClose }) => {
   const [equipment, setEquipment] = useState({});
@@ -39,6 +42,11 @@ const EquipmentDialog = ({ ocid, character, open, onClose }) => {
   const [cashItemLoading, setCashItemLoading] = useState(false);
   const [cashItemError, setCashItemError] = useState(null);
   const [cashItemLoaded, setCashItemLoaded] = useState(false);
+
+  const [petEquipment, setPetEquipment] = useState([]);
+  const [petLoading, setPetLoading] = useState(false);
+  const [petError, setPetError] = useState(null);
+  const [petLoaded, setPetLoaded] = useState(false);
 
   const loadEquipment = useCallback(async () => {
     setLoading(true);
@@ -65,6 +73,35 @@ const EquipmentDialog = ({ ocid, character, open, onClose }) => {
       setError(err.message);
     } finally {
       setLoading(false);
+    }
+  }, [ocid]);
+
+  const loadPetEquipment = useCallback(async () => {
+    setPetLoading(true);
+    setPetError(null);
+    try {
+      const cacheKey = `pet_equipment_${ocid}`;
+      let data = getCachedData(cacheKey);
+
+      if (!data) {
+        const response = await fetch(
+          `/api/character/pet-equipment?ocid=${ocid}`
+        );
+        if (!response.ok) {
+          throw new Error('載入寵物裝備失敗');
+        }
+        data = await response.json();
+        setCachedData(cacheKey, data);
+      }
+
+      const processed = processPetEquipmentData(data);
+      setPetEquipment(processed);
+      setPetLoaded(true);
+    } catch (err) {
+      console.error('Failed to load pet equipment:', err);
+      setPetError(err.message);
+    } finally {
+      setPetLoading(false);
     }
   }, [ocid]);
 
@@ -109,6 +146,7 @@ const EquipmentDialog = ({ ocid, character, open, onClose }) => {
       setSelectedSlot(null);
       setTabIndex(0);
       setCashItemLoaded(false);
+      setPetLoaded(false);
     }
   }, [open, ocid, loadEquipment]);
 
@@ -117,6 +155,12 @@ const EquipmentDialog = ({ ocid, character, open, onClose }) => {
       loadCashItemEquipment();
     }
   }, [tabIndex, cashItemLoaded, ocid, loadCashItemEquipment]);
+
+  useEffect(() => {
+    if (tabIndex === 2 && !petLoaded && ocid) {
+      loadPetEquipment();
+    }
+  }, [tabIndex, petLoaded, ocid, loadPetEquipment]);
 
   const handleSlotClick = (slotKey) => {
     const source = tabIndex === 0 ? equipment : cashItemEquipment;
@@ -244,11 +288,19 @@ const EquipmentDialog = ({ ocid, character, open, onClose }) => {
         >
           <Tab label="裝備" />
           <Tab label="現金裝備" />
+          <Tab label="寵物" />
         </Tabs>
         <DialogContent>
-          {tabIndex === 0
-            ? renderRegularEquipment()
-            : renderCashItemEquipment()}
+          {tabIndex === 0 && renderRegularEquipment()}
+          {tabIndex === 1 && renderCashItemEquipment()}
+          {tabIndex === 2 && (
+            <PetEquipmentPanel
+              loading={petLoading}
+              error={petError}
+              pets={petEquipment}
+              onRetry={loadPetEquipment}
+            />
+          )}
         </DialogContent>
       </Dialog>
 
