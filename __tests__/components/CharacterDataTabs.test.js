@@ -76,4 +76,17 @@ describe('CharacterDataTabs', () => {
       '角色資料分頁'
     );
   });
+
+  it('should have tabpanel role on content area', () => {
+    render(<CharacterDataTabs {...defaultProps} />);
+    const panel = screen.getByRole('tabpanel');
+    expect(panel).toBeInTheDocument();
+    expect(panel).toHaveAttribute('id', 'char-tabpanel-0');
+  });
+
+  it('should have correct aria-controls on tabs', () => {
+    render(<CharacterDataTabs {...defaultProps} />);
+    const tabs = screen.getAllByRole('tab');
+    expect(tabs[0]).toHaveAttribute('aria-controls', 'char-tabpanel-0');
+  });
 });
