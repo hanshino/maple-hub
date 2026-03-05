@@ -27,7 +27,7 @@ import PetEquipmentPanel, {
   processPetEquipmentData,
 } from './PetEquipmentPanel';
 
-const EquipmentDialog = ({ ocid, character, open, onClose }) => {
+const EquipmentDialog = ({ ocid, character, open, onClose, prefetchedData }) => {
   const [equipment, setEquipment] = useState({});
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
@@ -52,20 +52,23 @@ const EquipmentDialog = ({ ocid, character, open, onClose }) => {
     setLoading(true);
     setError(null);
     try {
-      const cacheKey = `equipment_${ocid}`;
-      let data = getCachedData(cacheKey);
-
-      if (!data) {
-        const response = await fetch(
-          `/api/character/equipment?ocid=${ocid}`
-        );
-        if (!response.ok) {
-          throw new Error('載入裝備失敗');
+      let data;
+      if (prefetchedData) {
+        data = prefetchedData;
+      } else {
+        const cacheKey = `equipment_${ocid}`;
+        data = getCachedData(cacheKey);
+        if (!data) {
+          const response = await fetch(
+            `/api/character/equipment?ocid=${ocid}`
+          );
+          if (!response.ok) {
+            throw new Error('載入裝備失敗');
+          }
+          data = await response.json();
+          setCachedData(cacheKey, data);
         }
-        data = await response.json();
-        setCachedData(cacheKey, data);
       }
-
       const processed = processEquipmentData(data);
       setEquipment(processed);
     } catch (err) {
@@ -74,7 +77,7 @@ const EquipmentDialog = ({ ocid, character, open, onClose }) => {
     } finally {
       setLoading(false);
     }
-  }, [ocid]);
+  }, [ocid, prefetchedData]);
 
   const loadPetEquipment = useCallback(async () => {
     setPetLoading(true);
