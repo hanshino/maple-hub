@@ -1,79 +1,42 @@
 'use client';
 
-import {
-  Box,
-  Typography,
-  CircularProgress,
-  Alert,
-  Button,
-  Table,
-  TableBody,
-  TableRow,
-  TableCell,
-} from '@mui/material';
+import { Box, Chip } from '@mui/material';
+import PanelSkeleton from './panel/PanelSkeleton';
+import PanelError from './panel/PanelError';
+import PanelEmpty from './panel/PanelEmpty';
+import SectionHeader from './panel/SectionHeader';
 
 const UnionRaiderPanel = ({ loading, error, data, onRetry }) => {
-  if (loading) {
-    return (
-      <Box sx={{ display: 'flex', justifyContent: 'center', p: 4 }}>
-        <CircularProgress />
-      </Box>
-    );
-  }
+  if (loading) return <PanelSkeleton rows={4} />;
 
   if (error) {
-    return (
-      <Box sx={{ p: 2 }}>
-        <Alert
-          severity="error"
-          action={
-            onRetry && (
-              <Button color="inherit" size="small" onClick={onRetry}>
-                重試
-              </Button>
-            )
-          }
-        >
-          {error}
-        </Alert>
-      </Box>
-    );
+    return <PanelError message="無法載入聯盟戰地資料" onRetry={onRetry} />;
   }
 
   const stats = data?.union_raider_stat ?? [];
 
   if (stats.length === 0) {
-    return (
-      <Box sx={{ p: 4, textAlign: 'center' }}>
-        <Typography color="text.secondary">尚無聯盟戰地資料</Typography>
-      </Box>
-    );
+    return <PanelEmpty message="尚無聯盟戰地資料" />;
   }
 
   return (
-    <Box
-      sx={{
-        border: '1px solid',
-        borderColor: 'divider',
-        borderRadius: 2,
-        overflow: 'hidden',
-        p: 1,
-      }}
-    >
-      <Table
-        size="small"
-        sx={{ '& .MuiTableCell-root': { border: 'none' } }}
-      >
-        <TableBody>
-          {stats.map((stat, i) => (
-            <TableRow key={i}>
-              <TableCell>
-                <Typography variant="body2">{stat}</Typography>
-              </TableCell>
-            </TableRow>
-          ))}
-        </TableBody>
-      </Table>
+    <Box sx={{ mt: 1 }}>
+      <SectionHeader description="聯盟戰地格子所提供的能力值加成" />
+      <Box sx={{ display: 'flex', flexWrap: 'wrap', gap: 1, pt: 1 }}>
+        {stats.map((stat, i) => (
+          <Chip
+            key={i}
+            label={stat}
+            size="small"
+            variant="outlined"
+            sx={{
+              borderColor: 'primary.light',
+              color: 'text.primary',
+              fontWeight: 600,
+            }}
+          />
+        ))}
+      </Box>
     </Box>
   );
 };
