@@ -13,6 +13,73 @@ import GroupsIcon from '@mui/icons-material/Groups';
 import MilitaryTechIcon from '@mui/icons-material/MilitaryTech';
 import DiamondIcon from '@mui/icons-material/Diamond';
 
+const COMBO_LABELS = [
+  { key: 'equip', label: '裝備' },
+  { key: 'hyperStat', label: '極限屬性' },
+  { key: 'linkSkill', label: '傳授技能' },
+];
+
+const PresetCombinationTable = ({ combinations }) => {
+  if (!combinations) return null;
+
+  const scenarios = [
+    { key: 'live', label: '目前' },
+    { key: 'boss', label: '打王' },
+    ...(combinations.exp ? [{ key: 'exp', label: '練等' }] : []),
+  ];
+
+  return (
+    <Box sx={{ mt: 1 }}>
+      <Typography
+        variant="caption"
+        color="text.secondary"
+        sx={{ display: 'block', mb: 0.5 }}
+      >
+        Preset 組合
+      </Typography>
+      <Box
+        component="table"
+        sx={{
+          width: '100%',
+          borderCollapse: 'collapse',
+          '& th, & td': {
+            px: 0.75,
+            py: 0.25,
+            fontSize: '0.7rem',
+            textAlign: 'center',
+          },
+          '& th': { color: 'text.secondary', fontWeight: 600 },
+        }}
+      >
+        <thead>
+          <tr>
+            <th></th>
+            {scenarios.map(s => (
+              <th key={s.key}>{s.label}</th>
+            ))}
+          </tr>
+        </thead>
+        <tbody>
+          {COMBO_LABELS.map(({ key, label }) => (
+            <tr key={key}>
+              <Box component="td" sx={{ textAlign: 'left !important' }}>
+                {label}
+              </Box>
+              {scenarios.map(s => (
+                <td key={s.key}>
+                  {combinations[s.key]?.[key] != null
+                    ? combinations[s.key][key]
+                    : '-'}
+                </td>
+              ))}
+            </tr>
+          ))}
+        </tbody>
+      </Box>
+    </Box>
+  );
+};
+
 const CharacterCard = memo(function CharacterCard({
   character,
   unionData = null,
@@ -227,6 +294,9 @@ const CharacterCard = memo(function CharacterCard({
                       )}
                     </Box>
                   ))}
+                  <PresetCombinationTable
+                    combinations={presetAnalysis.presetCombinations}
+                  />
                 </>
               ) : (
                 <>
