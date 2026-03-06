@@ -166,7 +166,7 @@ describe('getRecommendations', () => {
     expect(recs[1].axis).toBe('Boss傷害');
   });
 
-  it('returns empty array when all axes above balance', () => {
+  it('returns one recommendation when one axis is below balance', () => {
     const ratios = [1.0, 1.1, 1.2, 0.95, 1.3, 1.4].map((ratio, i) => ({
       axis: String(i), ratio,
     }));
