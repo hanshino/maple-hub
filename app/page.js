@@ -131,14 +131,21 @@ function HomeContent() {
         setRunes(runeResult.data.symbol || []);
       }
 
-      // Staggered: set-effect (200ms delay to avoid rate limit)
+      // Staggered: set-effect, hyper-stat, link-skill (200ms delay to avoid rate limit)
       let setEffectResult = null;
+      let hyperStatResult = null;
+      let linkSkillResult = null;
       setSetEffectLoading(true);
       try {
         await new Promise(resolve => setTimeout(resolve, 200));
-        setEffectResult = await apiCall(
-          `/api/character/set-effect?ocid=${ocid}`
-        );
+        [setEffectResult, hyperStatResult, linkSkillResult] =
+          await Promise.all([
+            apiCall(`/api/character/set-effect?ocid=${ocid}`).catch(() => null),
+            apiCall(`/api/character/hyper-stat?ocid=${ocid}`).catch(() => null),
+            apiCall(`/api/character/link-skill?ocid=${ocid}`).catch(
+              () => null
+            ),
+          ]);
       } catch {
         // non-critical
       } finally {
@@ -166,11 +173,17 @@ function HomeContent() {
         const symbolData = runeResult?.status >= 200 ? runeResult.data : null;
         const setEffect =
           setEffectResult?.status >= 200 ? setEffectResult.data : null;
+        const hyperStat =
+          hyperStatResult?.status >= 200 ? hyperStatResult.data : null;
+        const linkSkill =
+          linkSkillResult?.status >= 200 ? linkSkillResult.data : null;
         const analysis = analyzeAllPresets(
           rawEquipment,
           statsResult.data,
           symbolData,
-          setEffect
+          setEffect,
+          hyperStat,
+          linkSkill
         );
         setPresetAnalysis(analysis);
       }
