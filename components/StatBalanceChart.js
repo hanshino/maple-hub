@@ -1,6 +1,6 @@
 'use client';
 
-import { useMemo } from 'react';
+import React, { useMemo } from 'react';
 import {
   Box,
   Card,
@@ -160,4 +160,4 @@ const StatBalanceChart = ({ statsData, equipmentData, loading }) => {
   );
 };
 
-export default StatBalanceChart;
+export default React.memo(StatBalanceChart);
