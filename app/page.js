@@ -24,6 +24,7 @@ import ProgressBar from '../components/ProgressBar';
 import CharacterSearch from '../components/CharacterSearch';
 import EquipmentDialog from '../components/EquipmentDialog';
 import CharacterDataTabs from '../components/CharacterDataTabs';
+import StatBalanceChart from '../components/StatBalanceChart';
 import { generateDateRange } from '../lib/progressUtils';
 import { apiCall, batchApiCalls } from '../lib/apiUtils';
 import { analyzeAllPresets } from '../lib/combatPowerCalculator';
@@ -439,6 +440,17 @@ function HomeContent() {
               </Card>
             </Grid>
           </Grid>
+
+          {/* Stat Balance Chart */}
+          {(character || loading) && (
+            <Box sx={{ mb: 3 }}>
+              <StatBalanceChart
+                statsData={statsData}
+                equipmentData={equipmentRawData}
+                loading={loading}
+              />
+            </Box>
+          )}
 
           {/* Character Data Tabs */}
           <Box sx={{ mt: 2 }}>
