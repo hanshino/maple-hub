@@ -9,6 +9,7 @@ import UnionRaiderPanel from './UnionRaiderPanel';
 import HyperStatPanel from './HyperStatPanel';
 import SetEffectPanel from './SetEffectPanel';
 import UnionArtifactPanel from './UnionArtifactPanel';
+import LinkSkillPanel from './LinkSkillPanel';
 import { getCachedData, setCachedData } from '../lib/cache';
 
 const TAB_STATS = 0;
@@ -17,6 +18,7 @@ const TAB_HYPER_STAT = 2;
 const TAB_SET_EFFECT = 3;
 const TAB_UNION_ARTIFACT = 4;
 const TAB_RUNES = 5;
+const TAB_LINK_SKILL = 6;
 
 const CharacterDataTabs = ({
   ocid,
@@ -45,6 +47,12 @@ const CharacterDataTabs = ({
   const [unionArtifactLoading, setUnionArtifactLoading] = useState(false);
   const [unionArtifactError, setUnionArtifactError] = useState(null);
   const [unionArtifactLoaded, setUnionArtifactLoaded] = useState(false);
+
+  // Link Skill lazy state
+  const [linkSkillData, setLinkSkillData] = useState(null);
+  const [linkSkillLoading, setLinkSkillLoading] = useState(false);
+  const [linkSkillError, setLinkSkillError] = useState(null);
+  const [linkSkillLoaded, setLinkSkillLoaded] = useState(false);
 
   const fetchTabData = useCallback(
     async (apiPath, cachePrefix, setData, setLoading, setError, setLoaded) => {
@@ -108,6 +116,18 @@ const CharacterDataTabs = ({
     );
   }, [fetchTabData]);
 
+  const retryLinkSkill = useCallback(() => {
+    setLinkSkillLoaded(false);
+    fetchTabData(
+      'link-skill',
+      'link_skill',
+      setLinkSkillData,
+      setLinkSkillLoading,
+      setLinkSkillError,
+      setLinkSkillLoaded
+    );
+  }, [fetchTabData]);
+
   const handleTabChange = (_event, newValue) => {
     setActiveTab(newValue);
 
@@ -141,6 +161,17 @@ const CharacterDataTabs = ({
         setUnionArtifactLoading,
         setUnionArtifactError,
         setUnionArtifactLoaded
+      );
+    }
+
+    if (newValue === TAB_LINK_SKILL && !linkSkillLoaded) {
+      fetchTabData(
+        'link-skill',
+        'link_skill',
+        setLinkSkillData,
+        setLinkSkillLoading,
+        setLinkSkillError,
+        setLinkSkillLoaded
       );
     }
   };
@@ -187,6 +218,15 @@ const CharacterDataTabs = ({
         );
       case TAB_RUNES:
         return <RuneSystems runes={runes} ocid={ocid} />;
+      case TAB_LINK_SKILL:
+        return (
+          <LinkSkillPanel
+            data={linkSkillData}
+            loading={linkSkillLoading}
+            error={linkSkillError}
+            onRetry={retryLinkSkill}
+          />
+        );
       default:
         return null;
     }
@@ -254,6 +294,11 @@ const CharacterDataTabs = ({
               label="符文系統"
               id="char-tab-5"
               aria-controls="char-tabpanel-5"
+            />
+            <Tab
+              label="傳授技能"
+              id="char-tab-6"
+              aria-controls="char-tabpanel-6"
             />
           </Tabs>
         </Box>
