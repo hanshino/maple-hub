@@ -13,10 +13,10 @@ Analyze equipment scroll upgrades and display the inferred scroll type(s) in the
 
 ## Equipment Categories
 
-| Category | Parts |
-|----------|-------|
-| weapon | 武器 |
-| armor | 帽子, 上衣, 褲/裙, 套服, 鞋子, 手套, 披風, 肩膀裝飾 |
+| Category  | Parts                                                                                     |
+| --------- | ----------------------------------------------------------------------------------------- |
+| weapon    | 武器                                                                                      |
+| armor     | 帽子, 上衣, 褲/裙, 套服, 鞋子, 手套, 披風, 肩膀裝飾                                       |
 | accessory | everything else (rings, necklaces, earring, face/eye, belt, pocket, machine-heart, badge) |
 
 Armor and accessory share the same scroll value table.

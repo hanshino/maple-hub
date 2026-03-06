@@ -20,6 +20,10 @@ describe('nexonApi', () => {
   let getCharacterStats;
   let getCharacterEquipment;
   let getCharacterCashItemEquipment;
+  let getCharacterHyperStat;
+  let getCharacterSetEffect;
+  let getUnionRaider;
+  let getUnionArtifact;
 
   beforeAll(async () => {
     const mod = await import('../../lib/nexonApi');
@@ -27,6 +31,10 @@ describe('nexonApi', () => {
     getCharacterStats = mod.getCharacterStats;
     getCharacterEquipment = mod.getCharacterEquipment;
     getCharacterCashItemEquipment = mod.getCharacterCashItemEquipment;
+    getCharacterHyperStat = mod.getCharacterHyperStat;
+    getCharacterSetEffect = mod.getCharacterSetEffect;
+    getUnionRaider = mod.getUnionRaider;
+    getUnionArtifact = mod.getUnionArtifact;
   });
 
   beforeEach(() => {
@@ -45,18 +53,14 @@ describe('nexonApi', () => {
 
       const result = await getCharacterBasicInfo('test-ocid');
 
-      expect(mockGet).toHaveBeenCalledWith(
-        '/character/basic?ocid=test-ocid'
-      );
+      expect(mockGet).toHaveBeenCalledWith('/character/basic?ocid=test-ocid');
       expect(result).toEqual(mockData);
     });
 
     it('should throw an error on failure', async () => {
       mockGet.mockRejectedValue(new Error('Network Error'));
 
-      await expect(
-        getCharacterBasicInfo('test-ocid')
-      ).rejects.toThrow(
+      await expect(getCharacterBasicInfo('test-ocid')).rejects.toThrow(
         'Failed to fetch character basic info: Network Error'
       );
     });
@@ -71,9 +75,7 @@ describe('nexonApi', () => {
 
       const result = await getCharacterStats('test-ocid');
 
-      expect(mockGet).toHaveBeenCalledWith(
-        '/character/stat?ocid=test-ocid'
-      );
+      expect(mockGet).toHaveBeenCalledWith('/character/stat?ocid=test-ocid');
       expect(result).toEqual(mockData);
     });
 
@@ -102,9 +104,7 @@ describe('nexonApi', () => {
     it('should throw an error on failure', async () => {
       mockGet.mockRejectedValue(new Error('Network Error'));
 
-      await expect(
-        getCharacterEquipment('test-ocid')
-      ).rejects.toThrow(
+      await expect(getCharacterEquipment('test-ocid')).rejects.toThrow(
         'Failed to fetch character equipment: Network Error'
       );
     });
@@ -126,10 +126,94 @@ describe('nexonApi', () => {
     it('should throw an error on failure', async () => {
       mockGet.mockRejectedValue(new Error('Network Error'));
 
-      await expect(
-        getCharacterCashItemEquipment('test-ocid')
-      ).rejects.toThrow(
+      await expect(getCharacterCashItemEquipment('test-ocid')).rejects.toThrow(
         'Failed to fetch cash item equipment: Network Error'
+      );
+    });
+  });
+
+  describe('getCharacterHyperStat', () => {
+    it('should return character hyper stat on success', async () => {
+      const mockData = { hyper_stat_preset_1: [] };
+      mockGet.mockResolvedValue({ data: mockData });
+
+      const result = await getCharacterHyperStat('test-ocid');
+
+      expect(mockGet).toHaveBeenCalledWith(
+        '/character/hyper-stat?ocid=test-ocid'
+      );
+      expect(result).toEqual(mockData);
+    });
+
+    it('should throw an error on failure', async () => {
+      mockGet.mockRejectedValue(new Error('Network Error'));
+
+      await expect(getCharacterHyperStat('test-ocid')).rejects.toThrow(
+        'Failed to fetch character hyper stat: Network Error'
+      );
+    });
+  });
+
+  describe('getCharacterSetEffect', () => {
+    it('should return character set effect on success', async () => {
+      const mockData = { set_effect: [] };
+      mockGet.mockResolvedValue({ data: mockData });
+
+      const result = await getCharacterSetEffect('test-ocid');
+
+      expect(mockGet).toHaveBeenCalledWith(
+        '/character/set-effect?ocid=test-ocid'
+      );
+      expect(result).toEqual(mockData);
+    });
+
+    it('should throw an error on failure', async () => {
+      mockGet.mockRejectedValue(new Error('Network Error'));
+
+      await expect(getCharacterSetEffect('test-ocid')).rejects.toThrow(
+        'Failed to fetch character set effect: Network Error'
+      );
+    });
+  });
+
+  describe('getUnionRaider', () => {
+    it('should return union raider on success', async () => {
+      const mockData = { union_raider_stat: [] };
+      mockGet.mockResolvedValue({ data: mockData });
+
+      const result = await getUnionRaider('test-ocid');
+
+      expect(mockGet).toHaveBeenCalledWith('/user/union-raider?ocid=test-ocid');
+      expect(result).toEqual(mockData);
+    });
+
+    it('should throw an error on failure', async () => {
+      mockGet.mockRejectedValue(new Error('Network Error'));
+
+      await expect(getUnionRaider('test-ocid')).rejects.toThrow(
+        'Failed to fetch union raider: Network Error'
+      );
+    });
+  });
+
+  describe('getUnionArtifact', () => {
+    it('should return union artifact on success', async () => {
+      const mockData = { union_artifact_effect: [] };
+      mockGet.mockResolvedValue({ data: mockData });
+
+      const result = await getUnionArtifact('test-ocid');
+
+      expect(mockGet).toHaveBeenCalledWith(
+        '/user/union-artifact?ocid=test-ocid'
+      );
+      expect(result).toEqual(mockData);
+    });
+
+    it('should throw an error on failure', async () => {
+      mockGet.mockRejectedValue(new Error('Network Error'));
+
+      await expect(getUnionArtifact('test-ocid')).rejects.toThrow(
+        'Failed to fetch union artifact: Network Error'
       );
     });
   });

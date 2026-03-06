@@ -59,10 +59,9 @@ describe('Refresh-All Cron API Route', () => {
 
   describe('Authentication', () => {
     it('should return 401 without auth header', async () => {
-      const request = new Request(
-        'http://localhost/api/cron/refresh-all',
-        { method: 'GET' }
-      );
+      const request = new Request('http://localhost/api/cron/refresh-all', {
+        method: 'GET',
+      });
 
       const response = await GET(request);
       const data = await response.json();
@@ -72,13 +71,10 @@ describe('Refresh-All Cron API Route', () => {
     });
 
     it('should return 401 with wrong token', async () => {
-      const request = new Request(
-        'http://localhost/api/cron/refresh-all',
-        {
-          method: 'GET',
-          headers: { Authorization: 'Bearer wrong-secret' },
-        }
-      );
+      const request = new Request('http://localhost/api/cron/refresh-all', {
+        method: 'GET',
+        headers: { Authorization: 'Bearer wrong-secret' },
+      });
 
       const response = await GET(request);
       const data = await response.json();
@@ -96,13 +92,10 @@ describe('Refresh-All Cron API Route', () => {
         hasMore: false,
       });
 
-      const request = new Request(
-        'http://localhost/api/cron/refresh-all',
-        {
-          method: 'GET',
-          headers: { Authorization: 'Bearer test-secret' },
-        }
-      );
+      const request = new Request('http://localhost/api/cron/refresh-all', {
+        method: 'GET',
+        headers: { Authorization: 'Bearer test-secret' },
+      });
 
       await GET(request);
 
@@ -148,13 +141,10 @@ describe('Refresh-All Cron API Route', () => {
         executionTimeMs: 200,
       });
 
-      const request = new Request(
-        'http://localhost/api/cron/refresh-all',
-        {
-          method: 'GET',
-          headers: { Authorization: 'Bearer test-secret' },
-        }
-      );
+      const request = new Request('http://localhost/api/cron/refresh-all', {
+        method: 'GET',
+        headers: { Authorization: 'Bearer test-secret' },
+      });
 
       const response = await GET(request);
       const data = await response.json();
@@ -195,7 +185,7 @@ describe('Refresh-All Cron API Route', () => {
         hasMore: false,
       });
 
-      processBatch.mockImplementation((ocids) => {
+      processBatch.mockImplementation(ocids => {
         const ocid = ocids[0];
         return Promise.resolve({
           records: [
@@ -296,7 +286,7 @@ describe('Refresh-All Cron API Route', () => {
       const originalDateNow = Date.now;
       let startTime;
 
-      processBatch.mockImplementation((ocids) => {
+      processBatch.mockImplementation(ocids => {
         callCount++;
         if (callCount === 1) {
           // After first batch, simulate elapsed time > 7s
@@ -389,13 +379,10 @@ describe('Refresh-All Cron API Route', () => {
         hasMore: false,
       });
 
-      const request = new Request(
-        'http://localhost/api/cron/refresh-all',
-        {
-          method: 'GET',
-          headers: { Authorization: 'Bearer test-secret' },
-        }
-      );
+      const request = new Request('http://localhost/api/cron/refresh-all', {
+        method: 'GET',
+        headers: { Authorization: 'Bearer test-secret' },
+      });
 
       const response = await GET(request);
       const data = await response.json();
@@ -444,13 +431,10 @@ describe('Refresh-All Cron API Route', () => {
         executionTimeMs: 200,
       });
 
-      const request = new Request(
-        'http://localhost/api/cron/refresh-all',
-        {
-          method: 'GET',
-          headers: { Authorization: 'Bearer test-secret' },
-        }
-      );
+      const request = new Request('http://localhost/api/cron/refresh-all', {
+        method: 'GET',
+        headers: { Authorization: 'Bearer test-secret' },
+      });
 
       const response = await GET(request);
       const data = await response.json();
@@ -481,13 +465,10 @@ describe('Refresh-All Cron API Route', () => {
         executionTimeMs: 100,
       });
 
-      const request = new Request(
-        'http://localhost/api/cron/refresh-all',
-        {
-          method: 'GET',
-          headers: { Authorization: 'Bearer test-secret' },
-        }
-      );
+      const request = new Request('http://localhost/api/cron/refresh-all', {
+        method: 'GET',
+        headers: { Authorization: 'Bearer test-secret' },
+      });
 
       const response = await GET(request);
       const data = await response.json();
@@ -504,7 +485,7 @@ describe('Refresh-All Cron API Route', () => {
       });
 
       let callCount = 0;
-      processBatch.mockImplementation((ocids) => {
+      processBatch.mockImplementation(ocids => {
         callCount++;
         const ocid = ocids[0];
         return Promise.resolve({
@@ -565,13 +546,10 @@ describe('Refresh-All Cron API Route', () => {
         executionTimeMs: 100,
       });
 
-      const request = new Request(
-        'http://localhost/api/cron/refresh-all',
-        {
-          method: 'GET',
-          headers: { Authorization: 'Bearer test-secret' },
-        }
-      );
+      const request = new Request('http://localhost/api/cron/refresh-all', {
+        method: 'GET',
+        headers: { Authorization: 'Bearer test-secret' },
+      });
 
       await GET(request);
 
@@ -582,17 +560,12 @@ describe('Refresh-All Cron API Route', () => {
 
   describe('Error Handling', () => {
     it('should return 500 on error', async () => {
-      mockGetAllOcids.mockRejectedValue(
-        new Error('Google Sheets API error')
-      );
+      mockGetAllOcids.mockRejectedValue(new Error('Google Sheets API error'));
 
-      const request = new Request(
-        'http://localhost/api/cron/refresh-all',
-        {
-          method: 'GET',
-          headers: { Authorization: 'Bearer test-secret' },
-        }
-      );
+      const request = new Request('http://localhost/api/cron/refresh-all', {
+        method: 'GET',
+        headers: { Authorization: 'Bearer test-secret' },
+      });
 
       const response = await GET(request);
       const data = await response.json();

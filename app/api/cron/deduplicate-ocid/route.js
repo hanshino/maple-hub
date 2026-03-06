@@ -138,10 +138,7 @@ export async function GET(request) {
         `[DeduplicateOcid] CharacterInfo sheet: ${characterInfoSheetResult.duplicatesFound} duplicates found, ${characterInfoSheetResult.removed} removed`
       );
     } catch (error) {
-      console.error(
-        '[DeduplicateOcid] CharacterInfo sheet error:',
-        error
-      );
+      console.error('[DeduplicateOcid] CharacterInfo sheet error:', error);
       characterInfoSheetError = error.message || 'Unknown error';
       characterInfoSheetResult = {
         totalRecords: 0,

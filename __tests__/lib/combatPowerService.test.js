@@ -7,10 +7,7 @@ import {
   processBatch,
   delay,
 } from '../../lib/combatPowerService';
-import {
-  getCharacterStats,
-  getCharacterBasicInfo,
-} from '../../lib/nexonApi';
+import { getCharacterStats, getCharacterBasicInfo } from '../../lib/nexonApi';
 
 // Mock nexonApi
 jest.mock('../../lib/nexonApi', () => ({

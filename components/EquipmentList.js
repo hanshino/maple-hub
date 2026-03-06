@@ -66,8 +66,7 @@ const GROUPS = [
 ];
 
 const EquipmentList = ({ equipment, selectedSlot, onSlotClick }) => {
-  const hasAnyEquipment =
-    equipment && Object.keys(equipment).length > 0;
+  const hasAnyEquipment = equipment && Object.keys(equipment).length > 0;
 
   if (!hasAnyEquipment) {
     return (
@@ -81,10 +80,8 @@ const EquipmentList = ({ equipment, selectedSlot, onSlotClick }) => {
 
   return (
     <Box>
-      {GROUPS.map((group) => {
-        const equippedSlots = group.slots.filter(
-          (slot) => equipment?.[slot]
-        );
+      {GROUPS.map(group => {
+        const equippedSlots = group.slots.filter(slot => equipment?.[slot]);
         if (equippedSlots.length === 0) return null;
 
         return (
@@ -99,7 +96,7 @@ const EquipmentList = ({ equipment, selectedSlot, onSlotClick }) => {
                 py: 0.75,
                 fontWeight: 700,
                 color: 'text.secondary',
-                backgroundColor: (theme) =>
+                backgroundColor: theme =>
                   alpha(theme.palette.primary.main, 0.06),
                 letterSpacing: '0.05em',
               }}
@@ -116,9 +113,7 @@ const EquipmentList = ({ equipment, selectedSlot, onSlotClick }) => {
                   selected={selectedSlot === slot}
                   onClick={onSlotClick}
                 />
-                {idx < equippedSlots.length - 1 && (
-                  <Divider sx={{ mx: 2 }} />
-                )}
+                {idx < equippedSlots.length - 1 && <Divider sx={{ mx: 2 }} />}
               </Box>
             ))}
           </Box>

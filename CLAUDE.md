@@ -25,6 +25,7 @@ npm run format:check # Prettier check (CI)
 **Next.js App Router** with API routes as the backend. No separate backend server.
 
 ### Data Flow
+
 - Frontend components (`'use client'`) call internal API routes (`app/api/`)
 - API routes proxy to Nexon OpenAPI (character data) and Google Sheets API (persistence)
 - Middleware (`middleware.js`) captures OCIDs from API requests for logging
@@ -32,6 +33,7 @@ npm run format:check # Prettier check (CI)
 - Cron jobs are API routes (`app/api/cron/`) called by external cron services, authenticated via `CRON_SECRET` Bearer token
 
 ### Key Modules (lib/)
+
 - `nexonApi.js` — Nexon OpenAPI client (character, equipment, union, hexa data)
 - `googleSheets.js` — Google Sheets read/write with caching and deduplication
 - `ocidLogger.js` — In-memory OCID buffer, synced to Google Sheets periodically
@@ -40,6 +42,7 @@ npm run format:check # Prettier check (CI)
 - `combatPowerService.js` / `characterInfoService.js` — Google Sheets-backed data services
 
 ### Pages
+
 - `/` — Character search + stats/equipment/hexa visualization
 - `/dashboard` — Character detail view
 - `/dashboard-progress` — Historical progress charts (Recharts)
@@ -48,17 +51,20 @@ npm run format:check # Prettier check (CI)
 ## Conventions
 
 ### Code Style
+
 - Prettier: 80-char width, single quotes, trailing commas (es5), semicolons, 2-space indent
 - ESLint: `next/core-web-vitals` + Prettier integration
 - ES modules (`"type": "module"` in package.json)
 
 ### Naming
+
 - `camelCase` — variables, functions, API methods
 - `PascalCase` — React components (filenames match: `CharacterCard.js`)
 - `kebab-case` — directories and non-component files
 - `UPPER_SNAKE_CASE` — constants and environment variables
 
 ### React Patterns
+
 - Functional components with hooks only
 - `React.memo()` for expensive renders
 - `'use client'` directive on all interactive components
@@ -67,12 +73,14 @@ npm run format:check # Prettier check (CI)
 - Theme: orange primary (`#f7931e`), cream background (`#fff7ec`), Nunito + Comic Neue fonts
 
 ### API Routes
+
 - Export named `GET`/`POST` functions
 - Return `NextResponse.json()` with appropriate status codes
 - Cron routes validate `Authorization: Bearer <CRON_SECRET>`
 - Must complete within 10-second Vercel timeout
 
 ### Testing
+
 - Jest 30 + React Testing Library in jsdom environment
 - Tests in `__tests__/` mirroring source structure
 - Mock external APIs (axios, fetch) — never call real APIs in tests

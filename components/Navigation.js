@@ -84,9 +84,7 @@ export default function Navigation() {
           <IconButton
             color="inherit"
             onClick={toggleColorMode}
-            aria-label={
-              mode === 'dark' ? '切換淺色模式' : '切換深色模式'
-            }
+            aria-label={mode === 'dark' ? '切換淺色模式' : '切換深色模式'}
             sx={{ ml: 1 }}
           >
             {mode === 'dark' ? <LightModeIcon /> : <DarkModeIcon />}

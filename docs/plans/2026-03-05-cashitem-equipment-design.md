@@ -13,6 +13,7 @@
 ### Task 1: Add nexonApi method
 
 **Files:**
+
 - Modify: `lib/nexonApi.js` (append new export)
 - Test: `__tests__/lib/nexonApi.test.js`
 
@@ -37,9 +38,7 @@ describe('getCharacterCashItemEquipment', () => {
   it('should throw an error on failure', async () => {
     mockGet.mockRejectedValue(new Error('Network Error'));
 
-    await expect(
-      getCharacterCashItemEquipment('test-ocid')
-    ).rejects.toThrow(
+    await expect(getCharacterCashItemEquipment('test-ocid')).rejects.toThrow(
       'Failed to fetch cash item equipment: Network Error'
     );
   });
@@ -81,9 +80,7 @@ export const getCharacterCashItemEquipment = async ocid => {
     );
     return response.data;
   } catch (error) {
-    throw new Error(
-      `Failed to fetch cash item equipment: ${error.message}`
-    );
+    throw new Error(`Failed to fetch cash item equipment: ${error.message}`);
   }
 };
 ```
@@ -105,6 +102,7 @@ git commit -m "feat: add getCharacterCashItemEquipment to nexonApi"
 ### Task 2: Add API route
 
 **Files:**
+
 - Create: `app/api/character/cashitem-equipment/route.js`
 - Test: `__tests__/api/cashitem-equipment.test.js`
 
@@ -136,7 +134,9 @@ describe('GET /api/character/cashitem-equipment', () => {
   });
 
   it('should return 400 if ocid is missing', async () => {
-    const request = new Request('http://localhost/api/character/cashitem-equipment');
+    const request = new Request(
+      'http://localhost/api/character/cashitem-equipment'
+    );
     const response = await GET(request);
     const data = await response.json();
 
@@ -223,6 +223,7 @@ git commit -m "feat: add cashitem-equipment API route"
 ### Task 3: Add data processing utility
 
 **Files:**
+
 - Modify: `lib/equipmentUtils.js` (append new export)
 - Test: `__tests__/lib/equipmentUtils.test.js`
 
@@ -250,9 +251,7 @@ describe('processCashItemEquipmentData', () => {
           cash_item_equipment_slot: '上衣',
           cash_item_name: '套服內襯',
           cash_item_icon: 'https://example.com/top.png',
-          cash_item_option: [
-            { option_type: '攻擊力', option_value: '20' },
-          ],
+          cash_item_option: [{ option_type: '攻擊力', option_value: '20' }],
         },
         {
           cash_item_equipment_part: '戒指',
@@ -341,6 +340,7 @@ git commit -m "feat: add processCashItemEquipmentData utility"
 ### Task 4: Create CashItemGrid component
 
 **Files:**
+
 - Create: `components/CashItemGrid.js`
 
 **Step 1: Create the component**
@@ -445,6 +445,7 @@ git commit -m "feat: add CashItemGrid component"
 ### Task 5: Create CashItemDetailDrawer component
 
 **Files:**
+
 - Create: `components/CashItemDetailDrawer.js`
 
 **Step 1: Create the component**
@@ -452,13 +453,7 @@ git commit -m "feat: add CashItemGrid component"
 ```js
 'use client';
 
-import {
-  Drawer,
-  Box,
-  Typography,
-  IconButton,
-  Divider,
-} from '@mui/material';
+import { Drawer, Box, Typography, IconButton, Divider } from '@mui/material';
 import CloseIcon from '@mui/icons-material/Close';
 
 const CashItemDetailDrawer = ({ item, open, onClose, isMobile }) => {
@@ -526,10 +521,7 @@ const CashItemDetailDrawer = ({ item, open, onClose, isMobile }) => {
           {hasOptions && (
             <>
               <Divider sx={{ my: 1.5 }} />
-              <Typography
-                variant="subtitle2"
-                sx={{ fontWeight: 700, mb: 1 }}
-              >
+              <Typography variant="subtitle2" sx={{ fontWeight: 700, mb: 1 }}>
                 能力值
               </Typography>
               {item.cash_item_option.map((opt, i) => (
@@ -572,11 +564,13 @@ git commit -m "feat: add CashItemDetailDrawer component"
 ### Task 6: Add Tabs to EquipmentDialog and integrate cash item flow
 
 **Files:**
+
 - Modify: `components/EquipmentDialog.js`
 
 **Step 1: Update EquipmentDialog**
 
 Changes needed:
+
 1. Import `Tabs`, `Tab` from MUI, plus new components
 2. Add `tabIndex` state, `cashItemEquipment` state, loading/error for cash items
 3. Lazy-load cash item data when tab switches to 1
@@ -602,7 +596,10 @@ import {
   Tabs,
   Tab,
 } from '@mui/material';
-import { processEquipmentData, processCashItemEquipmentData } from '../lib/equipmentUtils';
+import {
+  processEquipmentData,
+  processCashItemEquipmentData,
+} from '../lib/equipmentUtils';
 import { getCachedData, setCachedData } from '../lib/cache';
 import EquipmentGrid from './EquipmentGrid';
 import EquipmentList from './EquipmentList';
@@ -634,9 +631,7 @@ const EquipmentDialog = ({ ocid, character, open, onClose }) => {
       let data = getCachedData(cacheKey);
 
       if (!data) {
-        const response = await fetch(
-          `/api/character/equipment?ocid=${ocid}`
-        );
+        const response = await fetch(`/api/character/equipment?ocid=${ocid}`);
         if (!response.ok) {
           throw new Error('載入裝備失敗');
         }
@@ -704,7 +699,7 @@ const EquipmentDialog = ({ ocid, character, open, onClose }) => {
     }
   }, [tabIndex, cashItemLoaded, ocid, loadCashItemEquipment]);
 
-  const handleSlotClick = (slotKey) => {
+  const handleSlotClick = slotKey => {
     const source = tabIndex === 0 ? equipment : cashItemEquipment;
     if (source?.[slotKey]) {
       setSelectedSlot(slotKey);
@@ -868,6 +863,7 @@ Expected: PASS (existing tests should not break)
 **Step 3: Manual verification**
 
 Run: `npm run dev`
+
 - Search a character
 - Open equipment dialog
 - Verify "裝備" and "現金裝備" tabs appear

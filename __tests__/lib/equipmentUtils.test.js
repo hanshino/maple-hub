@@ -398,9 +398,7 @@ describe('equipmentUtils', () => {
             cash_item_equipment_slot: '上衣',
             cash_item_name: '套服內襯',
             cash_item_icon: 'https://example.com/top.png',
-            cash_item_option: [
-              { option_type: '攻擊力', option_value: '20' },
-            ],
+            cash_item_option: [{ option_type: '攻擊力', option_value: '20' }],
             date_expire: '2026-12-31T00:00+08:00',
           },
           {

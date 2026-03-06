@@ -22,12 +22,11 @@ import ErrorMessage from '../components/ErrorMessage';
 import HexaMatrixProgress from '../components/HexaMatrixProgress';
 import ProgressBar from '../components/ProgressBar';
 import CharacterSearch from '../components/CharacterSearch';
-import RuneSystems from '../components/runes/RuneSystems';
-import RuneErrorBoundary from '../components/runes/ErrorBoundary';
 import EquipmentDialog from '../components/EquipmentDialog';
-import CharacterStats from '../components/CharacterStats';
+import CharacterDataTabs from '../components/CharacterDataTabs';
 import { generateDateRange } from '../lib/progressUtils';
 import { apiCall, batchApiCalls } from '../lib/apiUtils';
+import { analyzeAllPresets } from '../lib/combatPowerCalculator';
 
 export default function Home() {
   return (
@@ -48,6 +47,11 @@ function HomeContent() {
   const [battlePower, setBattlePower] = useState(null);
   const [equipmentDialogOpen, setEquipmentDialogOpen] = useState(false);
   const [lastOcid, setLastOcid] = useState(null);
+  const [presetAnalysis, setPresetAnalysis] = useState(null);
+  const [equipmentRawData, setEquipmentRawData] = useState(null);
+  const [setEffectData, setSetEffectData] = useState(null);
+  const [setEffectLoading, setSetEffectLoading] = useState(false);
+  const [setEffectError, setSetEffectError] = useState(null);
 
   const searchCharacter = async ocid => {
     setLastOcid(ocid);
@@ -58,6 +62,11 @@ function HomeContent() {
     setChartData([]);
     setRunes([]);
     setBattlePower(null);
+    setPresetAnalysis(null);
+    setEquipmentRawData(null);
+    setSetEffectData(null);
+    setSetEffectLoading(false);
+    setSetEffectError(null);
     try {
       // Get data for the last 5 days (but only available dates after 2025-10-15)
       const dateConfigs = generateDateRange(7);
@@ -91,12 +100,14 @@ function HomeContent() {
 
       setCharacter({ ...latestCharacter, ocid });
 
-      // Fetch stats, union, runes in parallel
-      const [statsResult, unionResult, runeResult] = await Promise.all([
-        apiCall(`/api/character/stats?ocid=${ocid}`).catch(() => null),
-        apiCall(`/api/union/${ocid}`).catch(() => null),
-        apiCall(`/api/character/${ocid}/runes`).catch(() => null),
-      ]);
+      // Fetch stats, union, runes, equipment in parallel
+      const [statsResult, unionResult, runeResult, equipmentResult] =
+        await Promise.all([
+          apiCall(`/api/character/stats?ocid=${ocid}`).catch(() => null),
+          apiCall(`/api/union/${ocid}`).catch(() => null),
+          apiCall(`/api/character/${ocid}/runes`).catch(() => null),
+          apiCall(`/api/character/equipment?ocid=${ocid}`).catch(() => null),
+        ]);
 
       // Process battle power
       if (statsResult?.status >= 200 && statsResult?.status < 300) {
@@ -114,6 +125,50 @@ function HomeContent() {
       // Process rune data
       if (runeResult?.status >= 200 && runeResult?.status < 300) {
         setRunes(runeResult.data.symbol || []);
+      }
+
+      // Staggered: set-effect (200ms delay to avoid rate limit)
+      let setEffectResult = null;
+      setSetEffectLoading(true);
+      try {
+        await new Promise(resolve => setTimeout(resolve, 200));
+        setEffectResult = await apiCall(
+          `/api/character/set-effect?ocid=${ocid}`
+        );
+      } catch {
+        // non-critical
+      } finally {
+        setSetEffectLoading(false);
+      }
+
+      // Process equipment data
+      let rawEquipment = null;
+      if (equipmentResult?.status >= 200 && equipmentResult?.status < 300) {
+        rawEquipment = equipmentResult.data;
+        setEquipmentRawData(rawEquipment);
+      }
+
+      // Process set effect data
+      if (setEffectResult?.status >= 200 && setEffectResult?.status < 300) {
+        setSetEffectData(setEffectResult.data);
+      }
+
+      // Compute preset analysis
+      if (
+        rawEquipment &&
+        statsResult?.status >= 200 &&
+        statsResult?.status < 300
+      ) {
+        const symbolData = runeResult?.status >= 200 ? runeResult.data : null;
+        const setEffect =
+          setEffectResult?.status >= 200 ? setEffectResult.data : null;
+        const analysis = analyzeAllPresets(
+          rawEquipment,
+          statsResult.data,
+          symbolData,
+          setEffect
+        );
+        setPresetAnalysis(analysis);
       }
 
       // Prepare chart data from all valid characters
@@ -346,6 +401,7 @@ function HomeContent() {
               unionData={unionData}
               battlePower={battlePower}
               onEquipmentClick={() => setEquipmentDialogOpen(true)}
+              presetAnalysis={presetAnalysis}
             />
           </Card>
 
@@ -381,12 +437,32 @@ function HomeContent() {
             </Grid>
           </Grid>
 
-          {/* Stats Section */}
-          <Grid container spacing={2} sx={{ mb: 4 }}>
-            <Grid size={{ xs: 12 }}>
-              <CharacterStats ocid={character.ocid} />
-            </Grid>
-          </Grid>
+          {/* Character Data Tabs */}
+          <Box sx={{ mt: 2 }}>
+            <CharacterDataTabs
+              ocid={character.ocid}
+              runes={runes}
+              setEffectData={setEffectData}
+              setEffectLoading={setEffectLoading}
+              setEffectError={setEffectError}
+              onRetrySetEffect={async () => {
+                setSetEffectLoading(true);
+                setSetEffectError(null);
+                try {
+                  const res = await apiCall(
+                    `/api/character/set-effect?ocid=${character.ocid}`
+                  );
+                  if (res?.status >= 200 && res?.status < 300) {
+                    setSetEffectData(res.data);
+                  }
+                } catch {
+                  setSetEffectError('載入套裝效果失敗');
+                } finally {
+                  setSetEffectLoading(false);
+                }
+              }}
+            />
+          </Box>
         </Box>
       )}
 
@@ -397,23 +473,8 @@ function HomeContent() {
           character={character}
           open={equipmentDialogOpen}
           onClose={() => setEquipmentDialogOpen(false)}
+          prefetchedData={equipmentRawData}
         />
-      )}
-
-      {/* Rune Systems Section */}
-      {!loading && character && (
-        <Box sx={{ mt: 4 }}>
-          <Card elevation={2}>
-            <CardContent sx={{ p: 3 }}>
-              <Typography variant="h5" component="h3" gutterBottom>
-                符文系統
-              </Typography>
-              <RuneErrorBoundary>
-                <RuneSystems runes={runes} />
-              </RuneErrorBoundary>
-            </CardContent>
-          </Card>
-        </Box>
       )}
     </Container>
   );

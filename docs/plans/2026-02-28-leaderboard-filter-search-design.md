@@ -13,6 +13,7 @@
 ### Task 1: Add `getFilterOptions()` to GoogleSheetsClient
 
 **Files:**
+
 - Modify: `lib/googleSheets.js` (add method before the closing `}` of the class, around line 975)
 - Test: `__tests__/lib/googleSheets.combatPower.test.js`
 
@@ -26,11 +27,51 @@ describe('getFilterOptions', () => {
     mockSheets.spreadsheets.values.get.mockResolvedValue({
       data: {
         values: [
-          ['ocid', 'character_name', 'character_level', 'character_image', 'world_name', 'character_class', 'cached_at'],
-          ['ocid1', 'Player1', '275', 'img1', '殺人鯨', '冒險家 - 乘風破浪', '2026-01-01'],
-          ['ocid2', 'Player2', '280', 'img2', '青橡', '冒險家 - 乘風破浪', '2026-01-01'],
-          ['ocid3', 'Player3', '270', 'img3', '殺人鯨', '冒險家 - 乘風破浪', '2026-01-01'],
-          ['ocid4', 'Player4', '260', 'img4', '青橡', '冒險家 - 乘風破浪', '2026-01-01'],
+          [
+            'ocid',
+            'character_name',
+            'character_level',
+            'character_image',
+            'world_name',
+            'character_class',
+            'cached_at',
+          ],
+          [
+            'ocid1',
+            'Player1',
+            '275',
+            'img1',
+            '殺人鯨',
+            '冒險家 - 乘風破浪',
+            '2026-01-01',
+          ],
+          [
+            'ocid2',
+            'Player2',
+            '280',
+            'img2',
+            '青橡',
+            '冒險家 - 乘風破浪',
+            '2026-01-01',
+          ],
+          [
+            'ocid3',
+            'Player3',
+            '270',
+            'img3',
+            '殺人鯨',
+            '冒險家 - 乘風破浪',
+            '2026-01-01',
+          ],
+          [
+            'ocid4',
+            'Player4',
+            '260',
+            'img4',
+            '青橡',
+            '冒險家 - 乘風破浪',
+            '2026-01-01',
+          ],
         ],
       },
     });
@@ -51,7 +92,19 @@ describe('getFilterOptions', () => {
 
   it('should return empty arrays when no data exists', async () => {
     mockSheets.spreadsheets.values.get.mockResolvedValue({
-      data: { values: [['ocid', 'character_name', 'character_level', 'character_image', 'world_name', 'character_class', 'cached_at']] },
+      data: {
+        values: [
+          [
+            'ocid',
+            'character_name',
+            'character_level',
+            'character_image',
+            'world_name',
+            'character_class',
+            'cached_at',
+          ],
+        ],
+      },
     });
 
     jest.spyOn(client, 'getOrCreateCharacterInfoSheet').mockResolvedValue({
@@ -131,6 +184,7 @@ git commit -m "feat: add getFilterOptions() to GoogleSheetsClient"
 ### Task 2: Update `getLeaderboardData()` to support filters
 
 **Files:**
+
 - Modify: `lib/googleSheets.js:683-736` — change `getLeaderboardData` signature
 - Test: `__tests__/lib/googleSheets.combatPower.test.js`
 
@@ -152,9 +206,18 @@ it('should filter by worldName when characterInfo is provided', async () => {
   });
 
   const characterInfoMap = new Map([
-    ['ocid1', { character_name: 'A', world_name: '殺人鯨', character_class: '冒險家' }],
-    ['ocid2', { character_name: 'B', world_name: '青橡', character_class: '冒險家' }],
-    ['ocid3', { character_name: 'C', world_name: '殺人鯨', character_class: '騎士' }],
+    [
+      'ocid1',
+      { character_name: 'A', world_name: '殺人鯨', character_class: '冒險家' },
+    ],
+    [
+      'ocid2',
+      { character_name: 'B', world_name: '青橡', character_class: '冒險家' },
+    ],
+    [
+      'ocid3',
+      { character_name: 'C', world_name: '殺人鯨', character_class: '騎士' },
+    ],
   ]);
 
   const result = await client.getLeaderboardData(0, 20, {
@@ -180,8 +243,22 @@ it('should filter by search (character name) case-insensitively', async () => {
   });
 
   const characterInfoMap = new Map([
-    ['ocid1', { character_name: 'HelloWorld', world_name: '殺人鯨', character_class: '冒險家' }],
-    ['ocid2', { character_name: 'GoodBye', world_name: '青橡', character_class: '冒險家' }],
+    [
+      'ocid1',
+      {
+        character_name: 'HelloWorld',
+        world_name: '殺人鯨',
+        character_class: '冒險家',
+      },
+    ],
+    [
+      'ocid2',
+      {
+        character_name: 'GoodBye',
+        world_name: '青橡',
+        character_class: '冒險家',
+      },
+    ],
   ]);
 
   const result = await client.getLeaderboardData(0, 20, {
@@ -205,8 +282,22 @@ it('should filter by characterClass with substring match', async () => {
   });
 
   const characterInfoMap = new Map([
-    ['ocid1', { character_name: 'A', world_name: '殺人鯨', character_class: '冒險家 - 乘風破浪' }],
-    ['ocid2', { character_name: 'B', world_name: '青橡', character_class: '冒險家 - 乘風破浪' }],
+    [
+      'ocid1',
+      {
+        character_name: 'A',
+        world_name: '殺人鯨',
+        character_class: '冒險家 - 乘風破浪',
+      },
+    ],
+    [
+      'ocid2',
+      {
+        character_name: 'B',
+        world_name: '青橡',
+        character_class: '冒險家 - 乘風破浪',
+      },
+    ],
   ]);
 
   const result = await client.getLeaderboardData(0, 20, {
@@ -231,9 +322,30 @@ it('should combine multiple filters', async () => {
   });
 
   const characterInfoMap = new Map([
-    ['ocid1', { character_name: 'A', world_name: '殺人鯨', character_class: '冒險家 - 乘風破浪' }],
-    ['ocid2', { character_name: 'B', world_name: '殺人鯨', character_class: '冒險家 - 乘風破浪' }],
-    ['ocid3', { character_name: 'C', world_name: '青橡', character_class: '冒險家 - 乘風破浪' }],
+    [
+      'ocid1',
+      {
+        character_name: 'A',
+        world_name: '殺人鯨',
+        character_class: '冒險家 - 乘風破浪',
+      },
+    ],
+    [
+      'ocid2',
+      {
+        character_name: 'B',
+        world_name: '殺人鯨',
+        character_class: '冒險家 - 乘風破浪',
+      },
+    ],
+    [
+      'ocid3',
+      {
+        character_name: 'C',
+        world_name: '青橡',
+        character_class: '冒險家 - 乘風破浪',
+      },
+    ],
   ]);
 
   const result = await client.getLeaderboardData(0, 20, {
@@ -385,6 +497,7 @@ git commit -m "feat: add filter support to getLeaderboardData()"
 ### Task 3: Update leaderboard API route to accept filter params
 
 **Files:**
+
 - Modify: `app/api/leaderboard/route.js`
 - Test: `__tests__/api/leaderboard.test.js` (new file)
 
@@ -424,28 +537,34 @@ describe('GET /api/leaderboard', () => {
 
   it('should pass filter params to getLeaderboardData', async () => {
     const characterInfoMap = new Map([
-      ['ocid1', {
-        character_name: 'TestPlayer',
-        character_level: 275,
-        character_image: 'img1',
-        world_name: '殺人鯨',
-        character_class: '冒險家 - 乘風破浪',
-        cached_at: '2026-01-01',
-      }],
+      [
+        'ocid1',
+        {
+          character_name: 'TestPlayer',
+          character_level: 275,
+          character_image: 'img1',
+          world_name: '殺人鯨',
+          character_class: '冒險家 - 乘風破浪',
+          cached_at: '2026-01-01',
+        },
+      ],
     ]);
 
     mockGetCharacterInfoCache.mockResolvedValue(characterInfoMap);
     mockGetLeaderboardData.mockResolvedValue({
-      entries: [{
-        ocid: 'ocid1',
-        combat_power: 50000,
-        updated_at: '2026-01-01',
-      }],
+      entries: [
+        {
+          ocid: 'ocid1',
+          combat_power: 50000,
+          updated_at: '2026-01-01',
+        },
+      ],
       totalCount: 1,
       hasMore: false,
     });
 
-    const url = 'http://localhost/api/leaderboard?search=Test&worldName=殺人鯨&characterClass=乘風破浪';
+    const url =
+      'http://localhost/api/leaderboard?search=Test&worldName=殺人鯨&characterClass=乘風破浪';
     const request = new Request(url);
     const response = await GET(request);
     const data = await response.json();
@@ -498,6 +617,7 @@ Expected: FAIL
 **Step 3: Write implementation**
 
 Rewrite `app/api/leaderboard/route.js` — the key change is:
+
 1. Parse `search`, `worldName`, `characterClass` from query params
 2. Fetch ALL character info first (not just for the paginated page)
 3. Pass characterInfoMap + filters to `getLeaderboardData()`
@@ -665,6 +785,7 @@ git commit -m "feat: add filter params to leaderboard API route"
 ### Task 4: Create `/api/leaderboard/filters` endpoint
 
 **Files:**
+
 - Create: `app/api/leaderboard/filters/route.js`
 - Test: `__tests__/api/leaderboard-filters.test.js` (new file)
 
@@ -765,6 +886,7 @@ git commit -m "feat: add /api/leaderboard/filters endpoint"
 ### Task 5: Add filter UI to LeaderboardList component
 
 **Files:**
+
 - Modify: `components/LeaderboardList.js`
 
 **Step 1: Add filter state and fetch filter options**
@@ -871,7 +993,7 @@ const fetchLeaderboard = useCallback(
 
 ```javascript
 // Debounced search handler
-const handleSearchChange = useCallback((e) => {
+const handleSearchChange = useCallback(e => {
   const value = e.target.value;
   setSearchText(value);
 
@@ -884,11 +1006,11 @@ const handleSearchChange = useCallback((e) => {
   }, 500);
 }, []);
 
-const handleWorldChange = useCallback((e) => {
+const handleWorldChange = useCallback(e => {
   setWorldName(e.target.value);
 }, []);
 
-const handleClassChange = useCallback((e) => {
+const handleClassChange = useCallback(e => {
   setCharacterClass(e.target.value);
 }, []);
 
@@ -920,7 +1042,9 @@ useEffect(() => {
 Add the filter bar right before the `{/* Counter */}` comment inside the return statement:
 
 ```jsx
-{/* Filter bar */}
+{
+  /* Filter bar */
+}
 <Paper
   sx={{
     p: 2,
@@ -954,13 +1078,12 @@ Add the filter bar right before the `{/* Counter */}` comment inside the return 
       flex: { sm: '0 0 auto' },
     }}
   >
-    <FormControl size="small" sx={{ minWidth: 120, flex: { xs: 1, sm: 'none' } }}>
+    <FormControl
+      size="small"
+      sx={{ minWidth: 120, flex: { xs: 1, sm: 'none' } }}
+    >
       <InputLabel>伺服器</InputLabel>
-      <Select
-        value={worldName}
-        onChange={handleWorldChange}
-        label="伺服器"
-      >
+      <Select value={worldName} onChange={handleWorldChange} label="伺服器">
         <MenuItem value="">全部</MenuItem>
         {filterOptions.worlds.map(world => (
           <MenuItem key={world} value={world}>
@@ -969,13 +1092,12 @@ Add the filter bar right before the `{/* Counter */}` comment inside the return 
         ))}
       </Select>
     </FormControl>
-    <FormControl size="small" sx={{ minWidth: 120, flex: { xs: 1, sm: 'none' } }}>
+    <FormControl
+      size="small"
+      sx={{ minWidth: 120, flex: { xs: 1, sm: 'none' } }}
+    >
       <InputLabel>職業</InputLabel>
-      <Select
-        value={characterClass}
-        onChange={handleClassChange}
-        label="職業"
-      >
+      <Select value={characterClass} onChange={handleClassChange} label="職業">
         <MenuItem value="">全部</MenuItem>
         {filterOptions.classes.map(cls => (
           <MenuItem key={cls} value={cls}>
@@ -985,7 +1107,7 @@ Add the filter bar right before the `{/* Counter */}` comment inside the return 
       </Select>
     </FormControl>
   </Box>
-</Paper>
+</Paper>;
 ```
 
 **Step 6: Update empty state to show clear filters button**
@@ -1066,6 +1188,7 @@ Expected: All tests pass
 
 Run: `npm run dev`
 Test:
+
 - Visit `/leaderboard` — filter bar renders above cards
 - Type a name in search — debounces 500ms, results update
 - Select a server — results filter immediately

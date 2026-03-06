@@ -20,7 +20,7 @@ function ThemeReader() {
 
 beforeEach(() => {
   localStorage.clear();
-  window.matchMedia = jest.fn().mockImplementation((query) => ({
+  window.matchMedia = jest.fn().mockImplementation(query => ({
     matches: false,
     media: query,
     addEventListener: jest.fn(),
@@ -40,7 +40,7 @@ describe('MuiThemeProvider', () => {
   });
 
   it('respects system dark preference', () => {
-    window.matchMedia = jest.fn().mockImplementation((query) => ({
+    window.matchMedia = jest.fn().mockImplementation(query => ({
       matches: query === '(prefers-color-scheme: dark)',
       media: query,
       addEventListener: jest.fn(),

@@ -84,7 +84,7 @@ export default function AppThemeProvider({ children }) {
     () => ({
       mode,
       toggleColorMode: () => {
-        setMode((prev) => {
+        setMode(prev => {
           const next = prev === 'light' ? 'dark' : 'light';
           localStorage.setItem('color-mode', next);
           return next;
