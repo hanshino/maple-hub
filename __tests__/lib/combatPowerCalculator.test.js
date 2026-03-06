@@ -165,8 +165,26 @@ describe('combatPowerCalculator', () => {
 
     it('sums fixed stats from item_total_option', () => {
       const items = [
-        makeItem({ item_total_option: { str: '100', dex: '50', int: '0', luk: '0', attack_power: '20', magic_power: '0' } }),
-        makeItem({ item_total_option: { str: '50', dex: '0', int: '0', luk: '0', attack_power: '10', magic_power: '0' } }),
+        makeItem({
+          item_total_option: {
+            str: '100',
+            dex: '50',
+            int: '0',
+            luk: '0',
+            attack_power: '20',
+            magic_power: '0',
+          },
+        }),
+        makeItem({
+          item_total_option: {
+            str: '50',
+            dex: '0',
+            int: '0',
+            luk: '0',
+            attack_power: '10',
+            magic_power: '0',
+          },
+        }),
       ];
       const result = extractEquipmentStats(items);
       expect(result.fixed.STR).toBe(150);
@@ -177,7 +195,14 @@ describe('combatPowerCalculator', () => {
     it('parses percent stats from potential options', () => {
       const items = [
         makeItem({
-          item_total_option: { str: '0', dex: '0', int: '0', luk: '100', attack_power: '0', magic_power: '0' },
+          item_total_option: {
+            str: '0',
+            dex: '0',
+            int: '0',
+            luk: '100',
+            attack_power: '0',
+            magic_power: '0',
+          },
           potential_option_1: 'LUK : +9%',
           potential_option_2: 'LUK : +6%',
           potential_option_3: null,
@@ -190,7 +215,14 @@ describe('combatPowerCalculator', () => {
     it('distributes 全屬性 to all four stats', () => {
       const items = [
         makeItem({
-          item_total_option: { str: '0', dex: '0', int: '0', luk: '0', attack_power: '0', magic_power: '0' },
+          item_total_option: {
+            str: '0',
+            dex: '0',
+            int: '0',
+            luk: '0',
+            attack_power: '0',
+            magic_power: '0',
+          },
           potential_option_1: '全屬性 : +9%',
         }),
       ];
@@ -204,7 +236,14 @@ describe('combatPowerCalculator', () => {
     it('parses boss damage and critical damage from potentials', () => {
       const items = [
         makeItem({
-          item_total_option: { str: '0', dex: '0', int: '0', luk: '0', attack_power: '0', magic_power: '0' },
+          item_total_option: {
+            str: '0',
+            dex: '0',
+            int: '0',
+            luk: '0',
+            attack_power: '0',
+            magic_power: '0',
+          },
           potential_option_1: 'Boss攻擊時傷害 : +40%',
           potential_option_2: '爆擊傷害 : +8%',
         }),
@@ -224,7 +263,14 @@ describe('combatPowerCalculator', () => {
   describe('identifyLevelingPreset', () => {
     const makeItem = potentials => ({
       item_equipment_slot: '帽子',
-      item_total_option: { str: '0', dex: '0', int: '0', luk: '0', attack_power: '0', magic_power: '0' },
+      item_total_option: {
+        str: '0',
+        dex: '0',
+        int: '0',
+        luk: '0',
+        attack_power: '0',
+        magic_power: '0',
+      },
       potential_option_1: potentials[0] || null,
       potential_option_2: potentials[1] || null,
       potential_option_3: potentials[2] || null,
@@ -235,7 +281,11 @@ describe('combatPowerCalculator', () => {
 
     it('returns true when >= 3 leveling keywords found', () => {
       const items = [
-        makeItem(['道具掉落率 : +20%', '楓幣獲得量 : +20%', '一般怪物傷害 : +20%']),
+        makeItem([
+          '道具掉落率 : +20%',
+          '楓幣獲得量 : +20%',
+          '一般怪物傷害 : +20%',
+        ]),
       ];
       expect(identifyLevelingPreset(items)).toBe(true);
     });
@@ -294,7 +344,14 @@ describe('combatPowerCalculator', () => {
       const makePreset = (luk, atkPower) => [
         {
           item_equipment_slot: '武器',
-          item_total_option: { str: '0', dex: '500', int: '0', luk: String(luk), attack_power: String(atkPower), magic_power: '0' },
+          item_total_option: {
+            str: '0',
+            dex: '500',
+            int: '0',
+            luk: String(luk),
+            attack_power: String(atkPower),
+            magic_power: '0',
+          },
           potential_option_1: null,
           potential_option_2: null,
           potential_option_3: null,
