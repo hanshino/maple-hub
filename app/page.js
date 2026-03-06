@@ -395,6 +395,17 @@ function HomeContent() {
         </Box>
       )}
 
+      {/* StatBalanceChart outside the !loading guard so skeleton shows during loading */}
+      {(character || loading) && (
+        <Box sx={{ mb: 3 }}>
+          <StatBalanceChart
+            statsData={statsData}
+            equipmentData={equipmentRawData}
+            loading={loading}
+          />
+        </Box>
+      )}
+
       {!loading && character && (
         <Box>
           {/* Hero Card: Character info */}
@@ -440,17 +451,6 @@ function HomeContent() {
               </Card>
             </Grid>
           </Grid>
-
-          {/* Stat Balance Chart */}
-          {(character || loading) && (
-            <Box sx={{ mb: 3 }}>
-              <StatBalanceChart
-                statsData={statsData}
-                equipmentData={equipmentRawData}
-                loading={loading}
-              />
-            </Box>
-          )}
 
           {/* Character Data Tabs */}
           <Box sx={{ mt: 2 }}>
