@@ -13,6 +13,7 @@
 ### Task 1: ColorModeContext + dual theme (MuiThemeProvider)
 
 **Files:**
+
 - Modify: `components/MuiThemeProvider.js`
 - Test: `__tests__/components/MuiThemeProvider.test.js`
 
@@ -23,7 +24,9 @@ Create `__tests__/components/MuiThemeProvider.test.js`:
 ```javascript
 import { render, screen, fireEvent, act } from '@testing-library/react';
 import { useTheme } from '@mui/material/styles';
-import AppThemeProvider, { useColorMode } from '../../components/MuiThemeProvider';
+import AppThemeProvider, {
+  useColorMode,
+} from '../../components/MuiThemeProvider';
 
 // Helper component to read theme
 function ThemeReader() {
@@ -42,7 +45,7 @@ function ThemeReader() {
 beforeEach(() => {
   localStorage.clear();
   // Default: no system preference
-  window.matchMedia = jest.fn().mockImplementation((query) => ({
+  window.matchMedia = jest.fn().mockImplementation(query => ({
     matches: false,
     media: query,
     addEventListener: jest.fn(),
@@ -52,40 +55,62 @@ beforeEach(() => {
 
 describe('MuiThemeProvider', () => {
   it('defaults to light mode when no localStorage and no system preference', () => {
-    render(<AppThemeProvider><ThemeReader /></AppThemeProvider>);
+    render(
+      <AppThemeProvider>
+        <ThemeReader />
+      </AppThemeProvider>
+    );
     expect(screen.getByTestId('mode')).toHaveTextContent('light');
     expect(screen.getByTestId('bg-default')).toHaveTextContent('#fff7ec');
   });
 
   it('respects system dark preference', () => {
-    window.matchMedia = jest.fn().mockImplementation((query) => ({
+    window.matchMedia = jest.fn().mockImplementation(query => ({
       matches: query === '(prefers-color-scheme: dark)',
       media: query,
       addEventListener: jest.fn(),
       removeEventListener: jest.fn(),
     }));
-    render(<AppThemeProvider><ThemeReader /></AppThemeProvider>);
+    render(
+      <AppThemeProvider>
+        <ThemeReader />
+      </AppThemeProvider>
+    );
     expect(screen.getByTestId('mode')).toHaveTextContent('dark');
     expect(screen.getByTestId('bg-default')).toHaveTextContent('#1a1210');
   });
 
   it('localStorage overrides system preference', () => {
     localStorage.setItem('color-mode', 'dark');
-    render(<AppThemeProvider><ThemeReader /></AppThemeProvider>);
+    render(
+      <AppThemeProvider>
+        <ThemeReader />
+      </AppThemeProvider>
+    );
     expect(screen.getByTestId('mode')).toHaveTextContent('dark');
   });
 
   it('toggleColorMode switches and persists', () => {
-    render(<AppThemeProvider><ThemeReader /></AppThemeProvider>);
+    render(
+      <AppThemeProvider>
+        <ThemeReader />
+      </AppThemeProvider>
+    );
     expect(screen.getByTestId('mode')).toHaveTextContent('light');
-    act(() => { fireEvent.click(screen.getByText('toggle')); });
+    act(() => {
+      fireEvent.click(screen.getByText('toggle'));
+    });
     expect(screen.getByTestId('mode')).toHaveTextContent('dark');
     expect(localStorage.getItem('color-mode')).toBe('dark');
   });
 
   it('dark palette has correct colors', () => {
     localStorage.setItem('color-mode', 'dark');
-    render(<AppThemeProvider><ThemeReader /></AppThemeProvider>);
+    render(
+      <AppThemeProvider>
+        <ThemeReader />
+      </AppThemeProvider>
+    );
     expect(screen.getByTestId('bg-default')).toHaveTextContent('#1a1210');
     expect(screen.getByTestId('palette-mode')).toHaveTextContent('dark');
   });
@@ -108,7 +133,10 @@ import { createContext, useContext, useMemo, useState, useEffect } from 'react';
 import { createTheme, ThemeProvider } from '@mui/material/styles';
 import CssBaseline from '@mui/material/CssBaseline';
 
-const ColorModeContext = createContext({ mode: 'light', toggleColorMode: () => {} });
+const ColorModeContext = createContext({
+  mode: 'light',
+  toggleColorMode: () => {},
+});
 
 export function useColorMode() {
   return useContext(ColorModeContext);
@@ -158,9 +186,10 @@ const sharedComponents = {
     styleOverrides: {
       root: ({ theme }) => ({
         borderRadius: 20,
-        boxShadow: theme.palette.mode === 'dark'
-          ? '0 4px 10px rgba(0,0,0,0.3)'
-          : '0 4px 10px rgba(0,0,0,0.1)',
+        boxShadow:
+          theme.palette.mode === 'dark'
+            ? '0 4px 10px rgba(0,0,0,0.3)'
+            : '0 4px 10px rgba(0,0,0,0.1)',
       }),
     },
   },
@@ -180,29 +209,37 @@ function getInitialMode() {
 export default function AppThemeProvider({ children }) {
   const [mode, setMode] = useState(getInitialMode);
 
-  const colorMode = useMemo(() => ({
-    mode,
-    toggleColorMode: () => {
-      setMode((prev) => {
-        const next = prev === 'light' ? 'dark' : 'light';
-        localStorage.setItem('color-mode', next);
-        return next;
-      });
-    },
-  }), [mode]);
+  const colorMode = useMemo(
+    () => ({
+      mode,
+      toggleColorMode: () => {
+        setMode(prev => {
+          const next = prev === 'light' ? 'dark' : 'light';
+          localStorage.setItem('color-mode', next);
+          return next;
+        });
+      },
+    }),
+    [mode]
+  );
 
-  const theme = useMemo(() => createTheme({
-    palette: mode === 'dark' ? darkPalette : lightPalette,
-    shape: { borderRadius: 16 },
-    typography: {
-      fontFamily: '"Nunito", "Noto Sans TC", "Comic Neue", "Roboto", "Helvetica", "Arial", sans-serif',
-      h1: { fontWeight: 800 },
-      h2: { fontWeight: 700 },
-      h3: { fontWeight: 600 },
-      button: { textTransform: 'none', fontWeight: 600 },
-    },
-    components: sharedComponents,
-  }), [mode]);
+  const theme = useMemo(
+    () =>
+      createTheme({
+        palette: mode === 'dark' ? darkPalette : lightPalette,
+        shape: { borderRadius: 16 },
+        typography: {
+          fontFamily:
+            '"Nunito", "Noto Sans TC", "Comic Neue", "Roboto", "Helvetica", "Arial", sans-serif',
+          h1: { fontWeight: 800 },
+          h2: { fontWeight: 700 },
+          h3: { fontWeight: 600 },
+          button: { textTransform: 'none', fontWeight: 600 },
+        },
+        components: sharedComponents,
+      }),
+    [mode]
+  );
 
   return (
     <ColorModeContext.Provider value={colorMode}>
@@ -232,6 +269,7 @@ git commit -m "feat: add dark mode theme context with dual palette"
 ### Task 2: Theme toggle button (Navigation)
 
 **Files:**
+
 - Modify: `components/Navigation.js`
 - Test: `__tests__/components/Navigation.test.js`
 
@@ -252,7 +290,11 @@ jest.mock('next/navigation', () => ({
 // Mock next/link
 jest.mock('next/link', () => {
   return function MockLink({ children, href, ...props }) {
-    return <a href={href} {...props}>{children}</a>;
+    return (
+      <a href={href} {...props}>
+        {children}
+      </a>
+    );
   };
 });
 
@@ -298,7 +340,14 @@ Add imports and toggle button to `components/Navigation.js`:
 
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
-import { AppBar, Toolbar, Typography, Box, Button, IconButton } from '@mui/material';
+import {
+  AppBar,
+  Toolbar,
+  Typography,
+  Box,
+  Button,
+  IconButton,
+} from '@mui/material';
 import LeaderboardIcon from '@mui/icons-material/Leaderboard';
 import HomeIcon from '@mui/icons-material/Home';
 import LightModeIcon from '@mui/icons-material/LightMode';
@@ -335,9 +384,15 @@ export default function Navigation() {
         <Box sx={{ display: 'flex', gap: 2, alignItems: 'center' }}>
           {[
             { href: '/', label: '首頁', icon: <HomeIcon />, exact: true },
-            { href: '/leaderboard', label: '排行榜', icon: <LeaderboardIcon /> },
+            {
+              href: '/leaderboard',
+              label: '排行榜',
+              icon: <LeaderboardIcon />,
+            },
           ].map(({ href, label, icon, exact }) => {
-            const isActive = exact ? pathname === href : pathname.startsWith(href);
+            const isActive = exact
+              ? pathname === href
+              : pathname.startsWith(href);
             return (
               <Button
                 key={href}
@@ -351,7 +406,9 @@ export default function Navigation() {
                   px: 1.5,
                   pb: 0.5,
                   opacity: isActive ? 1 : 0.75,
-                  borderBottom: isActive ? '2px solid white' : '2px solid transparent',
+                  borderBottom: isActive
+                    ? '2px solid white'
+                    : '2px solid transparent',
                   '&:hover': { opacity: 1, backgroundColor: 'transparent' },
                 }}
               >
@@ -391,6 +448,7 @@ git commit -m "feat: add dark mode toggle button to navigation"
 ### Task 3: Anti-flash script (layout.js)
 
 **Files:**
+
 - Modify: `app/layout.js`
 
 **Step 1: Add inline script to layout**
@@ -448,6 +506,7 @@ git commit -m "feat: add anti-flash script for dark mode"
 ### Task 4: Fix hardcoded colors in EquipmentSlot
 
 **Files:**
+
 - Modify: `components/EquipmentSlot.js`
 
 **Step 1: Run existing tests as baseline**
@@ -460,6 +519,7 @@ Expected: PASS (existing tests still work)
 Convert `gridSx` and `listSx` from plain functions to functions that accept `theme`:
 
 Key replacements in `components/EquipmentSlot.js`:
+
 - `'rgba(247,147,30,0.08)'` → `(theme) => alpha(theme.palette.primary.main, 0.08)` (use MUI's `alpha` from `@mui/material/styles`)
 - `'2px solid #f7931e'` → `(theme) => \`2px solid ${theme.palette.primary.main}\``
 - `'rgba(247,147,30,0.4)'` → `(theme) => alpha(theme.palette.primary.main, 0.4)`
@@ -490,11 +550,13 @@ git commit -m "fix: make EquipmentSlot colors theme-aware for dark mode"
 ### Task 5: Fix hardcoded colors in EquipmentList
 
 **Files:**
+
 - Modify: `components/EquipmentList.js`
 
 **Step 1: Replace hardcoded rgba**
 
 In `components/EquipmentList.js` line 101:
+
 - `'rgba(247,147,30,0.06)'` → `(theme) => alpha(theme.palette.primary.main, 0.06)`
 
 Add import: `import { alpha } from '@mui/material/styles';`
@@ -516,6 +578,7 @@ git commit -m "fix: make EquipmentList group header theme-aware"
 ### Task 6: Fix hardcoded colors in HexaMatrixProgress
 
 **Files:**
+
 - Modify: `components/HexaMatrixProgress.js`
 
 **Step 1: Make tooltip background theme-aware**
@@ -553,6 +616,7 @@ export default function HexaMatrixProgress({ character }) {
 ```
 
 Also make the Radar chart colors theme-aware:
+
 - `stroke="#8884d8"` and `fill="#8884d8"` → use `theme.palette.info.main` (`#4fc3f7`) to align with the theme
 
 **Step 2: Run existing tests**
@@ -572,6 +636,7 @@ git commit -m "fix: make HexaMatrixProgress tooltip theme-aware"
 ### Task 7: Fix hardcoded colors in ProgressChart
 
 **Files:**
+
 - Modify: `components/ProgressChart.js`
 
 **Step 1: Make Recharts components theme-aware**
@@ -579,12 +644,14 @@ git commit -m "fix: make HexaMatrixProgress tooltip theme-aware"
 ProgressChart uses Tailwind classes like `text-gray-500`, `text-gray-600`. These need dark variants or replacement with MUI `sx`.
 
 Changes:
+
 1. Import `useTheme` from MUI
 2. Replace `text-gray-500` / `text-gray-600` divs with MUI `Typography` or `Box` with `sx={{ color: 'text.secondary' }}`
 3. Make `CartesianGrid` stroke theme-aware
 4. Make Tooltip background theme-aware (same pattern as Task 6)
 
 Key replacements:
+
 - `className="w-full h-64 flex items-center justify-center text-gray-500"` → keep layout classes, replace color: `sx={{ color: 'text.secondary' }}`
 - `className="text-xs text-gray-600 mb-2"` → already handled by MUI Box above
 - `CartesianGrid strokeDasharray="3 3"` → add `stroke={theme.palette.mode === 'dark' ? '#3a2f2a' : '#e0e0e0'}`

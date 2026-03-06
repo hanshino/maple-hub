@@ -20,7 +20,7 @@ const CharacterCard = memo(function CharacterCard({
   onEquipmentClick = null,
   presetAnalysis = null,
 }) {
-  const formatPower = (num) => num?.toLocaleString() || '-';
+  const formatPower = num => num?.toLocaleString() || '-';
 
   return (
     <CardContent

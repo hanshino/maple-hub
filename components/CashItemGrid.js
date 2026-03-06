@@ -27,7 +27,7 @@ const GRID_LAYOUT = [
   ['ring4', null, null, null, null],
 ];
 
-const computeTotalStats = (equipment) => {
+const computeTotalStats = equipment => {
   const totals = {};
   Object.values(equipment).forEach(item => {
     if (!item?.cash_item_option) return;
@@ -69,7 +69,7 @@ const CashItemGrid = ({
               sx={{
                 fontWeight: 600,
                 fontSize: '0.75rem',
-                backgroundColor: (theme) =>
+                backgroundColor: theme =>
                   alpha(theme.palette.primary.main, 0.1),
                 color: 'primary.main',
               }}

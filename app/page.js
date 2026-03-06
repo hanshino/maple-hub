@@ -159,8 +159,7 @@ function HomeContent() {
         statsResult?.status >= 200 &&
         statsResult?.status < 300
       ) {
-        const symbolData =
-          runeResult?.status >= 200 ? runeResult.data : null;
+        const symbolData = runeResult?.status >= 200 ? runeResult.data : null;
         const setEffect =
           setEffectResult?.status >= 200 ? setEffectResult.data : null;
         const analysis = analyzeAllPresets(

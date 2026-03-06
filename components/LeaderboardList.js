@@ -57,11 +57,9 @@ export default function LeaderboardList() {
   // Fetch filter options
   useEffect(() => {
     fetch('/api/leaderboard/filters')
-      .then((res) => res.json())
-      .then((data) => setFilterOptions(data))
-      .catch((err) =>
-        console.error('Failed to fetch filter options:', err)
-      );
+      .then(res => res.json())
+      .then(data => setFilterOptions(data))
+      .catch(err => console.error('Failed to fetch filter options:', err));
   }, []);
 
   /**
@@ -86,12 +84,9 @@ export default function LeaderboardList() {
 
         if (searchQuery) params.set('search', searchQuery);
         if (worldName) params.set('worldName', worldName);
-        if (characterClass)
-          params.set('characterClass', characterClass);
+        if (characterClass) params.set('characterClass', characterClass);
 
-        const response = await fetch(
-          `/api/leaderboard?${params}`
-        );
+        const response = await fetch(`/api/leaderboard?${params}`);
 
         if (!response.ok) {
           throw new Error('Failed to fetch leaderboard data');
@@ -100,7 +95,7 @@ export default function LeaderboardList() {
         const data = await response.json();
 
         if (append) {
-          setEntries((prev) => [...prev, ...data.entries]);
+          setEntries(prev => [...prev, ...data.entries]);
         } else {
           setEntries(data.entries);
         }
@@ -119,7 +114,7 @@ export default function LeaderboardList() {
   );
 
   // Filter handlers
-  const handleSearchChange = useCallback((e) => {
+  const handleSearchChange = useCallback(e => {
     const value = e.target.value;
     setSearchText(value);
 
@@ -132,11 +127,11 @@ export default function LeaderboardList() {
     }, 500);
   }, []);
 
-  const handleWorldChange = useCallback((e) => {
+  const handleWorldChange = useCallback(e => {
     setWorldName(e.target.value);
   }, []);
 
-  const handleClassChange = useCallback((e) => {
+  const handleClassChange = useCallback(e => {
     setCharacterClass(e.target.value);
   }, []);
 
@@ -147,11 +142,7 @@ export default function LeaderboardList() {
     setCharacterClass('');
   }, []);
 
-  const hasActiveFilters = !!(
-    searchQuery ||
-    worldName ||
-    characterClass
-  );
+  const hasActiveFilters = !!(searchQuery || worldName || characterClass);
 
   /**
    * Load more entries with debounce
@@ -195,14 +186,9 @@ export default function LeaderboardList() {
 
     // Create new observer
     observerRef.current = new IntersectionObserver(
-      (entries) => {
+      entries => {
         const [entry] = entries;
-        if (
-          entry.isIntersecting &&
-          hasMore &&
-          !isLoading &&
-          !isLoadingMore
-        ) {
+        if (entry.isIntersecting && hasMore && !isLoading && !isLoadingMore) {
           loadMore();
         }
       },
@@ -274,13 +260,9 @@ export default function LeaderboardList() {
           }}
         >
           <InputLabel>伺服器</InputLabel>
-          <Select
-            value={worldName}
-            onChange={handleWorldChange}
-            label="伺服器"
-          >
+          <Select value={worldName} onChange={handleWorldChange} label="伺服器">
             <MenuItem value="">全部</MenuItem>
-            {filterOptions.worlds.map((world) => (
+            {filterOptions.worlds.map(world => (
               <MenuItem key={world} value={world}>
                 {world}
               </MenuItem>
@@ -301,7 +283,7 @@ export default function LeaderboardList() {
             label="職業"
           >
             <MenuItem value="">全部</MenuItem>
-            {filterOptions.classes.map((cls) => (
+            {filterOptions.classes.map(cls => (
               <MenuItem key={cls} value={cls}>
                 {cls}
               </MenuItem>
@@ -353,11 +335,7 @@ export default function LeaderboardList() {
         <Paper sx={{ p: 4, textAlign: 'center' }}>
           {hasActiveFilters ? (
             <>
-              <Typography
-                variant="h6"
-                color="text.secondary"
-                gutterBottom
-              >
+              <Typography variant="h6" color="text.secondary" gutterBottom>
                 找不到符合條件的角色
               </Typography>
               <Button
@@ -371,17 +349,10 @@ export default function LeaderboardList() {
             </>
           ) : (
             <>
-              <Typography
-                variant="h6"
-                color="text.secondary"
-                gutterBottom
-              >
+              <Typography variant="h6" color="text.secondary" gutterBottom>
                 目前沒有排行榜資料
               </Typography>
-              <Typography
-                variant="body2"
-                color="text.secondary"
-              >
+              <Typography variant="body2" color="text.secondary">
                 請先透過首頁搜尋角色，系統會自動記錄戰力資訊
               </Typography>
             </>
@@ -410,7 +381,7 @@ export default function LeaderboardList() {
 
       {/* Leaderboard entries */}
       <Box>
-        {entries.map((entry) => (
+        {entries.map(entry => (
           <LeaderboardCard
             key={entry.ocid}
             rank={entry.rank}
@@ -420,9 +391,7 @@ export default function LeaderboardList() {
             worldName={entry.world_name}
             characterClass={entry.character_class}
             combatPower={entry.combat_power}
-            onClick={() =>
-              router.push(`/?ocid=${entry.ocid}`)
-            }
+            onClick={() => router.push(`/?ocid=${entry.ocid}`)}
           />
         ))}
       </Box>

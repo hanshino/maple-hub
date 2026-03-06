@@ -16,31 +16,31 @@ const gridSx = (item, selected) => ({
   cursor: item ? 'pointer' : 'default',
   transition: 'transform 200ms ease-out, box-shadow 200ms ease-out',
   backgroundColor: selected
-    ? (theme) => alpha(theme.palette.primary.main, 0.08)
+    ? theme => alpha(theme.palette.primary.main, 0.08)
     : item
       ? 'background.paper'
       : 'background.default',
   border: selected
-    ? (theme) => `2px solid ${theme.palette.primary.main}`
+    ? theme => `2px solid ${theme.palette.primary.main}`
     : item
-      ? (theme) => `2px solid ${alpha(theme.palette.primary.main, 0.4)}`
-      : (theme) =>
+      ? theme => `2px solid ${alpha(theme.palette.primary.main, 0.4)}`
+      : theme =>
           theme.palette.mode === 'dark'
             ? '2px dashed #5a4a38'
             : '2px dashed #e0c9a8',
   boxShadow: item
-    ? (theme) =>
+    ? theme =>
         `inset -1px -1px 4px rgba(0,0,0,0.05), 2px 2px 8px ${alpha(theme.palette.primary.main, 0.15)}`
     : 'none',
   '&:hover': item
     ? {
         transform: 'translateY(-2px)',
-        boxShadow: (theme) =>
+        boxShadow: theme =>
           `inset -1px -1px 4px rgba(0,0,0,0.05), 4px 4px 12px ${alpha(theme.palette.primary.main, 0.25)}`,
       }
     : {},
   '&:focus-visible': {
-    outline: (theme) => `2px solid ${theme.palette.primary.main}`,
+    outline: theme => `2px solid ${theme.palette.primary.main}`,
     outlineOffset: '2px',
   },
   '@media (prefers-reduced-motion: reduce)': {
@@ -58,20 +58,19 @@ const listSx = (item, selected) => ({
   minHeight: 64,
   cursor: item ? 'pointer' : 'default',
   borderLeft: selected
-    ? (theme) => `3px solid ${theme.palette.primary.main}`
+    ? theme => `3px solid ${theme.palette.primary.main}`
     : '3px solid transparent',
   backgroundColor: selected
-    ? (theme) => alpha(theme.palette.primary.main, 0.08)
+    ? theme => alpha(theme.palette.primary.main, 0.08)
     : 'transparent',
   transition: 'background-color 200ms ease-out',
   '&:hover': item
     ? {
-        backgroundColor: (theme) =>
-          alpha(theme.palette.primary.main, 0.04),
+        backgroundColor: theme => alpha(theme.palette.primary.main, 0.04),
       }
     : {},
   '&:focus-visible': {
-    outline: (theme) => `2px solid ${theme.palette.primary.main}`,
+    outline: theme => `2px solid ${theme.palette.primary.main}`,
     outlineOffset: '-2px',
   },
   '@media (prefers-reduced-motion: reduce)': {
@@ -89,15 +88,13 @@ const EquipmentSlot = ({
 }) => {
   const [imageError, setImageError] = useState(false);
   const isGrid = variant === 'grid';
-  const ariaLabel = item
-    ? `${slotName}：${item.item_name}`
-    : `${slotName}：空`;
+  const ariaLabel = item ? `${slotName}：${item.item_name}` : `${slotName}：空`;
 
   const handleClick = () => {
     if (onClick) onClick(slotKey);
   };
 
-  const handleKeyDown = (e) => {
+  const handleKeyDown = e => {
     if (e.key === 'Enter' || e.key === ' ') {
       e.preventDefault();
       handleClick();
@@ -176,7 +173,7 @@ const EquipmentSlot = ({
             flexShrink: 0,
             borderRadius: '8px',
             backgroundColor: 'background.paper',
-            border: (theme) =>
+            border: theme =>
               theme.palette.mode === 'dark'
                 ? '1px dashed #5a4a38'
                 : '1px dashed #e0c9a8',
@@ -196,10 +193,7 @@ const EquipmentSlot = ({
         >
           {item ? item.item_name : slotName}
         </Typography>
-        <Typography
-          variant="caption"
-          sx={{ color: 'text.secondary' }}
-        >
+        <Typography variant="caption" sx={{ color: 'text.secondary' }}>
           {slotName}
         </Typography>
       </Box>

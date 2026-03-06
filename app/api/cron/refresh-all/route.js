@@ -46,7 +46,7 @@ const TIMEOUT_BUDGET_MS = 7000; // 7s budget, 3s buffer for Vercel 10s
  * @param {Request} request
  * @returns {boolean}
  */
-const validateAuth = (request) => {
+const validateAuth = request => {
   const authHeader = request.headers.get('Authorization');
 
   if (!authHeader) {
@@ -62,7 +62,7 @@ const validateAuth = (request) => {
  * @param {Request} request
  * @returns {{ offset: number, batchSize: number }}
  */
-const parseParams = (request) => {
+const parseParams = request => {
   const url = new URL(request.url);
 
   const offset = parseInt(url.searchParams.get('offset') || '0', 10);
@@ -141,19 +141,20 @@ export async function GET(request) {
     let stoppedReason;
 
     // Build a mutable copy of existingCharacterInfoData for accumulating inserts
-    const charInfoData = existingCharacterInfoData.length > 0
-      ? existingCharacterInfoData.map(row => [...row])
-      : [
-          [
-            'ocid',
-            'character_name',
-            'character_level',
-            'character_image',
-            'world_name',
-            'character_class',
-            'cached_at',
-          ],
-        ];
+    const charInfoData =
+      existingCharacterInfoData.length > 0
+        ? existingCharacterInfoData.map(row => [...row])
+        : [
+            [
+              'ocid',
+              'character_name',
+              'character_level',
+              'character_image',
+              'world_name',
+              'character_class',
+              'cached_at',
+            ],
+          ];
 
     // Build a mutable existingRecords map (for accumulating updates across batches)
     // The original existingRecords map is already mutable, we'll update it in-place
@@ -261,8 +262,8 @@ export async function GET(request) {
     // Auto-remove OCIDs that have been not_found 3+ consecutive times
     let removedCount = 0;
     const ocidsToRemove = allRecords
-      .filter((r) => (r.not_found_count || 0) >= 3)
-      .map((r) => r.ocid);
+      .filter(r => (r.not_found_count || 0) >= 3)
+      .map(r => r.ocid);
 
     if (ocidsToRemove.length > 0) {
       console.log(

@@ -15,6 +15,7 @@
 Add 4 new functions to the Nexon API client.
 
 **Files:**
+
 - Modify: `lib/nexonApi.js`
 - Test: `__tests__/lib/nexonApi.test.js`
 
@@ -99,53 +100,37 @@ Add to the end of `lib/nexonApi.js`:
 ```js
 export const getCharacterHyperStat = async ocid => {
   try {
-    const response = await apiClient.get(
-      `/character/hyper-stat?ocid=${ocid}`
-    );
+    const response = await apiClient.get(`/character/hyper-stat?ocid=${ocid}`);
     return response.data;
   } catch (error) {
-    throw new Error(
-      `Failed to fetch character hyper stat: ${error.message}`
-    );
+    throw new Error(`Failed to fetch character hyper stat: ${error.message}`);
   }
 };
 
 export const getCharacterSetEffect = async ocid => {
   try {
-    const response = await apiClient.get(
-      `/character/set-effect?ocid=${ocid}`
-    );
+    const response = await apiClient.get(`/character/set-effect?ocid=${ocid}`);
     return response.data;
   } catch (error) {
-    throw new Error(
-      `Failed to fetch character set effect: ${error.message}`
-    );
+    throw new Error(`Failed to fetch character set effect: ${error.message}`);
   }
 };
 
 export const getUnionRaider = async ocid => {
   try {
-    const response = await apiClient.get(
-      `/user/union-raider?ocid=${ocid}`
-    );
+    const response = await apiClient.get(`/user/union-raider?ocid=${ocid}`);
     return response.data;
   } catch (error) {
-    throw new Error(
-      `Failed to fetch union raider: ${error.message}`
-    );
+    throw new Error(`Failed to fetch union raider: ${error.message}`);
   }
 };
 
 export const getUnionArtifact = async ocid => {
   try {
-    const response = await apiClient.get(
-      `/user/union-artifact?ocid=${ocid}`
-    );
+    const response = await apiClient.get(`/user/union-artifact?ocid=${ocid}`);
     return response.data;
   } catch (error) {
-    throw new Error(
-      `Failed to fetch union artifact: ${error.message}`
-    );
+    throw new Error(`Failed to fetch union artifact: ${error.message}`);
   }
 };
 ```
@@ -169,6 +154,7 @@ git commit -m "feat: add Nexon API functions for hyper-stat, set-effect, union-r
 Create 4 API routes following existing patterns (see `app/api/character/equipment/route.js`).
 
 **Files:**
+
 - Create: `app/api/character/hyper-stat/route.js`
 - Create: `app/api/character/set-effect/route.js`
 - Create: `app/api/character/union-raider/route.js`
@@ -177,6 +163,7 @@ Create 4 API routes following existing patterns (see `app/api/character/equipmen
 **Step 1: Create all 4 route files**
 
 `app/api/character/hyper-stat/route.js`:
+
 ```js
 import { NextResponse } from 'next/server';
 import { getCharacterHyperStat } from '../../../../lib/nexonApi';
@@ -207,6 +194,7 @@ export async function GET(request) {
 ```
 
 `app/api/character/set-effect/route.js`:
+
 ```js
 import { NextResponse } from 'next/server';
 import { getCharacterSetEffect } from '../../../../lib/nexonApi';
@@ -237,6 +225,7 @@ export async function GET(request) {
 ```
 
 `app/api/character/union-raider/route.js`:
+
 ```js
 import { NextResponse } from 'next/server';
 import { getUnionRaider } from '../../../../lib/nexonApi';
@@ -267,6 +256,7 @@ export async function GET(request) {
 ```
 
 `app/api/character/union-artifact/route.js`:
+
 ```js
 import { NextResponse } from 'next/server';
 import { getUnionArtifact } from '../../../../lib/nexonApi';
@@ -315,6 +305,7 @@ git commit -m "feat: add API routes for hyper-stat, set-effect, union-raider, un
 Core logic for preset combat power analysis. Ref: `docs/combat-power-formulas.md` sections 11-12.
 
 **Files:**
+
 - Create: `lib/combatPowerCalculator.js`
 - Create: `__tests__/lib/combatPowerCalculator.test.js`
 
@@ -375,7 +366,11 @@ describe('combatPowerCalculator', () => {
 
     it('should parse item drop rate', () => {
       const result = parsePotentialOption('道具掉落率 : +20%');
-      expect(result).toEqual({ stat: '道具掉落率', value: 20, isPercent: true });
+      expect(result).toEqual({
+        stat: '道具掉落率',
+        value: 20,
+        isPercent: true,
+      });
     });
   });
 
@@ -422,7 +417,14 @@ describe('combatPowerCalculator', () => {
       const items = [
         {
           item_equipment_slot: '帽子',
-          item_total_option: { str: '50', dex: '30', int: '0', luk: '0', attack_power: '5', magic_power: '0' },
+          item_total_option: {
+            str: '50',
+            dex: '30',
+            int: '0',
+            luk: '0',
+            attack_power: '5',
+            magic_power: '0',
+          },
           potential_option_1: '',
           potential_option_2: '',
           potential_option_3: '',
@@ -441,7 +443,14 @@ describe('combatPowerCalculator', () => {
       const items = [
         {
           item_equipment_slot: '帽子',
-          item_total_option: { str: '0', dex: '0', int: '0', luk: '0', attack_power: '0', magic_power: '0' },
+          item_total_option: {
+            str: '0',
+            dex: '0',
+            int: '0',
+            luk: '0',
+            attack_power: '0',
+            magic_power: '0',
+          },
           potential_option_1: 'LUK : +12%',
           potential_option_2: 'LUK : +9%',
           potential_option_3: '全屬性 : +9%',
@@ -461,7 +470,14 @@ describe('combatPowerCalculator', () => {
       const items = [
         {
           item_equipment_slot: '武器',
-          item_total_option: { str: '0', dex: '0', int: '0', luk: '0', attack_power: '0', magic_power: '0' },
+          item_total_option: {
+            str: '0',
+            dex: '0',
+            int: '0',
+            luk: '0',
+            attack_power: '0',
+            magic_power: '0',
+          },
           potential_option_1: 'Boss攻擊時傷害 : +40%',
           potential_option_2: '傷害 : +12%',
           potential_option_3: '攻擊力 : +12%',
@@ -579,37 +595,61 @@ export function parsePotentialOption(optionStr) {
   // Item drop rate
   const dropMatch = optionStr.match(/道具掉落率\s*:\s*\+(\d+)%/);
   if (dropMatch) {
-    return { stat: '道具掉落率', value: parseInt(dropMatch[1]), isPercent: true };
+    return {
+      stat: '道具掉落率',
+      value: parseInt(dropMatch[1]),
+      isPercent: true,
+    };
   }
 
   // Meso rate
   const mesoMatch = optionStr.match(/楓幣獲得量\s*:\s*\+(\d+)%/);
   if (mesoMatch) {
-    return { stat: '楓幣獲得量', value: parseInt(mesoMatch[1]), isPercent: true };
+    return {
+      stat: '楓幣獲得量',
+      value: parseInt(mesoMatch[1]),
+      isPercent: true,
+    };
   }
 
   // Normal monster damage
   const normalMatch = optionStr.match(/一般怪物傷害\s*:\s*\+(\d+)%/);
   if (normalMatch) {
-    return { stat: '一般怪物傷害', value: parseInt(normalMatch[1]), isPercent: true };
+    return {
+      stat: '一般怪物傷害',
+      value: parseInt(normalMatch[1]),
+      isPercent: true,
+    };
   }
 
   // All stat %
   const allStatMatch = optionStr.match(/全屬性\s*:\s*\+(\d+)%/);
   if (allStatMatch) {
-    return { stat: '全屬性', value: parseInt(allStatMatch[1]), isPercent: true };
+    return {
+      stat: '全屬性',
+      value: parseInt(allStatMatch[1]),
+      isPercent: true,
+    };
   }
 
   // Percentage stat (STR/DEX/INT/LUK/攻擊力/魔法攻擊力)
-  const pctMatch = optionStr.match(/^(STR|DEX|INT|LUK|攻擊力|魔法攻擊力)\s*:\s*\+(\d+)%/);
+  const pctMatch = optionStr.match(
+    /^(STR|DEX|INT|LUK|攻擊力|魔法攻擊力)\s*:\s*\+(\d+)%/
+  );
   if (pctMatch) {
     return { stat: pctMatch[1], value: parseInt(pctMatch[2]), isPercent: true };
   }
 
   // Flat stat
-  const flatMatch = optionStr.match(/^(STR|DEX|INT|LUK|攻擊力|魔法攻擊力)\s*:\s*\+(\d+)$/);
+  const flatMatch = optionStr.match(
+    /^(STR|DEX|INT|LUK|攻擊力|魔法攻擊力)\s*:\s*\+(\d+)$/
+  );
   if (flatMatch) {
-    return { stat: flatMatch[1], value: parseInt(flatMatch[2]), isPercent: false };
+    return {
+      stat: flatMatch[1],
+      value: parseInt(flatMatch[2]),
+      isPercent: false,
+    };
   }
 
   return null;
@@ -671,11 +711,24 @@ export function identifyIndependentItems(equipmentData) {
  * Returns { fixed: { STR, DEX, INT, LUK, attack_power, magic_power }, percent: { STR, DEX, ... } }
  */
 export function extractEquipmentStats(items) {
-  const fixed = { STR: 0, DEX: 0, INT: 0, LUK: 0, attack_power: 0, magic_power: 0 };
+  const fixed = {
+    STR: 0,
+    DEX: 0,
+    INT: 0,
+    LUK: 0,
+    attack_power: 0,
+    magic_power: 0,
+  };
   const percent = {
-    STR: 0, DEX: 0, INT: 0, LUK: 0,
-    attack_power: 0, magic_power: 0,
-    damage: 0, boss_damage: 0, critical_damage: 0,
+    STR: 0,
+    DEX: 0,
+    INT: 0,
+    LUK: 0,
+    attack_power: 0,
+    magic_power: 0,
+    damage: 0,
+    boss_damage: 0,
+    critical_damage: 0,
   };
 
   items.forEach(item => {
@@ -804,10 +857,12 @@ export function calculatePresetCombatPower(
     currentStats.final_stat.find(s => s.stat_name === '傷害')?.stat_value || '0'
   );
   const currentBossPct = parseFloat(
-    currentStats.final_stat.find(s => s.stat_name === 'Boss怪物傷害')?.stat_value || '0'
+    currentStats.final_stat.find(s => s.stat_name === 'Boss怪物傷害')
+      ?.stat_value || '0'
   );
   const currentCritPct = parseFloat(
-    currentStats.final_stat.find(s => s.stat_name === '爆擊傷害')?.stat_value || '0'
+    currentStats.final_stat.find(s => s.stat_name === '爆擊傷害')?.stat_value ||
+      '0'
   );
 
   // Get equipment stats for current preset and new preset
@@ -827,12 +882,16 @@ export function calculatePresetCombatPower(
   const pctDiff = {
     mainStat: newEquipStats.percent.LUK - currentEquipStats.percent.LUK,
     atk: Math.max(
-      newEquipStats.percent.attack_power - currentEquipStats.percent.attack_power,
+      newEquipStats.percent.attack_power -
+        currentEquipStats.percent.attack_power,
       newEquipStats.percent.magic_power - currentEquipStats.percent.magic_power
     ),
     damage: newEquipStats.percent.damage - currentEquipStats.percent.damage,
-    boss: newEquipStats.percent.boss_damage - currentEquipStats.percent.boss_damage,
-    crit: newEquipStats.percent.critical_damage - currentEquipStats.percent.critical_damage,
+    boss:
+      newEquipStats.percent.boss_damage - currentEquipStats.percent.boss_damage,
+    crit:
+      newEquipStats.percent.critical_damage -
+      currentEquipStats.percent.critical_damage,
   };
 
   // Approximate new stats (simplified — doesn't account for % base interaction perfectly)
@@ -862,10 +921,16 @@ export function calculatePresetCombatPower(
  *   bossing: { power, presetNo } (highest CP)
  *   leveling: { power, presetNo } (detected by keywords, or null)
  */
-export function analyzeAllPresets(equipmentData, statsData, symbolData, setEffectData) {
+export function analyzeAllPresets(
+  equipmentData,
+  statsData,
+  symbolData,
+  setEffectData
+) {
   // Extract current battle power as fallback
   const currentBP = parseInt(
-    statsData?.final_stat?.find(s => s.stat_name === '戰鬥力')?.stat_value || '0'
+    statsData?.final_stat?.find(s => s.stat_name === '戰鬥力')?.stat_value ||
+      '0'
   );
 
   if (!equipmentData || !statsData) {
@@ -936,16 +1001,15 @@ export function analyzeAllPresets(equipmentData, statsData, symbolData, setEffec
 
   // Find current, bossing (highest CP), and leveling
   const current = results.find(r => r.isCurrent) || results[0];
-  const bossing = results.reduce((max, r) =>
-    r.power > max.power ? r : max
-  );
+  const bossing = results.reduce((max, r) => (r.power > max.power ? r : max));
   const leveling = results.find(r => r.isLeveling) || null;
 
   return {
     current: { power: current.power, presetNo: current.presetNo },
-    bossing: bossing.presetNo !== current.presetNo
-      ? { power: bossing.power, presetNo: bossing.presetNo }
-      : { power: bossing.power, presetNo: bossing.presetNo },
+    bossing:
+      bossing.presetNo !== current.presetNo
+        ? { power: bossing.power, presetNo: bossing.presetNo }
+        : { power: bossing.power, presetNo: bossing.presetNo },
     leveling: leveling
       ? { power: leveling.power, presetNo: leveling.presetNo }
       : null,
@@ -972,6 +1036,7 @@ git commit -m "feat: add combat power calculator with preset analysis"
 Create 4 new panel components for the Tabs. Each displays API data as a simple stat list.
 
 **Files:**
+
 - Create: `components/UnionRaiderPanel.js`
 - Create: `components/HyperStatPanel.js`
 - Create: `components/SetEffectPanel.js`
@@ -1038,14 +1103,17 @@ export default function UnionRaiderPanel({ loading, error, data, onRetry }) {
     <Box sx={{ p: 1 }}>
       <Box
         sx={{
-          border: (theme) => `1px solid ${theme.palette.divider}`,
+          border: theme => `1px solid ${theme.palette.divider}`,
           borderRadius: 2,
           overflow: 'hidden',
           p: 1,
         }}
       >
         <TableContainer>
-          <Table size="small" sx={{ '& .MuiTableCell-root': { border: 'none' } }}>
+          <Table
+            size="small"
+            sx={{ '& .MuiTableCell-root': { border: 'none' } }}
+          >
             <TableBody>
               {stats.map((stat, index) => (
                 <TableRow key={index}>
@@ -1127,9 +1195,7 @@ export default function HyperStatPanel({ loading, error, data, onRetry }) {
     );
   }
 
-  const activeStats = currentPreset.filter(
-    (stat) => stat.stat_level > 0
-  );
+  const activeStats = currentPreset.filter(stat => stat.stat_level > 0);
 
   return (
     <Box sx={{ p: 1 }}>
@@ -1149,16 +1215,19 @@ export default function HyperStatPanel({ loading, error, data, onRetry }) {
       ) : (
         <Box
           sx={{
-            border: (theme) => `1px solid ${theme.palette.divider}`,
+            border: theme => `1px solid ${theme.palette.divider}`,
             borderRadius: 2,
             overflow: 'hidden',
             p: 1,
           }}
         >
           <TableContainer>
-            <Table size="small" sx={{ '& .MuiTableCell-root': { border: 'none' } }}>
+            <Table
+              size="small"
+              sx={{ '& .MuiTableCell-root': { border: 'none' } }}
+            >
               <TableBody>
-                {activeStats.map((stat) => (
+                {activeStats.map(stat => (
                   <TableRow key={stat.stat_type}>
                     <TableCell sx={{ fontWeight: 'bold', p: 1, width: '50%' }}>
                       {stat.stat_type}
@@ -1240,7 +1309,7 @@ export default function SetEffectPanel({ loading, error, data, onRetry }) {
 
   return (
     <Box sx={{ p: 1 }}>
-      {sets.map((set) => (
+      {sets.map(set => (
         <Accordion key={set.set_name} defaultExpanded={false}>
           <AccordionSummary expandIcon={<ExpandMoreIcon />}>
             <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
@@ -1257,8 +1326,8 @@ export default function SetEffectPanel({ loading, error, data, onRetry }) {
           </AccordionSummary>
           <AccordionDetails>
             {set.set_effect_info
-              ?.filter((info) => info.set_count <= set.total_set_count)
-              .map((info) => (
+              ?.filter(info => info.set_count <= set.total_set_count)
+              .map(info => (
                 <Box key={info.set_count} sx={{ mb: 1 }}>
                   <Typography
                     variant="body2"
@@ -1343,7 +1412,7 @@ export default function UnionArtifactPanel({ loading, error, data, onRetry }) {
       {crystals.length > 0 && (
         <Box
           sx={{
-            border: (theme) => `1px solid ${theme.palette.divider}`,
+            border: theme => `1px solid ${theme.palette.divider}`,
             borderRadius: 2,
             overflow: 'hidden',
             p: 1,
@@ -1354,7 +1423,10 @@ export default function UnionArtifactPanel({ loading, error, data, onRetry }) {
             水晶
           </Typography>
           <TableContainer>
-            <Table size="small" sx={{ '& .MuiTableCell-root': { border: 'none' } }}>
+            <Table
+              size="small"
+              sx={{ '& .MuiTableCell-root': { border: 'none' } }}
+            >
               <TableBody>
                 {crystals.map((crystal, index) => (
                   <TableRow key={index}>
@@ -1362,7 +1434,11 @@ export default function UnionArtifactPanel({ loading, error, data, onRetry }) {
                       {crystal.name}
                     </TableCell>
                     <TableCell sx={{ p: 1, width: '20%' }}>
-                      <Chip label={`Lv.${crystal.level}`} size="small" variant="outlined" />
+                      <Chip
+                        label={`Lv.${crystal.level}`}
+                        size="small"
+                        variant="outlined"
+                      />
                     </TableCell>
                     <TableCell sx={{ p: 1, width: '40%' }}>
                       {crystal.crystal_option_name_1}
@@ -1378,7 +1454,7 @@ export default function UnionArtifactPanel({ loading, error, data, onRetry }) {
       {effects.length > 0 && (
         <Box
           sx={{
-            border: (theme) => `1px solid ${theme.palette.divider}`,
+            border: theme => `1px solid ${theme.palette.divider}`,
             borderRadius: 2,
             overflow: 'hidden',
             p: 1,
@@ -1388,7 +1464,10 @@ export default function UnionArtifactPanel({ loading, error, data, onRetry }) {
             效果
           </Typography>
           <TableContainer>
-            <Table size="small" sx={{ '& .MuiTableCell-root': { border: 'none' } }}>
+            <Table
+              size="small"
+              sx={{ '& .MuiTableCell-root': { border: 'none' } }}
+            >
               <TableBody>
                 {effects.map((effect, index) => (
                   <TableRow key={index}>
@@ -1429,6 +1508,7 @@ git commit -m "feat: add data panel components for union raider, hyper stat, set
 Unified Tabs container that replaces CharacterStats Accordion and RuneSystems Card.
 
 **Files:**
+
 - Create: `components/CharacterDataTabs.js`
 - Test: `__tests__/components/CharacterDataTabs.test.js`
 
@@ -1599,21 +1679,30 @@ export default function CharacterDataTabs({
 
     if (key === 'union-raider' && !unionRaiderLoaded) {
       fetchTabData(
-        'union-raider', 'union_raider',
-        setUnionRaiderData, setUnionRaiderLoading,
-        setUnionRaiderError, setUnionRaiderLoaded
+        'union-raider',
+        'union_raider',
+        setUnionRaiderData,
+        setUnionRaiderLoading,
+        setUnionRaiderError,
+        setUnionRaiderLoaded
       );
     } else if (key === 'hyper-stat' && !hyperStatLoaded) {
       fetchTabData(
-        'hyper-stat', 'hyper_stat',
-        setHyperStatData, setHyperStatLoading,
-        setHyperStatError, setHyperStatLoaded
+        'hyper-stat',
+        'hyper_stat',
+        setHyperStatData,
+        setHyperStatLoading,
+        setHyperStatError,
+        setHyperStatLoaded
       );
     } else if (key === 'union-artifact' && !unionArtifactLoaded) {
       fetchTabData(
-        'union-artifact', 'union_artifact',
-        setUnionArtifactData, setUnionArtifactLoading,
-        setUnionArtifactError, setUnionArtifactLoaded
+        'union-artifact',
+        'union_artifact',
+        setUnionArtifactData,
+        setUnionArtifactLoading,
+        setUnionArtifactError,
+        setUnionArtifactLoaded
       );
     }
   };
@@ -1632,9 +1721,12 @@ export default function CharacterDataTabs({
             data={unionRaiderData}
             onRetry={() =>
               fetchTabData(
-                'union-raider', 'union_raider',
-                setUnionRaiderData, setUnionRaiderLoading,
-                setUnionRaiderError, setUnionRaiderLoaded
+                'union-raider',
+                'union_raider',
+                setUnionRaiderData,
+                setUnionRaiderLoading,
+                setUnionRaiderError,
+                setUnionRaiderLoaded
               )
             }
           />
@@ -1647,9 +1739,12 @@ export default function CharacterDataTabs({
             data={hyperStatData}
             onRetry={() =>
               fetchTabData(
-                'hyper-stat', 'hyper_stat',
-                setHyperStatData, setHyperStatLoading,
-                setHyperStatError, setHyperStatLoaded
+                'hyper-stat',
+                'hyper_stat',
+                setHyperStatData,
+                setHyperStatLoading,
+                setHyperStatError,
+                setHyperStatLoaded
               )
             }
           />
@@ -1671,9 +1766,12 @@ export default function CharacterDataTabs({
             data={unionArtifactData}
             onRetry={() =>
               fetchTabData(
-                'union-artifact', 'union_artifact',
-                setUnionArtifactData, setUnionArtifactLoading,
-                setUnionArtifactError, setUnionArtifactLoaded
+                'union-artifact',
+                'union_artifact',
+                setUnionArtifactData,
+                setUnionArtifactLoading,
+                setUnionArtifactError,
+                setUnionArtifactLoaded
               )
             }
           />
@@ -1696,7 +1794,7 @@ export default function CharacterDataTabs({
           aria-label="角色資料分頁"
           sx={{ borderBottom: 1, borderColor: 'divider', mb: 2 }}
         >
-          {TAB_CONFIG.map((tab) => (
+          {TAB_CONFIG.map(tab => (
             <Tab key={tab.key} label={tab.label} />
           ))}
         </Tabs>
@@ -1726,6 +1824,7 @@ git commit -m "feat: add CharacterDataTabs unified tabs component"
 Update CharacterCard to display bossing / current / leveling combat power.
 
 **Files:**
+
 - Modify: `components/CharacterCard.js`
 - Modify: `__tests__/components/CharacterCard.test.js`
 
@@ -1898,6 +1997,7 @@ git commit -m "feat: add three-line preset combat power display to CharacterCard
 Wire everything together in `app/page.js`: prefetch equipment + set-effect, compute preset analysis, replace CharacterStats/RuneSystems with CharacterDataTabs, share data with EquipmentDialog.
 
 **Files:**
+
 - Modify: `app/page.js`
 - Modify: `components/EquipmentDialog.js`
 
@@ -1911,6 +2011,7 @@ import { analyzeAllPresets } from '../lib/combatPowerCalculator';
 ```
 
 Remove these imports (content moved to CharacterDataTabs):
+
 ```js
 // Remove: import CharacterStats from '../components/CharacterStats';
 // Remove: import RuneSystems from '../components/runes/RuneSystems';
@@ -1946,9 +2047,7 @@ let setEffectResult = null;
 setSetEffectLoading(true);
 try {
   await new Promise(resolve => setTimeout(resolve, 200));
-  setEffectResult = await apiCall(
-    `/api/character/set-effect?ocid=${ocid}`
-  );
+  setEffectResult = await apiCall(`/api/character/set-effect?ocid=${ocid}`);
 } catch {
   // non-critical, continue
 } finally {
@@ -2018,7 +2117,9 @@ Pass `presetAnalysis` to CharacterCard (around line 343):
 Remove the Stats Section and Rune Systems Section (approx lines 384-417), replace with:
 
 ```jsx
-{/* Character Data Tabs */}
+{
+  /* Character Data Tabs */
+}
 <Box sx={{ mt: 2 }}>
   <CharacterDataTabs
     ocid={character.ocid}
@@ -2043,7 +2144,7 @@ Remove the Stats Section and Rune Systems Section (approx lines 384-417), replac
       }
     }}
   />
-</Box>
+</Box>;
 ```
 
 **Step 5: Update EquipmentDialog to accept prefetchedData**
@@ -2051,11 +2152,13 @@ Remove the Stats Section and Rune Systems Section (approx lines 384-417), replac
 Modify `components/EquipmentDialog.js` — add `prefetchedData` prop and use it to skip the equipment fetch if data is already available:
 
 In the component signature (line 30):
+
 ```js
 const EquipmentDialog = ({ ocid, character, open, onClose, prefetchedData }) => {
 ```
 
 In `loadEquipment` (around line 56), add prefetch check:
+
 ```js
 const loadEquipment = useCallback(async () => {
   setLoading(true);
@@ -2070,9 +2173,7 @@ const loadEquipment = useCallback(async () => {
       data = getCachedData(cacheKey);
 
       if (!data) {
-        const response = await fetch(
-          `/api/character/equipment?ocid=${ocid}`
-        );
+        const response = await fetch(`/api/character/equipment?ocid=${ocid}`);
         if (!response.ok) {
           throw new Error('載入裝備失敗');
         }
@@ -2123,6 +2224,7 @@ git commit -m "feat: integrate data flow — equipment prefetch, preset analysis
 Modify CharacterStats to work inside Tabs (remove the Accordion wrapper, keep just the content).
 
 **Files:**
+
 - Modify: `components/CharacterStats.js`
 - Modify: `__tests__/components/CharacterStats.test.js`
 
@@ -2202,6 +2304,7 @@ Expected: No errors
 **Step 4: Manual smoke test**
 
 Run: `npm run dev`
+
 - Search a character
 - Verify three-line combat power appears in CharacterCard
 - Click through all 6 tabs in CharacterDataTabs

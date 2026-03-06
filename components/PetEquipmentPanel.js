@@ -13,7 +13,7 @@ import {
 } from '@mui/material';
 import { alpha } from '@mui/material/styles';
 
-const formatExpiry = (dateStr) => {
+const formatExpiry = dateStr => {
   try {
     const d = new Date(dateStr);
     if (d.getFullYear() >= 2079) return '永久';
@@ -71,7 +71,7 @@ const PetCard = ({ pet }) => {
                   sx={{
                     fontSize: '0.7rem',
                     height: 20,
-                    backgroundColor: (theme) =>
+                    backgroundColor: theme =>
                       alpha(theme.palette.primary.main, 0.1),
                     color: 'primary.main',
                   }}
@@ -109,10 +109,7 @@ const PetCard = ({ pet }) => {
         {equipment && (
           <>
             <Divider sx={{ my: 1.5 }} />
-            <Typography
-              variant="subtitle2"
-              sx={{ fontWeight: 700, mb: 1 }}
-            >
+            <Typography variant="subtitle2" sx={{ fontWeight: 700, mb: 1 }}>
               寵物裝備
             </Typography>
             <Box
@@ -172,10 +169,7 @@ const PetCard = ({ pet }) => {
         {autoSkill && (autoSkill.skill_1 || autoSkill.skill_2) && (
           <>
             <Divider sx={{ my: 1.5 }} />
-            <Typography
-              variant="subtitle2"
-              sx={{ fontWeight: 700, mb: 1 }}
-            >
+            <Typography variant="subtitle2" sx={{ fontWeight: 700, mb: 1 }}>
               自動技能
             </Typography>
             <Box sx={{ display: 'flex', gap: 1, flexWrap: 'wrap' }}>
@@ -188,9 +182,7 @@ const PetCard = ({ pet }) => {
                       style={{ width: 24, height: 24, objectFit: 'contain' }}
                     />
                   )}
-                  <Typography variant="body2">
-                    {autoSkill.skill_1}
-                  </Typography>
+                  <Typography variant="body2">{autoSkill.skill_1}</Typography>
                 </Box>
               )}
               {autoSkill.skill_2 && (
@@ -202,9 +194,7 @@ const PetCard = ({ pet }) => {
                       style={{ width: 24, height: 24, objectFit: 'contain' }}
                     />
                   )}
-                  <Typography variant="body2">
-                    {autoSkill.skill_2}
-                  </Typography>
+                  <Typography variant="body2">{autoSkill.skill_2}</Typography>
                 </Box>
               )}
             </Box>
@@ -215,10 +205,7 @@ const PetCard = ({ pet }) => {
         {skills?.length > 0 && (
           <>
             <Divider sx={{ my: 1.5 }} />
-            <Typography
-              variant="subtitle2"
-              sx={{ fontWeight: 700, mb: 1 }}
-            >
+            <Typography variant="subtitle2" sx={{ fontWeight: 700, mb: 1 }}>
               寵物技能
             </Typography>
             <Box sx={{ display: 'flex', gap: 0.5, flexWrap: 'wrap' }}>
@@ -239,7 +226,7 @@ const PetCard = ({ pet }) => {
   );
 };
 
-export const processPetEquipmentData = (data) => {
+export const processPetEquipmentData = data => {
   const pets = [];
   for (let i = 1; i <= 3; i++) {
     const name = data[`pet_${i}_name`];

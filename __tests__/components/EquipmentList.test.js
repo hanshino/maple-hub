@@ -25,7 +25,7 @@ describe('EquipmentList', () => {
       />
     );
     const headings = screen.getAllByRole('heading');
-    const headingTexts = headings.map((h) => h.textContent);
+    const headingTexts = headings.map(h => h.textContent);
     expect(headingTexts).toContain('武器');
     expect(headingTexts).toContain('防具');
   });
@@ -65,8 +65,6 @@ describe('EquipmentList', () => {
         onSlotClick={() => {}}
       />
     );
-    expect(
-      screen.getByText('此角色目前沒有裝備資料')
-    ).toBeInTheDocument();
+    expect(screen.getByText('此角色目前沒有裝備資料')).toBeInTheDocument();
   });
 });

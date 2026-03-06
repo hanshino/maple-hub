@@ -3,6 +3,7 @@
 ## 背景
 
 現有 cron 架構有幾個效能瓶頸：
+
 - 串行 API call + 300ms delay，15 筆要 5s
 - Google Sheets 同一 request 內重複讀取（3 次）
 - 角色資訊刷新不分頁，10s 必 timeout
@@ -41,6 +42,7 @@
 合併成單一端點 `GET /api/cron/refresh-all?offset=0&batchSize=50`
 
 每個角色並行 fetch 兩個 endpoint：
+
 - `/character/basic` → 角色資訊
 - `/character/stat` → 戰鬥力
 
@@ -48,14 +50,14 @@
 
 ## 改動清單
 
-| 檔案 | 改動 |
-|------|------|
-| `lib/combatPowerService.js` | processBatch 改並行（10 並行），同時 fetch basic + stat |
-| `lib/characterInfoService.js` | 合併進 combatPowerService，不再獨立 |
-| `lib/googleSheets.js` | upsert 方法接收 existingData 參數避免重複讀取 |
-| `app/api/cron/refresh-all/route.js` | 新增合併後的單一 cron 端點，支援自驅動 chain call |
-| `app/api/cron/combat-power-refresh/route.js` | 保留標記 deprecated |
-| `app/api/cron/update-character-info/route.js` | 同上，保留標記 deprecated |
+| 檔案                                          | 改動                                                    |
+| --------------------------------------------- | ------------------------------------------------------- |
+| `lib/combatPowerService.js`                   | processBatch 改並行（10 並行），同時 fetch basic + stat |
+| `lib/characterInfoService.js`                 | 合併進 combatPowerService，不再獨立                     |
+| `lib/googleSheets.js`                         | upsert 方法接收 existingData 參數避免重複讀取           |
+| `app/api/cron/refresh-all/route.js`           | 新增合併後的單一 cron 端點，支援自驅動 chain call       |
+| `app/api/cron/combat-power-refresh/route.js`  | 保留標記 deprecated                                     |
+| `app/api/cron/update-character-info/route.js` | 同上，保留標記 deprecated                               |
 
 ## 不動的部分
 
@@ -67,12 +69,12 @@
 
 ## 效能預估（100 個角色）
 
-| | 現況 | 優化後 |
-|--|------|--------|
-| API calls | 200（分開跑） | 200（並行合併處理） |
-| Vercel requests | ~7 次 + 1 次 timeout | 2 次 chain call |
-| 總耗時 | ~65s | ~6s |
-| Google Sheets 讀取 | 每次 request 3 次 | 每次 request 2 次 |
+|                    | 現況                 | 優化後              |
+| ------------------ | -------------------- | ------------------- |
+| API calls          | 200（分開跑）        | 200（並行合併處理） |
+| Vercel requests    | ~7 次 + 1 次 timeout | 2 次 chain call     |
+| 總耗時             | ~65s                 | ~6s                 |
+| Google Sheets 讀取 | 每次 request 3 次    | 每次 request 2 次   |
 
 ---
 
@@ -91,6 +93,7 @@
 ### Task 1: Add `getCharacterBasicInfo` to nexonApi.js
 
 **Files:**
+
 - Modify: `lib/nexonApi.js`
 - Test: `__tests__/lib/nexonApi.test.js` (create)
 
@@ -160,7 +163,7 @@ Expected: FAIL — `getCharacterBasicInfo` is not exported
 Add to `lib/nexonApi.js`:
 
 ```js
-export const getCharacterBasicInfo = async (ocid) => {
+export const getCharacterBasicInfo = async ocid => {
   try {
     const response = await apiClient.get(`/character/basic?ocid=${ocid}`);
     return response.data;
@@ -187,6 +190,7 @@ git commit -m "feat: add getCharacterBasicInfo to nexonApi"
 ### Task 2: Refactor `processBatch` to parallel execution with combined fetch
 
 **Files:**
+
 - Modify: `lib/combatPowerService.js`
 - Modify: `__tests__/lib/combatPowerService.test.js`
 
@@ -206,11 +210,11 @@ import { getCharacterBasicInfo } from '../../lib/nexonApi';
 // Inside describe('processBatch')
 it('should process OCIDs in parallel groups of CONCURRENCY(10)', async () => {
   const callOrder = [];
-  getCharacterStats.mockImplementation(async (ocid) => {
+  getCharacterStats.mockImplementation(async ocid => {
     callOrder.push({ type: 'stat', ocid, time: Date.now() });
     return { final_stat: [{ stat_name: '戰鬥力', stat_value: '1000000' }] };
   });
-  getCharacterBasicInfo.mockImplementation(async (ocid) => {
+  getCharacterBasicInfo.mockImplementation(async ocid => {
     callOrder.push({ type: 'basic', ocid, time: Date.now() });
     return {
       character_name: 'Test',
@@ -285,37 +289,52 @@ const MAX_RETRIES = 2;
 const INITIAL_RETRY_DELAY_MS = 500;
 const CONCURRENCY = 10;
 
-export const delay = (ms) => new Promise((resolve) => setTimeout(resolve, ms));
+export const delay = ms => new Promise(resolve => setTimeout(resolve, ms));
 
 // 24 hours in milliseconds
 const CACHE_DURATION_MS = 24 * 60 * 60 * 1000;
 
-const isRecordFresh = (updatedAt) => {
+const isRecordFresh = updatedAt => {
   if (!updatedAt) return false;
   const updatedTime = new Date(updatedAt).getTime();
   return Date.now() - updatedTime < CACHE_DURATION_MS;
 };
 
-export const fetchCombatPower = async (ocid) => {
+export const fetchCombatPower = async ocid => {
   const timestamp = new Date().toISOString();
   try {
     const stats = await getCharacterStats(ocid);
     const combatPowerStat = stats?.final_stat?.find(
-      (stat) => stat.stat_name === '戰鬥力'
+      stat => stat.stat_name === '戰鬥力'
     );
     if (!combatPowerStat) {
-      return { ocid, combat_power: '0', updated_at: timestamp, status: 'not_found' };
+      return {
+        ocid,
+        combat_power: '0',
+        updated_at: timestamp,
+        status: 'not_found',
+      };
     }
-    return { ocid, combat_power: combatPowerStat.stat_value, updated_at: timestamp, status: 'success' };
+    return {
+      ocid,
+      combat_power: combatPowerStat.stat_value,
+      updated_at: timestamp,
+      status: 'success',
+    };
   } catch (error) {
     if (error.message?.includes('404') || error.response?.status === 404) {
-      return { ocid, combat_power: '0', updated_at: timestamp, status: 'not_found' };
+      return {
+        ocid,
+        combat_power: '0',
+        updated_at: timestamp,
+        status: 'not_found',
+      };
     }
     return { ocid, combat_power: '0', updated_at: timestamp, status: 'error' };
   }
 };
 
-const fetchWithRetry = async (ocid) => {
+const fetchWithRetry = async ocid => {
   for (let attempt = 0; attempt <= MAX_RETRIES; attempt++) {
     try {
       const result = await fetchCombatPower(ocid);
@@ -327,10 +346,15 @@ const fetchWithRetry = async (ocid) => {
       }
     }
   }
-  return { ocid, combat_power: '0', updated_at: new Date().toISOString(), status: 'error' };
+  return {
+    ocid,
+    combat_power: '0',
+    updated_at: new Date().toISOString(),
+    status: 'error',
+  };
 };
 
-const fetchCharacterInfoSafe = async (ocid) => {
+const fetchCharacterInfoSafe = async ocid => {
   try {
     const info = await getCharacterBasicInfo(ocid);
     return {
@@ -351,7 +375,7 @@ const fetchCharacterInfoSafe = async (ocid) => {
 /**
  * Process a single OCID: fetch both combat power and character info in parallel
  */
-const processOneOcid = async (ocid) => {
+const processOneOcid = async ocid => {
   const [combatResult, charInfo] = await Promise.all([
     fetchWithRetry(ocid),
     fetchCharacterInfoSafe(ocid),
@@ -372,7 +396,11 @@ export const processBatch = async (ocids, existingRecords = new Map()) => {
   const toProcess = [];
   for (const ocid of ocids) {
     const existing = existingRecords.get(ocid);
-    if (existing && existing.status === 'success' && isRecordFresh(existing.updated_at)) {
+    if (
+      existing &&
+      existing.status === 'success' &&
+      isRecordFresh(existing.updated_at)
+    ) {
       stats.skipped++;
       continue;
     }
@@ -388,20 +416,32 @@ export const processBatch = async (ocids, existingRecords = new Map()) => {
       records.push(combatResult);
       if (charInfo) characterInfoRecords.push(charInfo);
       switch (combatResult.status) {
-        case 'success': stats.success++; break;
-        case 'not_found': stats.notFound++; break;
-        case 'error': stats.failed++; break;
+        case 'success':
+          stats.success++;
+          break;
+        case 'not_found':
+          stats.notFound++;
+          break;
+        case 'error':
+          stats.failed++;
+          break;
       }
     }
   }
 
-  return { records, characterInfoRecords, stats, executionTimeMs: Date.now() - startTime };
+  return {
+    records,
+    characterInfoRecords,
+    stats,
+    executionTimeMs: Date.now() - startTime,
+  };
 };
 ```
 
 **Step 4: Update existing tests for new mock and return shape**
 
 Update existing `processBatch` tests to:
+
 - Add `getCharacterBasicInfo` mock (default returns valid data)
 - Check `result.characterInfoRecords` exists
 
@@ -422,6 +462,7 @@ git commit -m "feat: parallel batch processing with combined basic+stat fetch"
 ### Task 3: Add `existingData` parameter to Google Sheets upsert methods
 
 **Files:**
+
 - Modify: `lib/googleSheets.js` (lines 322-420 `upsertCombatPowerRecords`, lines 569-675 `upsertCharacterInfoCache`)
 - Modify: `__tests__/lib/googleSheets.combatPower.test.js`
 
@@ -510,6 +551,7 @@ git commit -m "feat: add existingData param to upsert methods to avoid redundant
 ### Task 4: Create `refresh-all` API route with self-driving chain call
 
 **Files:**
+
 - Create: `app/api/cron/refresh-all/route.js`
 - Create: `__tests__/api/cron/refreshAll.test.js`
 
@@ -541,8 +583,12 @@ describe('Refresh All API Route', () => {
 
     mockGetAllOcids = jest.fn();
     mockGetExistingCombatPowerRecords = jest.fn().mockResolvedValue(new Map());
-    mockUpsertCombatPowerRecords = jest.fn().mockResolvedValue({ updated: 0, inserted: 0 });
-    mockUpsertCharacterInfoCache = jest.fn().mockResolvedValue({ updated: 0, inserted: 0 });
+    mockUpsertCombatPowerRecords = jest
+      .fn()
+      .mockResolvedValue({ updated: 0, inserted: 0 });
+    mockUpsertCharacterInfoCache = jest
+      .fn()
+      .mockResolvedValue({ updated: 0, inserted: 0 });
 
     GoogleSheetsClient.mockImplementation(() => ({
       getAllOcids: mockGetAllOcids,
@@ -567,7 +613,11 @@ describe('Refresh All API Route', () => {
   });
 
   it('should use default batchSize=50', async () => {
-    mockGetAllOcids.mockResolvedValue({ ocids: [], totalCount: 0, hasMore: false });
+    mockGetAllOcids.mockResolvedValue({
+      ocids: [],
+      totalCount: 0,
+      hasMore: false,
+    });
 
     const request = new Request('http://localhost/api/cron/refresh-all', {
       headers: { Authorization: 'Bearer test-secret' },
@@ -585,8 +635,25 @@ describe('Refresh All API Route', () => {
     });
 
     processBatch.mockResolvedValue({
-      records: [{ ocid: 'ocid1', combat_power: '1000000', updated_at: '2026-03-01', status: 'success' }],
-      characterInfoRecords: [{ ocid: 'ocid1', character_name: 'Hero', character_level: 280, character_image: 'img', world_name: '殺人鯨', character_class: '劍豪', cached_at: '2026-03-01' }],
+      records: [
+        {
+          ocid: 'ocid1',
+          combat_power: '1000000',
+          updated_at: '2026-03-01',
+          status: 'success',
+        },
+      ],
+      characterInfoRecords: [
+        {
+          ocid: 'ocid1',
+          character_name: 'Hero',
+          character_level: 280,
+          character_image: 'img',
+          world_name: '殺人鯨',
+          character_class: '劍豪',
+          cached_at: '2026-03-01',
+        },
+      ],
       stats: { success: 1, failed: 0, notFound: 0, skipped: 0 },
       executionTimeMs: 200,
     });
@@ -612,8 +679,25 @@ describe('Refresh All API Route', () => {
     });
 
     processBatch.mockResolvedValue({
-      records: [{ ocid: 'ocid1', combat_power: '1000000', updated_at: '2026-03-01', status: 'success' }],
-      characterInfoRecords: [{ ocid: 'ocid1', character_name: 'Hero', character_level: 280, character_image: 'img', world_name: '殺人鯨', character_class: '劍豪', cached_at: '2026-03-01' }],
+      records: [
+        {
+          ocid: 'ocid1',
+          combat_power: '1000000',
+          updated_at: '2026-03-01',
+          status: 'success',
+        },
+      ],
+      characterInfoRecords: [
+        {
+          ocid: 'ocid1',
+          character_name: 'Hero',
+          character_level: 280,
+          character_image: 'img',
+          world_name: '殺人鯨',
+          character_class: '劍豪',
+          cached_at: '2026-03-01',
+        },
+      ],
       stats: { success: 1, failed: 0, notFound: 0, skipped: 0 },
       executionTimeMs: 200,
     });
@@ -649,7 +733,14 @@ describe('Refresh All API Route', () => {
     });
 
     processBatch.mockResolvedValue({
-      records: [{ ocid: 'ocid1', combat_power: '1000000', updated_at: '2026-03-01', status: 'success' }],
+      records: [
+        {
+          ocid: 'ocid1',
+          combat_power: '1000000',
+          updated_at: '2026-03-01',
+          status: 'success',
+        },
+      ],
       characterInfoRecords: [],
       stats: { success: 1, failed: 0, notFound: 0, skipped: 0 },
       executionTimeMs: 200,
@@ -686,13 +777,13 @@ const DEFAULT_BATCH_SIZE = 50;
 const MAX_CHAIN_DEPTH = 100;
 const TIMEOUT_BUDGET_MS = 7000; // 7s budget, 3s buffer for Vercel 10s
 
-const validateAuth = (request) => {
+const validateAuth = request => {
   const authHeader = request.headers.get('Authorization');
   if (!authHeader) return false;
   return authHeader.replace('Bearer ', '') === process.env.CRON_SECRET;
 };
 
-const parseParams = (request) => {
+const parseParams = request => {
   const url = new URL(request.url);
   const offset = parseInt(url.searchParams.get('offset') || '0', 10);
   let batchSize = parseInt(
@@ -751,11 +842,10 @@ export async function GET(request) {
     const existingRecords = await sheetsClient.getExistingCombatPowerRecords();
 
     // Process batch (parallel fetch of basic + stat)
-    const {
-      records,
-      characterInfoRecords,
-      stats,
-    } = await processBatch(ocids, existingRecords);
+    const { records, characterInfoRecords, stats } = await processBatch(
+      ocids,
+      existingRecords
+    );
 
     // Read existing sheet data for upsert (pass to avoid re-reading)
     // Build existingData from existingRecords map for combat power
@@ -862,12 +952,14 @@ git commit -m "feat: add unified refresh-all cron endpoint with chain call"
 ### Task 5: Mark old cron endpoints as deprecated
 
 **Files:**
+
 - Modify: `app/api/cron/combat-power-refresh/route.js`
 - Modify: `app/api/cron/update-character-info/route.js`
 
 **Step 1: Add deprecation notice to both files**
 
 At the top of `combat-power-refresh/route.js`:
+
 ```js
 /**
  * @deprecated Use /api/cron/refresh-all instead.

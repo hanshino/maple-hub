@@ -1,19 +1,13 @@
 'use client';
 
-import {
-  Drawer,
-  Box,
-  Typography,
-  IconButton,
-  Divider,
-} from '@mui/material';
+import { Drawer, Box, Typography, IconButton, Divider } from '@mui/material';
 import CloseIcon from '@mui/icons-material/Close';
 
 const CashItemDetailDrawer = ({ item, open, onClose, isMobile }) => {
   const hasOptions = item?.cash_item_option?.length > 0;
   const hasExpiry = item?.date_expire != null;
 
-  const formatExpiry = (dateStr) => {
+  const formatExpiry = dateStr => {
     try {
       const d = new Date(dateStr);
       return `${d.getFullYear()}/${String(d.getMonth() + 1).padStart(2, '0')}/${String(d.getDate()).padStart(2, '0')}`;
@@ -84,10 +78,7 @@ const CashItemDetailDrawer = ({ item, open, onClose, isMobile }) => {
           {hasOptions && (
             <>
               <Divider sx={{ my: 1.5 }} />
-              <Typography
-                variant="subtitle2"
-                sx={{ fontWeight: 700, mb: 1 }}
-              >
+              <Typography variant="subtitle2" sx={{ fontWeight: 700, mb: 1 }}>
                 能力值
               </Typography>
               {item.cash_item_option.map((opt, i) => (

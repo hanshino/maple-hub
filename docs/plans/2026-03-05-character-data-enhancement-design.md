@@ -54,6 +54,7 @@ Scan potential options for keywords: 道具掉落率, 楓幣獲得量, 一般怪
 ### Request Sequencing (Nexon rate limit: 5 req/s)
 
 **Wave 1 (on search, parallel with staggering):**
+
 - character basic (7-day history)
 - stats
 - union basic
@@ -62,6 +63,7 @@ Scan potential options for keywords: 道具掉落率, 楓幣獲得量, 一般怪
 - set-effect (delayed ~200ms to avoid exceeding 5 req/s)
 
 **Wave 2 (lazy load on Tab switch):**
+
 - union-raider
 - hyper-stat
 - union-artifact
@@ -87,6 +89,7 @@ Mobile: Tabs set to `scrollable` with horizontal scroll.
 ## Components
 
 ### New
+
 - `CharacterDataTabs` — Unified tabs container
 - `UnionRaiderPanel` — Union raider stat list
 - `HyperStatPanel` — Hyper stat levels and bonuses
@@ -95,17 +98,20 @@ Mobile: Tabs set to `scrollable` with horizontal scroll.
 - `lib/combatPowerCalculator.js` — Preset combat power calculation logic
 
 ### Modified
+
 - `CharacterCard` — Three-line combat power display
 - `EquipmentDialog` — Accept `prefetchedData` prop
 - `app/page.js` — Updated data flow, equipment prefetch, new state management
 
 ### Removed (content moved into Tabs)
+
 - CharacterStats standalone Accordion usage
 - RuneSystems standalone Card wrapper
 
 ## Combat Power Calculation
 
 Uses reverse-engineering approach documented in `docs/combat-power-formulas.md`:
+
 1. Current API stats as ground truth
 2. Separate independent equipment (寶玉) from preset equipment
 3. Calculate stat differences between presets

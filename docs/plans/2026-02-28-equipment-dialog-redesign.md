@@ -16,13 +16,29 @@ Used by EquipmentSlot, EquipmentGrid, and EquipmentList:
 
 ```js
 export const SLOT_NAMES = {
-  hat: '帽子', top: '上衣', bottom: '褲裙', shoes: '鞋子',
-  gloves: '手套', cape: '披風', shoulder: '肩膀', belt: '腰帶',
-  ring: '戒指', ring2: '戒指', ring3: '戒指', ring4: '戒指',
-  necklace: '墜飾', necklace2: '墜飾', earring: '耳環',
-  'face-accessory': '臉飾', 'eye-accessory': '眼飾',
-  weapon: '武器', 'sub-weapon': '輔助武器',
-  pocket: '口袋', badge: '徽章', medal: '勳章', 'machine-heart': '機械心臟',
+  hat: '帽子',
+  top: '上衣',
+  bottom: '褲裙',
+  shoes: '鞋子',
+  gloves: '手套',
+  cape: '披風',
+  shoulder: '肩膀',
+  belt: '腰帶',
+  ring: '戒指',
+  ring2: '戒指',
+  ring3: '戒指',
+  ring4: '戒指',
+  necklace: '墜飾',
+  necklace2: '墜飾',
+  earring: '耳環',
+  'face-accessory': '臉飾',
+  'eye-accessory': '眼飾',
+  weapon: '武器',
+  'sub-weapon': '輔助武器',
+  pocket: '口袋',
+  badge: '徽章',
+  medal: '勳章',
+  'machine-heart': '機械心臟',
 };
 ```
 
@@ -31,6 +47,7 @@ export const SLOT_NAMES = {
 ### Task 1: EquipmentSlot — Test
 
 **Files:**
+
 - Create: `__tests__/components/EquipmentSlot.test.js`
 
 **Step 1: Write the failing tests**
@@ -196,6 +213,7 @@ git commit -m "test: add EquipmentSlot tests (red)"
 ### Task 2: EquipmentSlot — Implementation
 
 **Files:**
+
 - Create: `components/EquipmentSlot.js`
 
 **Step 1: Implement the component**
@@ -258,9 +276,7 @@ const listSx = (item, selected) => ({
   borderLeft: selected ? '3px solid #f7931e' : '3px solid transparent',
   backgroundColor: selected ? 'rgba(247,147,30,0.08)' : 'transparent',
   transition: 'background-color 200ms ease-out',
-  '&:hover': item
-    ? { backgroundColor: 'rgba(247,147,30,0.04)' }
-    : {},
+  '&:hover': item ? { backgroundColor: 'rgba(247,147,30,0.04)' } : {},
   '&:focus-visible': {
     outline: '2px solid #f7931e',
     outlineOffset: '-2px',
@@ -286,7 +302,7 @@ const EquipmentSlot = ({
     if (onClick) onClick(slotKey);
   };
 
-  const handleKeyDown = (e) => {
+  const handleKeyDown = e => {
     if (e.key === 'Enter' || e.key === ' ') {
       e.preventDefault();
       handleClick();
@@ -422,6 +438,7 @@ git commit -m "feat: add EquipmentSlot component (grid + list variants)"
 ### Task 3: EquipmentGrid — Test
 
 **Files:**
+
 - Create: `__tests__/components/EquipmentGrid.test.js`
 
 **Step 1: Write the failing tests**
@@ -431,8 +448,16 @@ import { render, screen } from '@testing-library/react';
 import EquipmentGrid from '../../components/EquipmentGrid';
 
 const mockEquipment = {
-  hat: { item_name: 'Test Hat', item_icon: 'hat.png', item_equipment_slot: '帽子' },
-  weapon: { item_name: 'Test Weapon', item_icon: 'weapon.png', item_equipment_slot: '武器' },
+  hat: {
+    item_name: 'Test Hat',
+    item_icon: 'hat.png',
+    item_equipment_slot: '帽子',
+  },
+  weapon: {
+    item_name: 'Test Weapon',
+    item_icon: 'weapon.png',
+    item_equipment_slot: '武器',
+  },
 };
 
 describe('EquipmentGrid', () => {
@@ -506,6 +531,7 @@ git commit -m "test: add EquipmentGrid tests (red)"
 ### Task 4: EquipmentGrid — Implementation
 
 **Files:**
+
 - Create: `components/EquipmentGrid.js`
 
 **Step 1: Implement the component**
@@ -517,26 +543,47 @@ import { Box, Avatar } from '@mui/material';
 import EquipmentSlot from './EquipmentSlot';
 
 const SLOT_NAMES = {
-  hat: '帽子', top: '上衣', bottom: '褲裙', shoes: '鞋子',
-  gloves: '手套', cape: '披風', shoulder: '肩膀', belt: '腰帶',
-  ring: '戒指', ring2: '戒指', ring3: '戒指', ring4: '戒指',
-  necklace: '墜飾', necklace2: '墜飾', earring: '耳環',
-  'face-accessory': '臉飾', 'eye-accessory': '眼飾',
-  weapon: '武器', 'sub-weapon': '輔助武器',
-  pocket: '口袋', badge: '徽章', medal: '勳章', 'machine-heart': '機械心臟',
+  hat: '帽子',
+  top: '上衣',
+  bottom: '褲裙',
+  shoes: '鞋子',
+  gloves: '手套',
+  cape: '披風',
+  shoulder: '肩膀',
+  belt: '腰帶',
+  ring: '戒指',
+  ring2: '戒指',
+  ring3: '戒指',
+  ring4: '戒指',
+  necklace: '墜飾',
+  necklace2: '墜飾',
+  earring: '耳環',
+  'face-accessory': '臉飾',
+  'eye-accessory': '眼飾',
+  weapon: '武器',
+  'sub-weapon': '輔助武器',
+  pocket: '口袋',
+  badge: '徽章',
+  medal: '勳章',
+  'machine-heart': '機械心臟',
 };
 
 // Grid layout: 6 rows x 5 cols. null = empty spacer, 'avatar' = character image.
 const GRID_LAYOUT = [
-  ['ring',  'eye-accessory', 'avatar', 'hat',      'cape'],
-  ['ring2', 'face-accessory', null,    'top',       'gloves'],
-  ['ring3', 'earring',        null,    'bottom',    'shoes'],
-  ['ring4', 'necklace',       null,    'shoulder',  'medal'],
-  ['belt',  'necklace2',   'weapon',   'sub-weapon','badge'],
-  [null,    'pocket',         null,    'machine-heart', null],
+  ['ring', 'eye-accessory', 'avatar', 'hat', 'cape'],
+  ['ring2', 'face-accessory', null, 'top', 'gloves'],
+  ['ring3', 'earring', null, 'bottom', 'shoes'],
+  ['ring4', 'necklace', null, 'shoulder', 'medal'],
+  ['belt', 'necklace2', 'weapon', 'sub-weapon', 'badge'],
+  [null, 'pocket', null, 'machine-heart', null],
 ];
 
-const EquipmentGrid = ({ equipment, characterImage, selectedSlot, onSlotClick }) => {
+const EquipmentGrid = ({
+  equipment,
+  characterImage,
+  selectedSlot,
+  onSlotClick,
+}) => {
   return (
     <Box
       sx={{
@@ -607,6 +654,7 @@ git commit -m "feat: add EquipmentGrid component (desktop 5-col CSS Grid)"
 ### Task 5: EquipmentList — Test
 
 **Files:**
+
 - Create: `__tests__/components/EquipmentList.test.js`
 
 **Step 1: Write the failing tests**
@@ -616,8 +664,17 @@ import { render, screen } from '@testing-library/react';
 import EquipmentList from '../../components/EquipmentList';
 
 const mockEquipment = {
-  hat: { item_name: 'Test Hat', item_icon: 'hat.png', item_equipment_slot: '帽子', starforce: '22' },
-  weapon: { item_name: 'Test Weapon', item_icon: 'weapon.png', item_equipment_slot: '武器' },
+  hat: {
+    item_name: 'Test Hat',
+    item_icon: 'hat.png',
+    item_equipment_slot: '帽子',
+    starforce: '22',
+  },
+  weapon: {
+    item_name: 'Test Weapon',
+    item_icon: 'weapon.png',
+    item_equipment_slot: '武器',
+  },
 };
 
 describe('EquipmentList', () => {
@@ -690,6 +747,7 @@ git commit -m "test: add EquipmentList tests (red)"
 ### Task 6: EquipmentList — Implementation
 
 **Files:**
+
 - Create: `components/EquipmentList.js`
 
 **Step 1: Implement the component**
@@ -701,19 +759,60 @@ import { Box, Typography, Divider } from '@mui/material';
 import EquipmentSlot from './EquipmentSlot';
 
 const SLOT_NAMES = {
-  hat: '帽子', top: '上衣', bottom: '褲裙', shoes: '鞋子',
-  gloves: '手套', cape: '披風', shoulder: '肩膀', belt: '腰帶',
-  ring: '戒指', ring2: '戒指', ring3: '戒指', ring4: '戒指',
-  necklace: '墜飾', necklace2: '墜飾', earring: '耳環',
-  'face-accessory': '臉飾', 'eye-accessory': '眼飾',
-  weapon: '武器', 'sub-weapon': '輔助武器',
-  pocket: '口袋', badge: '徽章', medal: '勳章', 'machine-heart': '機械心臟',
+  hat: '帽子',
+  top: '上衣',
+  bottom: '褲裙',
+  shoes: '鞋子',
+  gloves: '手套',
+  cape: '披風',
+  shoulder: '肩膀',
+  belt: '腰帶',
+  ring: '戒指',
+  ring2: '戒指',
+  ring3: '戒指',
+  ring4: '戒指',
+  necklace: '墜飾',
+  necklace2: '墜飾',
+  earring: '耳環',
+  'face-accessory': '臉飾',
+  'eye-accessory': '眼飾',
+  weapon: '武器',
+  'sub-weapon': '輔助武器',
+  pocket: '口袋',
+  badge: '徽章',
+  medal: '勳章',
+  'machine-heart': '機械心臟',
 };
 
 const GROUPS = [
   { label: '武器', slots: ['weapon', 'sub-weapon'] },
-  { label: '防具', slots: ['hat', 'top', 'bottom', 'shoes', 'gloves', 'cape', 'shoulder', 'belt'] },
-  { label: '飾品', slots: ['ring', 'ring2', 'ring3', 'ring4', 'necklace', 'necklace2', 'earring', 'face-accessory', 'eye-accessory'] },
+  {
+    label: '防具',
+    slots: [
+      'hat',
+      'top',
+      'bottom',
+      'shoes',
+      'gloves',
+      'cape',
+      'shoulder',
+      'belt',
+    ],
+  },
+  {
+    label: '飾品',
+    slots: [
+      'ring',
+      'ring2',
+      'ring3',
+      'ring4',
+      'necklace',
+      'necklace2',
+      'earring',
+      'face-accessory',
+      'eye-accessory',
+    ],
+  },
   { label: '其他', slots: ['pocket', 'badge', 'medal', 'machine-heart'] },
 ];
 
@@ -732,8 +831,8 @@ const EquipmentList = ({ equipment, selectedSlot, onSlotClick }) => {
 
   return (
     <Box>
-      {GROUPS.map((group) => {
-        const equippedSlots = group.slots.filter((slot) => equipment?.[slot]);
+      {GROUPS.map(group => {
+        const equippedSlots = group.slots.filter(slot => equipment?.[slot]);
         if (equippedSlots.length === 0) return null;
 
         return (
@@ -762,9 +861,7 @@ const EquipmentList = ({ equipment, selectedSlot, onSlotClick }) => {
                   selected={selectedSlot === slot}
                   onClick={onSlotClick}
                 />
-                {idx < equippedSlots.length - 1 && (
-                  <Divider sx={{ mx: 2 }} />
-                )}
+                {idx < equippedSlots.length - 1 && <Divider sx={{ mx: 2 }} />}
               </Box>
             ))}
           </Box>
@@ -794,6 +891,7 @@ git commit -m "feat: add EquipmentList component (mobile grouped list)"
 ### Task 7: EquipmentDetailDrawer — Test
 
 **Files:**
+
 - Create: `__tests__/components/EquipmentDetailDrawer.test.js`
 
 **Step 1: Write the failing tests**
@@ -935,6 +1033,7 @@ git commit -m "test: add EquipmentDetailDrawer tests (red)"
 ### Task 8: EquipmentDetailDrawer — Implementation
 
 **Files:**
+
 - Create: `components/EquipmentDetailDrawer.js`
 
 **Step 1: Implement the component**
@@ -942,29 +1041,27 @@ git commit -m "test: add EquipmentDetailDrawer tests (red)"
 ```js
 'use client';
 
-import {
-  Drawer,
-  Box,
-  Typography,
-  IconButton,
-  Divider,
-} from '@mui/material';
+import { Drawer, Box, Typography, IconButton, Divider } from '@mui/material';
 import CloseIcon from '@mui/icons-material/Close';
 import StarIcon from '@mui/icons-material/Star';
 
 const POTENTIAL_GRADE_COLORS = {
-  '레어': '#4fc3f7',       // Rare — blue
-  '에픽': '#ba68c8',       // Epic — purple
-  '유니크': '#ffd54f',     // Unique — gold
-  '레전드리': '#66bb6a',   // Legendary — green
+  레어: '#4fc3f7', // Rare — blue
+  에픽: '#ba68c8', // Epic — purple
+  유니크: '#ffd54f', // Unique — gold
+  레전드리: '#66bb6a', // Legendary — green
 };
 
 const StatRow = ({ label, value }) => {
   if (!value || value === '0') return null;
   return (
     <Box sx={{ display: 'flex', justifyContent: 'space-between', py: 0.25 }}>
-      <Typography variant="body2" color="text.secondary">{label}</Typography>
-      <Typography variant="body2" sx={{ fontWeight: 600 }}>+{value}</Typography>
+      <Typography variant="body2" color="text.secondary">
+        {label}
+      </Typography>
+      <Typography variant="body2" sx={{ fontWeight: 600 }}>
+        +{value}
+      </Typography>
     </Box>
   );
 };
@@ -972,9 +1069,13 @@ const StatRow = ({ label, value }) => {
 const EquipmentDetailDrawer = ({ item, open, onClose, isMobile }) => {
   const hasPotential = item?.potential_option_1;
   const hasAdditionalPotential = item?.additional_potential_option_1;
-  const hasStats = item?.item_total_option && typeof item.item_total_option === 'object';
-  const potentialColor = POTENTIAL_GRADE_COLORS[item?.potential_option_grade] || 'text.primary';
-  const additionalColor = POTENTIAL_GRADE_COLORS[item?.additional_potential_option_grade] || 'text.primary';
+  const hasStats =
+    item?.item_total_option && typeof item.item_total_option === 'object';
+  const potentialColor =
+    POTENTIAL_GRADE_COLORS[item?.potential_option_grade] || 'text.primary';
+  const additionalColor =
+    POTENTIAL_GRADE_COLORS[item?.additional_potential_option_grade] ||
+    'text.primary';
 
   return (
     <Drawer
@@ -1010,11 +1111,21 @@ const EquipmentDetailDrawer = ({ item, open, onClose, isMobile }) => {
               />
             )}
             <Box>
-              <Typography variant="h6" sx={{ fontWeight: 700, lineHeight: 1.3 }}>
+              <Typography
+                variant="h6"
+                sx={{ fontWeight: 700, lineHeight: 1.3 }}
+              >
                 {item.item_name}
               </Typography>
               {item.starforce && (
-                <Box sx={{ display: 'flex', alignItems: 'center', gap: 0.5, mt: 0.5 }}>
+                <Box
+                  sx={{
+                    display: 'flex',
+                    alignItems: 'center',
+                    gap: 0.5,
+                    mt: 0.5,
+                  }}
+                >
                   <StarIcon sx={{ fontSize: 16, color: '#ffd54f' }} />
                   <Typography variant="body2" sx={{ fontWeight: 600 }}>
                     {item.starforce}
@@ -1034,7 +1145,11 @@ const EquipmentDetailDrawer = ({ item, open, onClose, isMobile }) => {
               >
                 潛在能力
               </Typography>
-              {[item.potential_option_1, item.potential_option_2, item.potential_option_3]
+              {[
+                item.potential_option_1,
+                item.potential_option_2,
+                item.potential_option_3,
+              ]
                 .filter(Boolean)
                 .map((opt, i) => (
                   <Typography key={i} variant="body2" sx={{ py: 0.25 }}>
@@ -1054,7 +1169,11 @@ const EquipmentDetailDrawer = ({ item, open, onClose, isMobile }) => {
               >
                 附加潛能
               </Typography>
-              {[item.additional_potential_option_1, item.additional_potential_option_2, item.additional_potential_option_3]
+              {[
+                item.additional_potential_option_1,
+                item.additional_potential_option_2,
+                item.additional_potential_option_3,
+              ]
                 .filter(Boolean)
                 .map((opt, i) => (
                   <Typography key={i} variant="body2" sx={{ py: 0.25 }}>
@@ -1076,8 +1195,14 @@ const EquipmentDetailDrawer = ({ item, open, onClose, isMobile }) => {
               <StatRow label="INT" value={item.item_total_option.int} />
               <StatRow label="LUK" value={item.item_total_option.luk} />
               <StatRow label="HP" value={item.item_total_option.max_hp} />
-              <StatRow label="攻擊力" value={item.item_total_option.attack_power} />
-              <StatRow label="魔力" value={item.item_total_option.magic_power} />
+              <StatRow
+                label="攻擊力"
+                value={item.item_total_option.attack_power}
+              />
+              <StatRow
+                label="魔力"
+                value={item.item_total_option.magic_power}
+              />
             </>
           )}
         </Box>
@@ -1106,11 +1231,13 @@ git commit -m "feat: add EquipmentDetailDrawer component (side/bottom Drawer)"
 ### Task 9: Rewrite EquipmentDialog — Test Update
 
 **Files:**
+
 - Modify: `__tests__/components/EquipmentDialog.test.js`
 
 **Step 1: Rewrite the test file**
 
 The existing tests check for internal button + grid. The new EquipmentDialog only delegates to child components. Update tests to verify:
+
 - Dialog opens with controlled `open` prop
 - Loading state shows spinner
 - After load, renders either Grid or List (mock useMediaQuery)
@@ -1146,7 +1273,11 @@ describe('EquipmentDialog', () => {
     preset_no: 2,
     item_equipment: [],
     item_equipment_preset_2: [
-      { item_equipment_slot: '帽子', item_name: 'Test Hat', item_icon: 'icon1.png' },
+      {
+        item_equipment_slot: '帽子',
+        item_name: 'Test Hat',
+        item_icon: 'icon1.png',
+      },
     ],
   };
 
@@ -1247,6 +1378,7 @@ git commit -m "test: update EquipmentDialog tests for new architecture"
 ### Task 10: Rewrite EquipmentDialog — Implementation
 
 **Files:**
+
 - Modify: `components/EquipmentDialog.js` (full rewrite)
 
 **Step 1: Rewrite the component**
@@ -1276,7 +1408,9 @@ const EquipmentDialog = ({ ocid, character, open, onClose }) => {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
   const [selectedSlot, setSelectedSlot] = useState(null);
-  const [characterImage, setCharacterImage] = useState('/character-placeholder.png');
+  const [characterImage, setCharacterImage] = useState(
+    '/character-placeholder.png'
+  );
   const isDesktop = useMediaQuery('(min-width:768px)');
 
   const loadEquipment = useCallback(async () => {
@@ -1318,7 +1452,7 @@ const EquipmentDialog = ({ ocid, character, open, onClose }) => {
     }
   }, [open, ocid, loadEquipment]);
 
-  const handleSlotClick = (slotKey) => {
+  const handleSlotClick = slotKey => {
     if (equipment?.[slotKey]) {
       setSelectedSlot(slotKey);
     }
@@ -1417,6 +1551,7 @@ Expected: All tests PASS (no regressions in other components)
 Run: `npm run dev`
 
 Verify manually:
+
 - [ ] Desktop (>768px): Dialog shows 5-col grid with orange-themed slots
 - [ ] Mobile (<768px): Dialog is fullScreen, shows grouped list
 - [ ] Click equipped slot: DetailDrawer opens with potential/stats
@@ -1442,19 +1577,19 @@ git commit -m "feat: complete equipment dialog responsive redesign"
 
 ## Summary of All Files
 
-| Action | File | Description |
-|--------|------|-------------|
-| Create | `components/EquipmentSlot.js` | Shared slot (grid/list variants) |
-| Create | `components/EquipmentGrid.js` | Desktop 5-col CSS Grid |
-| Create | `components/EquipmentList.js` | Mobile grouped list |
-| Create | `components/EquipmentDetailDrawer.js` | Side/bottom Drawer for detail |
-| Rewrite | `components/EquipmentDialog.js` | Container only (fetch + state + routing) |
-| Create | `__tests__/components/EquipmentSlot.test.js` | 8 tests |
-| Create | `__tests__/components/EquipmentGrid.test.js` | 4 tests |
-| Create | `__tests__/components/EquipmentList.test.js` | 4 tests |
-| Create | `__tests__/components/EquipmentDetailDrawer.test.js` | 7 tests |
-| Rewrite | `__tests__/components/EquipmentDialog.test.js` | 4 tests |
-| No change | `lib/equipmentUtils.js` | — |
-| No change | `lib/cache.js` | — |
-| No change | `app/api/character/equipment/route.js` | — |
-| No change | `app/page.js` | — |
+| Action    | File                                                 | Description                              |
+| --------- | ---------------------------------------------------- | ---------------------------------------- |
+| Create    | `components/EquipmentSlot.js`                        | Shared slot (grid/list variants)         |
+| Create    | `components/EquipmentGrid.js`                        | Desktop 5-col CSS Grid                   |
+| Create    | `components/EquipmentList.js`                        | Mobile grouped list                      |
+| Create    | `components/EquipmentDetailDrawer.js`                | Side/bottom Drawer for detail            |
+| Rewrite   | `components/EquipmentDialog.js`                      | Container only (fetch + state + routing) |
+| Create    | `__tests__/components/EquipmentSlot.test.js`         | 8 tests                                  |
+| Create    | `__tests__/components/EquipmentGrid.test.js`         | 4 tests                                  |
+| Create    | `__tests__/components/EquipmentList.test.js`         | 4 tests                                  |
+| Create    | `__tests__/components/EquipmentDetailDrawer.test.js` | 7 tests                                  |
+| Rewrite   | `__tests__/components/EquipmentDialog.test.js`       | 4 tests                                  |
+| No change | `lib/equipmentUtils.js`                              | —                                        |
+| No change | `lib/cache.js`                                       | —                                        |
+| No change | `app/api/character/equipment/route.js`               | —                                        |
+| No change | `app/page.js`                                        | —                                        |

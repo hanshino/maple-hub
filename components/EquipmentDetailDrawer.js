@@ -133,9 +133,20 @@ const getScrollChips = result => {
   if (!result) return [];
   switch (result.type) {
     case 'single':
-      return [{ label: `${result.name} x${result.count}`, color: SCROLL_COLORS[result.name], icon: result.name }];
+      return [
+        {
+          label: `${result.name} x${result.count}`,
+          color: SCROLL_COLORS[result.name],
+          icon: result.name,
+        },
+      ];
     case 'trace':
-      return [{ label: `${result.name} x${result.count}`, color: SCROLL_COLORS[result.name] }];
+      return [
+        {
+          label: `${result.name} x${result.count}`,
+          color: SCROLL_COLORS[result.name],
+        },
+      ];
     case 'mix':
       return result.scrolls.map(s => ({
         label: `${s.name} x${s.count}`,
@@ -143,7 +154,12 @@ const getScrollChips = result => {
         icon: SCROLL_ICONS[s.name] ? s.name : undefined,
       }));
     case 'random':
-      return [{ label: `平均 +${result.avg} x${result.scrollCount}張`, gradient: true }];
+      return [
+        {
+          label: `平均 +${result.avg} x${result.scrollCount}張`,
+          gradient: true,
+        },
+      ];
     default:
       return [];
   }
@@ -156,8 +172,7 @@ const EquipmentDetailDrawer = ({ item, open, onClose, isMobile }) => {
     item?.item_total_option && typeof item.item_total_option === 'object';
   const scrollResult = item ? analyzeScrolls(item) : null;
   const scrollCount = parseInt(item?.scroll_upgrade) || 0;
-  const upgradeableCount =
-    parseInt(item?.scroll_upgradeable_count) || 0;
+  const upgradeableCount = parseInt(item?.scroll_upgradeable_count) || 0;
   const totalSlots = scrollCount + upgradeableCount;
   const hasScrollInfo = scrollCount > 0 && scrollResult;
   const potentialColor =
@@ -364,26 +379,16 @@ const EquipmentDetailDrawer = ({ item, open, onClose, isMobile }) => {
                   mb: 1,
                 }}
               >
-                <Typography
-                  variant="subtitle2"
-                  sx={{ fontWeight: 700 }}
-                >
+                <Typography variant="subtitle2" sx={{ fontWeight: 700 }}>
                   卷軸
                 </Typography>
-                <Typography
-                  variant="caption"
-                  sx={{ color: 'text.secondary' }}
-                >
+                <Typography variant="caption" sx={{ color: 'text.secondary' }}>
                   {scrollCount}/{totalSlots}
                 </Typography>
               </Box>
               <LinearProgress
                 variant="determinate"
-                value={
-                  totalSlots > 0
-                    ? (scrollCount / totalSlots) * 100
-                    : 0
-                }
+                value={totalSlots > 0 ? (scrollCount / totalSlots) * 100 : 0}
                 sx={{
                   height: 6,
                   borderRadius: 3,
@@ -406,9 +411,7 @@ const EquipmentDetailDrawer = ({ item, open, onClose, isMobile }) => {
                   <Chip
                     key={i}
                     icon={
-                      chip.icon ? (
-                        <ScrollIcon name={chip.icon} />
-                      ) : undefined
+                      chip.icon ? <ScrollIcon name={chip.icon} /> : undefined
                     }
                     label={chip.label}
                     size="small"

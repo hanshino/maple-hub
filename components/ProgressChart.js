@@ -277,7 +277,10 @@ const ProgressChart = memo(function ProgressChart({ progressData }) {
         <figcaption id="pie-chart-title" className="sr-only">
           目前進度圓餅圖顯示 {chartData.percentage.toFixed(1)}% 完成度
         </figcaption>
-        <div className="text-xs mb-2 text-center sm:text-left" style={{ color: theme.palette.text.secondary }}>
+        <div
+          className="text-xs mb-2 text-center sm:text-left"
+          style={{ color: theme.palette.text.secondary }}
+        >
           目前進度: {chartData.percentage.toFixed(1)}%
         </div>
         <div className="flex justify-center">
@@ -346,7 +349,10 @@ const ProgressChart = memo(function ProgressChart({ progressData }) {
           data={chartData.combinedData}
           margin={{ top: 5, right: 30, left: 20, bottom: 60 }}
         >
-          <CartesianGrid strokeDasharray="3 3" stroke={theme.palette.mode === 'dark' ? '#3a2f2a' : '#e0e0e0'} />
+          <CartesianGrid
+            strokeDasharray="3 3"
+            stroke={theme.palette.mode === 'dark' ? '#3a2f2a' : '#e0e0e0'}
+          />
           <XAxis
             dataKey="date"
             tick={{ fontSize: 11, fill: theme.palette.text.secondary }}

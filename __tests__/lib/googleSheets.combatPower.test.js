@@ -500,12 +500,10 @@ describe('GoogleSheetsClient - Combat Power Methods', () => {
 
       mockSheets.spreadsheets.values.batchUpdate.mockResolvedValue({});
 
-      jest
-        .spyOn(client, 'getOrCreateCharacterInfoSheet')
-        .mockResolvedValue({
-          sheetId: 1,
-          sheetName: 'CharacterInfo',
-        });
+      jest.spyOn(client, 'getOrCreateCharacterInfoSheet').mockResolvedValue({
+        sheetId: 1,
+        sheetName: 'CharacterInfo',
+      });
 
       const records = [
         {
@@ -590,12 +588,7 @@ describe('GoogleSheetsClient - Combat Power Methods', () => {
         // CombatPower column A
         .mockResolvedValueOnce({
           data: {
-            values: [
-              ['ocid'],
-              ['ocid1'],
-              ['ocid2'],
-              ['ocid3'],
-            ],
+            values: [['ocid'], ['ocid1'], ['ocid2'], ['ocid3']],
           },
         })
         // CharacterInfo column A
@@ -616,9 +609,7 @@ describe('GoogleSheetsClient - Combat Power Methods', () => {
     it('should skip sheets that do not exist', async () => {
       mockSheets.spreadsheets.get.mockResolvedValue({
         data: {
-          sheets: [
-            { properties: { sheetId: 0, title: 'Sheet1' } },
-          ],
+          sheets: [{ properties: { sheetId: 0, title: 'Sheet1' } }],
         },
       });
 
@@ -690,12 +681,10 @@ describe('GoogleSheetsClient - Combat Power Methods', () => {
         },
       });
 
-      jest
-        .spyOn(client, 'getOrCreateCharacterInfoSheet')
-        .mockResolvedValue({
-          sheetId: 1,
-          sheetName: 'CharacterInfo',
-        });
+      jest.spyOn(client, 'getOrCreateCharacterInfoSheet').mockResolvedValue({
+        sheetId: 1,
+        sheetName: 'CharacterInfo',
+      });
 
       const result = await client.getFilterOptions();
 
@@ -722,12 +711,10 @@ describe('GoogleSheetsClient - Combat Power Methods', () => {
         },
       });
 
-      jest
-        .spyOn(client, 'getOrCreateCharacterInfoSheet')
-        .mockResolvedValue({
-          sheetId: 1,
-          sheetName: 'CharacterInfo',
-        });
+      jest.spyOn(client, 'getOrCreateCharacterInfoSheet').mockResolvedValue({
+        sheetId: 1,
+        sheetName: 'CharacterInfo',
+      });
 
       const result = await client.getFilterOptions();
 

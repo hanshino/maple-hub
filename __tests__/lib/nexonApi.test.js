@@ -53,18 +53,14 @@ describe('nexonApi', () => {
 
       const result = await getCharacterBasicInfo('test-ocid');
 
-      expect(mockGet).toHaveBeenCalledWith(
-        '/character/basic?ocid=test-ocid'
-      );
+      expect(mockGet).toHaveBeenCalledWith('/character/basic?ocid=test-ocid');
       expect(result).toEqual(mockData);
     });
 
     it('should throw an error on failure', async () => {
       mockGet.mockRejectedValue(new Error('Network Error'));
 
-      await expect(
-        getCharacterBasicInfo('test-ocid')
-      ).rejects.toThrow(
+      await expect(getCharacterBasicInfo('test-ocid')).rejects.toThrow(
         'Failed to fetch character basic info: Network Error'
       );
     });
@@ -79,9 +75,7 @@ describe('nexonApi', () => {
 
       const result = await getCharacterStats('test-ocid');
 
-      expect(mockGet).toHaveBeenCalledWith(
-        '/character/stat?ocid=test-ocid'
-      );
+      expect(mockGet).toHaveBeenCalledWith('/character/stat?ocid=test-ocid');
       expect(result).toEqual(mockData);
     });
 
@@ -110,9 +104,7 @@ describe('nexonApi', () => {
     it('should throw an error on failure', async () => {
       mockGet.mockRejectedValue(new Error('Network Error'));
 
-      await expect(
-        getCharacterEquipment('test-ocid')
-      ).rejects.toThrow(
+      await expect(getCharacterEquipment('test-ocid')).rejects.toThrow(
         'Failed to fetch character equipment: Network Error'
       );
     });
@@ -134,9 +126,7 @@ describe('nexonApi', () => {
     it('should throw an error on failure', async () => {
       mockGet.mockRejectedValue(new Error('Network Error'));
 
-      await expect(
-        getCharacterCashItemEquipment('test-ocid')
-      ).rejects.toThrow(
+      await expect(getCharacterCashItemEquipment('test-ocid')).rejects.toThrow(
         'Failed to fetch cash item equipment: Network Error'
       );
     });
@@ -193,9 +183,7 @@ describe('nexonApi', () => {
 
       const result = await getUnionRaider('test-ocid');
 
-      expect(mockGet).toHaveBeenCalledWith(
-        '/user/union-raider?ocid=test-ocid'
-      );
+      expect(mockGet).toHaveBeenCalledWith('/user/union-raider?ocid=test-ocid');
       expect(result).toEqual(mockData);
     });
 
