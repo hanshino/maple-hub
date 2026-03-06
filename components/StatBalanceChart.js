@@ -37,6 +37,7 @@ const StatBalanceChart = ({ statsData, equipmentData, loading }) => {
       ? ratios.map(r => ({
           axis: r.axis,
           player: Math.min(r.ratio, MAX_RATIO),
+          equiv: Math.round(r.equiv),
           balance: 1.0,
           outer: MAX_RATIO,
         }))
@@ -47,10 +48,10 @@ const StatBalanceChart = ({ statsData, equipmentData, loading }) => {
 
   if (loading) {
     return (
-      <Card elevation={2}>
+      <Card elevation={4} sx={{ height: '100%' }}>
         <CardContent sx={{ p: 3 }}>
           <Skeleton variant="text" width={160} height={28} sx={{ mb: 1 }} />
-          <Skeleton variant="rectangular" height={300} sx={{ borderRadius: 2 }} />
+          <Skeleton variant="rectangular" height={260} sx={{ borderRadius: 2 }} />
         </CardContent>
       </Card>
     );
@@ -59,12 +60,12 @@ const StatBalanceChart = ({ statsData, equipmentData, loading }) => {
   if (!ratios) return null;
 
   return (
-    <Card elevation={2}>
+    <Card elevation={4} sx={{ height: '100%' }}>
       <CardContent sx={{ p: 3 }}>
         {/* Title + Legend row */}
         <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', flexWrap: 'wrap', gap: 1, mb: 1 }}>
           <Typography variant="h6" fontWeight={700} color="primary">
-            屬性平衡分析
+            能力探測圖
           </Typography>
           <Box sx={{ display: 'flex', gap: 2 }}>
             <Box sx={{ display: 'flex', alignItems: 'center', gap: 0.5 }}>
@@ -85,13 +86,13 @@ const StatBalanceChart = ({ statsData, equipmentData, loading }) => {
           </Box>
         </Box>
 
-        <ResponsiveContainer width="100%" height={300}>
+        <ResponsiveContainer width="100%" height={260}>
           <RadarChart
             data={chartData}
             cx="50%"
             cy="50%"
             role="img"
-            aria-label="角色屬性平衡分析圖，顯示六個戰力維度的投資分佈"
+            aria-label="能力探測圖，顯示六個戰力維度的投資分佈"
           >
             <PolarGrid stroke="#e0e0e0" />
             <PolarAngleAxis
@@ -104,9 +105,11 @@ const StatBalanceChart = ({ statsData, equipmentData, loading }) => {
               axisLine={false}
             />
             <Tooltip
-              formatter={(value, name) => {
-                if (name === 'player')
-                  return [`${Math.round(value * 100)}%`, '當前'];
+              formatter={(value, name, props) => {
+                if (name === 'player') {
+                  const equiv = props?.payload?.equiv;
+                  return [equiv != null ? equiv.toLocaleString() : Math.round(value * 100), '換算值'];
+                }
                 return null;
               }}
             />
@@ -146,7 +149,7 @@ const StatBalanceChart = ({ statsData, equipmentData, loading }) => {
             {recommendations.map(rec => (
               <Chip
                 key={rec.axis}
-                label={`${rec.axis}（${rec.pct}%）`}
+                label={rec.axis}
                 size="small"
                 color="primary"
                 variant="outlined"

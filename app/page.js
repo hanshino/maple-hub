@@ -264,84 +264,95 @@ function HomeContent() {
 
       {loading && (
         <Box>
-          {/* Hero Card Skeleton */}
-          <Card elevation={4} sx={{ mb: 3 }}>
-            <CardContent sx={{ p: 3 }}>
-              <Box
-                sx={{
-                  display: 'flex',
-                  flexDirection: { xs: 'column', md: 'row' },
-                  alignItems: { xs: 'center', md: 'flex-start' },
-                  gap: { xs: 2, md: 3 },
-                }}
-              >
-                <Skeleton
-                  variant="circular"
-                  sx={{
-                    width: { xs: 80, md: 96 },
-                    height: { xs: 80, md: 96 },
-                    flexShrink: 0,
-                  }}
-                />
-                <Box sx={{ flex: 1, width: '100%' }}>
+          {/* Hero row Skeleton: Character card + Stat balance */}
+          <Grid container spacing={2} sx={{ mb: 3 }}>
+            <Grid size={{ xs: 12, md: 7 }}>
+              <Card elevation={4} sx={{ height: '100%' }}>
+                <CardContent sx={{ p: 3 }}>
                   <Box
                     sx={{
                       display: 'flex',
-                      gap: 1,
-                      mb: 1,
-                      justifyContent: { xs: 'center', md: 'flex-start' },
-                    }}
-                  >
-                    <Skeleton variant="text" width={120} height={32} />
-                    <Skeleton
-                      variant="rounded"
-                      width={60}
-                      height={24}
-                      sx={{ borderRadius: 3 }}
-                    />
-                    <Skeleton variant="text" width={40} height={24} />
-                  </Box>
-                  <Box
-                    sx={{
-                      display: 'flex',
-                      gap: 1,
-                      mb: 1.5,
-                      justifyContent: { xs: 'center', md: 'flex-start' },
+                      flexDirection: { xs: 'column', md: 'row' },
+                      alignItems: { xs: 'center', md: 'flex-start' },
+                      gap: { xs: 2, md: 3 },
                     }}
                   >
                     <Skeleton
-                      variant="rounded"
-                      width={100}
-                      height={24}
-                      sx={{ borderRadius: 3 }}
+                      variant="circular"
+                      sx={{
+                        width: { xs: 80, md: 96 },
+                        height: { xs: 80, md: 96 },
+                        flexShrink: 0,
+                      }}
                     />
+                    <Box sx={{ flex: 1, width: '100%' }}>
+                      <Box
+                        sx={{
+                          display: 'flex',
+                          gap: 1,
+                          mb: 1,
+                          justifyContent: { xs: 'center', md: 'flex-start' },
+                        }}
+                      >
+                        <Skeleton variant="text" width={120} height={32} />
+                        <Skeleton
+                          variant="rounded"
+                          width={60}
+                          height={24}
+                          sx={{ borderRadius: 3 }}
+                        />
+                        <Skeleton variant="text" width={40} height={24} />
+                      </Box>
+                      <Box
+                        sx={{
+                          display: 'flex',
+                          gap: 1,
+                          mb: 1.5,
+                          justifyContent: { xs: 'center', md: 'flex-start' },
+                        }}
+                      >
+                        <Skeleton
+                          variant="rounded"
+                          width={100}
+                          height={24}
+                          sx={{ borderRadius: 3 }}
+                        />
+                        <Skeleton
+                          variant="rounded"
+                          width={80}
+                          height={24}
+                          sx={{ borderRadius: 3 }}
+                        />
+                        <Skeleton
+                          variant="rounded"
+                          width={120}
+                          height={24}
+                          sx={{ borderRadius: 3 }}
+                        />
+                      </Box>
+                      <Skeleton variant="text" width={180} height={20} />
+                    </Box>
                     <Skeleton
                       variant="rounded"
-                      width={80}
-                      height={24}
-                      sx={{ borderRadius: 3 }}
-                    />
-                    <Skeleton
-                      variant="rounded"
-                      width={120}
-                      height={24}
-                      sx={{ borderRadius: 3 }}
+                      width={140}
+                      height={56}
+                      sx={{
+                        flexShrink: 0,
+                        display: { xs: 'none', md: 'block' },
+                      }}
                     />
                   </Box>
-                  <Skeleton variant="text" width={180} height={20} />
-                </Box>
-                <Skeleton
-                  variant="rounded"
-                  width={140}
-                  height={56}
-                  sx={{
-                    flexShrink: 0,
-                    display: { xs: 'none', md: 'block' },
-                  }}
-                />
-              </Box>
-            </CardContent>
-          </Card>
+                </CardContent>
+              </Card>
+            </Grid>
+            <Grid size={{ xs: 12, md: 5 }}>
+              <StatBalanceChart
+                statsData={null}
+                equipmentData={null}
+                loading={true}
+              />
+            </Grid>
+          </Grid>
 
           {/* Two columns Skeleton */}
           <Grid container spacing={2} sx={{ mb: 4 }}>
@@ -395,30 +406,30 @@ function HomeContent() {
         </Box>
       )}
 
-      {/* StatBalanceChart outside the !loading guard so skeleton shows during loading */}
-      {(character || loading) && (
-        <Box sx={{ mb: 3 }}>
-          <StatBalanceChart
-            statsData={statsData}
-            equipmentData={equipmentRawData}
-            loading={loading}
-          />
-        </Box>
-      )}
-
       {!loading && character && (
         <Box>
-          {/* Hero Card: Character info */}
-          <Card elevation={4} sx={{ mb: 3 }}>
-            <CharacterCard
-              character={character}
-              historicalData={chartData}
-              unionData={unionData}
-              battlePower={battlePower}
-              onEquipmentClick={() => setEquipmentDialogOpen(true)}
-              presetAnalysis={presetAnalysis}
-            />
-          </Card>
+          {/* Hero row: Character info + Stat Balance side-by-side */}
+          <Grid container spacing={2} sx={{ mb: 3 }}>
+            <Grid size={{ xs: 12, md: 7 }}>
+              <Card elevation={4} sx={{ height: '100%' }}>
+                <CharacterCard
+                  character={character}
+                  historicalData={chartData}
+                  unionData={unionData}
+                  battlePower={battlePower}
+                  onEquipmentClick={() => setEquipmentDialogOpen(true)}
+                  presetAnalysis={presetAnalysis}
+                />
+              </Card>
+            </Grid>
+            <Grid size={{ xs: 12, md: 5 }}>
+              <StatBalanceChart
+                statsData={statsData}
+                equipmentData={equipmentRawData}
+                loading={false}
+              />
+            </Grid>
+          </Grid>
 
           {/* Two columns: Progress + Hexa Matrix */}
           <Grid container spacing={2} sx={{ mb: 4 }}>

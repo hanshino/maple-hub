@@ -35,6 +35,11 @@ describe('extractBalanceStats', () => {
     expect(result.mainStat).toBe(1000);
   });
 
+  it('extracts subStat as the second highest of STR/DEX/INT/LUK', () => {
+    const result = extractBalanceStats(mockStatsData, mockEquipmentData);
+    expect(result.subStat).toBe(500);
+  });
+
   it('extracts atkValue as max of 攻擊力 and 魔法攻擊力', () => {
     const result = extractBalanceStats(mockStatsData, mockEquipmentData);
     expect(result.atkValue).toBe(3000);
@@ -58,46 +63,97 @@ describe('extractBalanceStats', () => {
   it('returns zeros for missing stats', () => {
     const result = extractBalanceStats({ final_stat: [] }, mockEquipmentData);
     expect(result.mainStat).toBe(0);
+    expect(result.subStat).toBe(0);
     expect(result.atkValue).toBe(0);
   });
 
   it('handles null inputs gracefully', () => {
     const result = extractBalanceStats(null, null);
     expect(result.mainStat).toBe(0);
+    expect(result.subStat).toBe(0);
     expect(result.atkValue).toBe(0);
   });
 });
 
 describe('computeEquivStats', () => {
-  it('converts raw stats to equivalent main stat values', () => {
-    const raw = {
-      mainStat: 100000,
-      atkValue: 10000,
-      atkPct: 60,
-      bossDmg: 200,
-      critDmg: 80,
-      ignoreDef: 90,
-    };
-    const equiv = computeEquivStats(raw);
+  const baseRaw = {
+    mainStat: 92434,
+    subStat: 9453,
+    atkPct: 40,
+    statPct: 36,
+    dmgPct: 28,
+    bossDmg: 531,
+    critDmg: 123.25,
+    ignoreDef: 96.2,
+  };
 
-    expect(equiv.mainEquiv).toBe(100000);
-    expect(equiv.atkEquiv).toBe(40000);         // 10000 × 4
-    expect(equiv.atkPctEquiv).toBe(60000);       // 0.60 × 100000
-    expect(equiv.bossEquiv).toBe(6000);          // 200 × 30
-    expect(equiv.critEquiv).toBe(9600);          // 80 × 120
-    expect(equiv.ignoreEquiv).toBeCloseTo(90000, 0);
+  it('mainEquiv = mainStat + subStat', () => {
+    const equiv = computeEquivStats(baseRaw);
+    expect(equiv.mainEquiv).toBe(92434 + 9453);
   });
 
-  it('returns 0 for ignoreDef=0', () => {
-    const raw = { mainStat: 100000, atkValue: 0, atkPct: 0, bossDmg: 0, critDmg: 0, ignoreDef: 0 };
+  it('atkEquiv = statFactor/4 × (1 + atkPct/100)', () => {
+    const equiv = computeEquivStats(baseRaw);
+    const statFactor = 4 * 92434 + 9453;
+    const expected = (statFactor / 4) * (1 + 40 / 100);
+    expect(equiv.atkEquiv).toBeCloseTo(expected, 0);
+  });
+
+  it('atkPctEquiv = mainEquiv × (1 + statPct/100)', () => {
+    const equiv = computeEquivStats(baseRaw);
+    const expected = (92434 + 9453) * (1 + 36 / 100);
+    expect(equiv.atkPctEquiv).toBeCloseTo(expected, 0);
+  });
+
+  it('bossEquiv uses bossDmg share of total damage bucket', () => {
+    const equiv = computeEquivStats(baseRaw);
+    const statFactor = 4 * 92434 + 9453;
+    const atkEquiv = (statFactor / 4) * (1 + 40 / 100);
+    const expected = atkEquiv * 531 / (100 + 531 + 28);
+    expect(equiv.bossEquiv).toBeCloseTo(expected, 0);
+  });
+
+  it('critEquiv uses critDmg share of total crit bucket', () => {
+    const equiv = computeEquivStats(baseRaw);
+    const statFactor = 4 * 92434 + 9453;
+    const atkEquiv = (statFactor / 4) * (1 + 40 / 100);
+    const expected = atkEquiv * 123.25 / (37 + 123.25);
+    expect(equiv.critEquiv).toBeCloseTo(expected, 0);
+  });
+
+  it('ignoreEquiv accounts for boss defense and crit factor', () => {
+    const equiv = computeEquivStats(baseRaw);
+    const statFactor = 4 * 92434 + 9453;
+    const atkEquiv = (statFactor / 4) * (1 + 40 / 100);
+    const defResidual = 1 - 96.2 / 100;
+    const critFactor = 1 + 123.25 / 100;
+    const expected = atkEquiv * (1 - 3.0 * defResidual * critFactor);
+    expect(equiv.ignoreEquiv).toBeCloseTo(expected, 0);
+  });
+
+  it('returns 0 for ignoreEquiv when IED is 0', () => {
+    const raw = { ...baseRaw, ignoreDef: 0, critDmg: 0 };
     const equiv = computeEquivStats(raw);
+    // With 0 IED and 300% boss defense: 1 - 3.0 * 1.0 * 1.0 = -2.0 → clamped to 0
     expect(equiv.ignoreEquiv).toBe(0);
   });
 
-  it('returns mainStat for ignoreDef=100', () => {
-    const raw = { mainStat: 100000, atkValue: 0, atkPct: 0, bossDmg: 0, critDmg: 0, ignoreDef: 100 };
+  it('ignoreEquiv equals atkEquiv when IED is 100', () => {
+    const raw = { ...baseRaw, ignoreDef: 100, critDmg: 0 };
     const equiv = computeEquivStats(raw);
-    expect(equiv.ignoreEquiv).toBeCloseTo(100000, 0);
+    // With 100% IED: defResidual=0, so 1 - 3.0*0*1 = 1 → ignoreEquiv = atkEquiv
+    expect(equiv.ignoreEquiv).toBeCloseTo(equiv.atkEquiv, 0);
+  });
+
+  it('handles zero stats gracefully', () => {
+    const raw = {
+      mainStat: 0, subStat: 0, atkPct: 0, statPct: 0,
+      dmgPct: 0, bossDmg: 0, critDmg: 0, ignoreDef: 0,
+    };
+    const equiv = computeEquivStats(raw);
+    expect(equiv.mainEquiv).toBe(0);
+    expect(equiv.atkEquiv).toBe(0);
+    expect(equiv.bossEquiv).toBe(0);
   });
 });
 
