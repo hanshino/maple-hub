@@ -15,9 +15,9 @@ const mockStatsData = {
     makeStat('LUK', 300),
     makeStat('攻擊力', 3000),
     makeStat('魔法攻擊力', 100),
-    makeStat('보스 몬스터 공격 시 데미지', 150),
+    makeStat('BOSS怪物傷害', 150),
     makeStat('爆擊傷害', 60),
-    makeStat('무시 방어율', 80),
+    makeStat('無視防禦率', 80),
   ],
 };
 
