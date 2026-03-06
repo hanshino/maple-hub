@@ -52,6 +52,7 @@ function HomeContent() {
   const [setEffectData, setSetEffectData] = useState(null);
   const [setEffectLoading, setSetEffectLoading] = useState(false);
   const [setEffectError, setSetEffectError] = useState(null);
+  const [statsData, setStatsData] = useState(null);
 
   const searchCharacter = async ocid => {
     setLastOcid(ocid);
@@ -67,6 +68,7 @@ function HomeContent() {
     setSetEffectData(null);
     setSetEffectLoading(false);
     setSetEffectError(null);
+    setStatsData(null);
     try {
       // Get data for the last 5 days (but only available dates after 2025-10-15)
       const dateConfigs = generateDateRange(7);
@@ -115,6 +117,7 @@ function HomeContent() {
           stat => stat.stat_name === '戰鬥力'
         )?.stat_value;
         setBattlePower(battlePowerValue ? parseInt(battlePowerValue) : null);
+        setStatsData(statsResult.data);
       }
 
       // Process union data
