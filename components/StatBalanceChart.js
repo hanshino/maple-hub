@@ -28,13 +28,21 @@ import {
 const MAX_RATIO = 1.8;
 
 const StatBalanceChart = ({ statsData, equipmentData, loading }) => {
-  const { ratios, recommendations } = useMemo(() => {
-    if (!statsData) return { ratios: null, recommendations: [] };
+  const { ratios, chartData, recommendations } = useMemo(() => {
+    if (!statsData) return { ratios: null, chartData: [], recommendations: [] };
     const raw = extractBalanceStats(statsData, equipmentData);
     const equiv = computeEquivStats(raw);
     const ratios = computeBalanceRatios(equiv);
+    const chartData = ratios
+      ? ratios.map(r => ({
+          axis: r.axis,
+          player: Math.min(r.ratio, MAX_RATIO),
+          balance: 1.0,
+          outer: MAX_RATIO,
+        }))
+      : [];
     const recommendations = getRecommendations(ratios);
-    return { ratios, recommendations };
+    return { ratios, chartData, recommendations };
   }, [statsData, equipmentData]);
 
   if (loading) {
@@ -49,14 +57,6 @@ const StatBalanceChart = ({ statsData, equipmentData, loading }) => {
   }
 
   if (!ratios) return null;
-
-  // Build chart data: player ratios + balance (1.0) + outer bound (MAX_RATIO)
-  const chartData = ratios.map(r => ({
-    axis: r.axis,
-    player: Math.min(r.ratio, MAX_RATIO),
-    balance: 1.0,
-    outer: MAX_RATIO,
-  }));
 
   return (
     <Card elevation={2}>
@@ -116,6 +116,7 @@ const StatBalanceChart = ({ statsData, equipmentData, loading }) => {
               stroke="#e0e0e0"
               fill="none"
               strokeWidth={1}
+              tooltipType="none"
             />
             {/* Balance hexagon — gray dashed, distinct from player orange */}
             <Radar
@@ -124,6 +125,7 @@ const StatBalanceChart = ({ statsData, equipmentData, loading }) => {
               fill="none"
               strokeDasharray="6 3"
               strokeWidth={1.5}
+              tooltipType="none"
             />
             {/* Player hexagon */}
             <Radar
