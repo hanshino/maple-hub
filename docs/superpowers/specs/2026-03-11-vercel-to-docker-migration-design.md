@@ -390,8 +390,27 @@ Note: All new files use `.js` extension (project does not use TypeScript).
 | `app/api/leaderboard/filters/route.js` | Refactor: `SELECT DISTINCT world_name, character_class FROM characters` | Currently imports GoogleSheetsClient |
 | `app/api/sync-ocids/route.js` | Simplified: Redis buffer → DB insert | |
 | `app/api/character/[ocid]/runes/route.js` | Refactor into `nexonApi.js` | Uses hardcoded TWMS API URL (see Nexon API note below) |
+| `app/api/hexa-matrix/route.js` | Refactor: use `nexonApi.js` instead of direct axios | Currently creates own axios client |
+| `app/api/hexa-matrix-stat/route.js` | Refactor: use `nexonApi.js` instead of direct axios | Same; has response transformation logic to preserve |
 | All `app/api/cron/*` routes | Keep as HTTP endpoints for manual trigger; also register in `lib/cron.js` (node-cron) | Dual access: cron + manual |
 | `app/api/debug-ocids/route.js` | Remove | Replaced by direct DB queries |
+
+### Unchanged Routes (no modification needed)
+
+These routes proxy Nexon API via `nexonApi.js` and do not use Google Sheets:
+
+- `app/api/character/search/route.js`
+- `app/api/character/equipment/route.js`
+- `app/api/character/hyper-stat/route.js`
+- `app/api/character/link-skill/route.js`
+- `app/api/character/pet-equipment/route.js`
+- `app/api/character/cashitem-equipment/route.js`
+- `app/api/character/set-effect/route.js`
+- `app/api/character/union-raider/route.js`
+- `app/api/character/union-artifact/route.js`
+- `app/api/union/[ocid]/route.js`
+- `app/api/characters/route.js`
+- `app/api/characters/[id]/route.js`
 
 ### Config File Changes
 
