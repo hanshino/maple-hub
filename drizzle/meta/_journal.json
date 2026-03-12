@@ -8,6 +8,34 @@
       "when": 1773287606810,
       "tag": "0000_whole_celestials",
       "breakpoints": true
+    },
+    {
+      "idx": 1,
+      "version": "5",
+      "when": 1773292685145,
+      "tag": "0001_dapper_rachel_grey",
+      "breakpoints": true
+    },
+    {
+      "idx": 2,
+      "version": "5",
+      "when": 1773297399216,
+      "tag": "0002_keen_the_hood",
+      "breakpoints": true
+    },
+    {
+      "idx": 3,
+      "version": "5",
+      "when": 1773380000000,
+      "tag": "0003_union_artifact_effects",
+      "breakpoints": true
+    },
+    {
+      "idx": 4,
+      "version": "5",
+      "when": 1773380100000,
+      "tag": "0004_set_effect_info",
+      "breakpoints": true
     }
   ]
 }

@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useCallback } from 'react';
+import { useState } from 'react';
 import { Box, Card, CardContent, Tab, Tabs } from '@mui/material';
 import { alpha } from '@mui/material/styles';
 import CharacterStats from './CharacterStats';
@@ -10,7 +10,6 @@ import HyperStatPanel from './HyperStatPanel';
 import SetEffectPanel from './SetEffectPanel';
 import UnionArtifactPanel from './UnionArtifactPanel';
 import LinkSkillPanel from './LinkSkillPanel';
-import { getCachedData, setCachedData } from '../lib/cache';
 
 const TAB_STATS = 0;
 const TAB_UNION_RAIDER = 1;
@@ -24,196 +23,52 @@ const CharacterDataTabs = ({
   ocid,
   runes,
   setEffectData,
-  setEffectLoading,
-  setEffectError,
-  onRetrySetEffect,
+  statsData,
+  hyperStatData,
+  linkSkillData,
+  unionRaiderData,
+  unionArtifactData,
 }) => {
   const [activeTab, setActiveTab] = useState(TAB_STATS);
 
-  // Union Raider lazy state
-  const [unionRaiderData, setUnionRaiderData] = useState(null);
-  const [unionRaiderLoading, setUnionRaiderLoading] = useState(false);
-  const [unionRaiderError, setUnionRaiderError] = useState(null);
-  const [unionRaiderLoaded, setUnionRaiderLoaded] = useState(false);
-
-  // Hyper Stat lazy state
-  const [hyperStatData, setHyperStatData] = useState(null);
-  const [hyperStatLoading, setHyperStatLoading] = useState(false);
-  const [hyperStatError, setHyperStatError] = useState(null);
-  const [hyperStatLoaded, setHyperStatLoaded] = useState(false);
-
-  // Union Artifact lazy state
-  const [unionArtifactData, setUnionArtifactData] = useState(null);
-  const [unionArtifactLoading, setUnionArtifactLoading] = useState(false);
-  const [unionArtifactError, setUnionArtifactError] = useState(null);
-  const [unionArtifactLoaded, setUnionArtifactLoaded] = useState(false);
-
-  // Link Skill lazy state
-  const [linkSkillData, setLinkSkillData] = useState(null);
-  const [linkSkillLoading, setLinkSkillLoading] = useState(false);
-  const [linkSkillError, setLinkSkillError] = useState(null);
-  const [linkSkillLoaded, setLinkSkillLoaded] = useState(false);
-
-  const fetchTabData = useCallback(
-    async (apiPath, cachePrefix, setData, setLoading, setError, setLoaded) => {
-      setLoading(true);
-      setError(null);
-      try {
-        const cacheKey = `${cachePrefix}_${ocid}`;
-        let data = getCachedData(cacheKey);
-        if (!data) {
-          const response = await fetch(
-            `/api/character/${apiPath}?ocid=${ocid}`
-          );
-          if (!response.ok) throw new Error('載入失敗');
-          data = await response.json();
-          setCachedData(cacheKey, data);
-        }
-        setData(data);
-        setLoaded(true);
-      } catch (err) {
-        setError(err.message);
-      } finally {
-        setLoading(false);
-      }
-    },
-    [ocid]
-  );
-
-  const retryUnionRaider = useCallback(() => {
-    setUnionRaiderLoaded(false);
-    fetchTabData(
-      'union-raider',
-      'union_raider',
-      setUnionRaiderData,
-      setUnionRaiderLoading,
-      setUnionRaiderError,
-      setUnionRaiderLoaded
-    );
-  }, [fetchTabData]);
-
-  const retryHyperStat = useCallback(() => {
-    setHyperStatLoaded(false);
-    fetchTabData(
-      'hyper-stat',
-      'hyper_stat',
-      setHyperStatData,
-      setHyperStatLoading,
-      setHyperStatError,
-      setHyperStatLoaded
-    );
-  }, [fetchTabData]);
-
-  const retryUnionArtifact = useCallback(() => {
-    setUnionArtifactLoaded(false);
-    fetchTabData(
-      'union-artifact',
-      'union_artifact',
-      setUnionArtifactData,
-      setUnionArtifactLoading,
-      setUnionArtifactError,
-      setUnionArtifactLoaded
-    );
-  }, [fetchTabData]);
-
-  const retryLinkSkill = useCallback(() => {
-    setLinkSkillLoaded(false);
-    fetchTabData(
-      'link-skill',
-      'link_skill',
-      setLinkSkillData,
-      setLinkSkillLoading,
-      setLinkSkillError,
-      setLinkSkillLoaded
-    );
-  }, [fetchTabData]);
-
   const handleTabChange = (_event, newValue) => {
     setActiveTab(newValue);
-
-    if (newValue === TAB_UNION_RAIDER && !unionRaiderLoaded) {
-      fetchTabData(
-        'union-raider',
-        'union_raider',
-        setUnionRaiderData,
-        setUnionRaiderLoading,
-        setUnionRaiderError,
-        setUnionRaiderLoaded
-      );
-    }
-
-    if (newValue === TAB_HYPER_STAT && !hyperStatLoaded) {
-      fetchTabData(
-        'hyper-stat',
-        'hyper_stat',
-        setHyperStatData,
-        setHyperStatLoading,
-        setHyperStatError,
-        setHyperStatLoaded
-      );
-    }
-
-    if (newValue === TAB_UNION_ARTIFACT && !unionArtifactLoaded) {
-      fetchTabData(
-        'union-artifact',
-        'union_artifact',
-        setUnionArtifactData,
-        setUnionArtifactLoading,
-        setUnionArtifactError,
-        setUnionArtifactLoaded
-      );
-    }
-
-    if (newValue === TAB_LINK_SKILL && !linkSkillLoaded) {
-      fetchTabData(
-        'link-skill',
-        'link_skill',
-        setLinkSkillData,
-        setLinkSkillLoading,
-        setLinkSkillError,
-        setLinkSkillLoaded
-      );
-    }
   };
 
   const renderTabContent = () => {
     switch (activeTab) {
       case TAB_STATS:
-        return <CharacterStats ocid={ocid} />;
+        return <CharacterStats statsData={statsData} />;
       case TAB_UNION_RAIDER:
         return (
           <UnionRaiderPanel
             data={unionRaiderData}
-            loading={unionRaiderLoading}
-            error={unionRaiderError}
-            onRetry={retryUnionRaider}
+            loading={false}
+            error={null}
           />
         );
       case TAB_HYPER_STAT:
         return (
           <HyperStatPanel
             data={hyperStatData}
-            loading={hyperStatLoading}
-            error={hyperStatError}
-            onRetry={retryHyperStat}
+            loading={false}
+            error={null}
           />
         );
       case TAB_SET_EFFECT:
         return (
           <SetEffectPanel
             data={setEffectData}
-            loading={setEffectLoading}
-            error={setEffectError}
-            onRetry={onRetrySetEffect}
+            loading={false}
+            error={null}
           />
         );
       case TAB_UNION_ARTIFACT:
         return (
           <UnionArtifactPanel
             data={unionArtifactData}
-            loading={unionArtifactLoading}
-            error={unionArtifactError}
-            onRetry={retryUnionArtifact}
+            loading={false}
+            error={null}
           />
         );
       case TAB_RUNES:
@@ -222,9 +77,8 @@ const CharacterDataTabs = ({
         return (
           <LinkSkillPanel
             data={linkSkillData}
-            loading={linkSkillLoading}
-            error={linkSkillError}
-            onRetry={retryLinkSkill}
+            loading={false}
+            error={null}
           />
         );
       default:

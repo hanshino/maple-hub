@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useEffect, useCallback } from 'react';
+import { useState, useEffect, useCallback, useMemo } from 'react';
 import {
   Dialog,
   DialogTitle,
@@ -17,7 +17,6 @@ import {
   processEquipmentData,
   processCashItemEquipmentData,
 } from '../lib/equipmentUtils';
-import { getCachedData, setCachedData } from '../lib/cache';
 import EquipmentGrid from './EquipmentGrid';
 import EquipmentList from './EquipmentList';
 import EquipmentDetailDrawer from './EquipmentDetailDrawer';
@@ -33,6 +32,8 @@ const EquipmentDialog = ({
   open,
   onClose,
   prefetchedData,
+  cashEquipmentData,
+  petEquipmentData,
 }) => {
   const [equipment, setEquipment] = useState({});
   const [loading, setLoading] = useState(false);
@@ -42,36 +43,26 @@ const EquipmentDialog = ({
     '/character-placeholder.png'
   );
   const isDesktop = useMediaQuery('(min-width:768px)');
-
   const [tabIndex, setTabIndex] = useState(0);
-  const [cashItemEquipment, setCashItemEquipment] = useState({});
-  const [cashItemLoading, setCashItemLoading] = useState(false);
-  const [cashItemError, setCashItemError] = useState(null);
-  const [cashItemLoaded, setCashItemLoaded] = useState(false);
 
-  const [petEquipment, setPetEquipment] = useState([]);
-  const [petLoading, setPetLoading] = useState(false);
-  const [petError, setPetError] = useState(null);
-  const [petLoaded, setPetLoaded] = useState(false);
+  const cashItemEquipment = useMemo(() => {
+    if (!cashEquipmentData?.cash_item_equipment_base) return {};
+    return processCashItemEquipmentData(cashEquipmentData);
+  }, [cashEquipmentData]);
 
-  const loadEquipment = useCallback(async () => {
+  const petEquipment = useMemo(() => {
+    if (!petEquipmentData) return [];
+    return processPetEquipmentData(petEquipmentData);
+  }, [petEquipmentData]);
+
+  const loadEquipment = useCallback(() => {
     setLoading(true);
     setError(null);
     try {
-      let data;
-      if (prefetchedData) {
-        data = prefetchedData;
-      } else {
-        const cacheKey = `equipment_${ocid}`;
-        data = getCachedData(cacheKey);
-        if (!data) {
-          const response = await fetch(`/api/character/equipment?ocid=${ocid}`);
-          if (!response.ok) {
-            throw new Error('載入裝備失敗');
-          }
-          data = await response.json();
-          setCachedData(cacheKey, data);
-        }
+      const data = prefetchedData;
+      if (!data) {
+        setLoading(false);
+        return;
       }
       const processed = processEquipmentData(data);
       setEquipment(processed);
@@ -81,65 +72,7 @@ const EquipmentDialog = ({
     } finally {
       setLoading(false);
     }
-  }, [ocid, prefetchedData]);
-
-  const loadPetEquipment = useCallback(async () => {
-    setPetLoading(true);
-    setPetError(null);
-    try {
-      const cacheKey = `pet_equipment_${ocid}`;
-      let data = getCachedData(cacheKey);
-
-      if (!data) {
-        const response = await fetch(
-          `/api/character/pet-equipment?ocid=${ocid}`
-        );
-        if (!response.ok) {
-          throw new Error('載入寵物裝備失敗');
-        }
-        data = await response.json();
-        setCachedData(cacheKey, data);
-      }
-
-      const processed = processPetEquipmentData(data);
-      setPetEquipment(processed);
-      setPetLoaded(true);
-    } catch (err) {
-      console.error('Failed to load pet equipment:', err);
-      setPetError(err.message);
-    } finally {
-      setPetLoading(false);
-    }
-  }, [ocid]);
-
-  const loadCashItemEquipment = useCallback(async () => {
-    setCashItemLoading(true);
-    setCashItemError(null);
-    try {
-      const cacheKey = `cashitem_equipment_${ocid}`;
-      let data = getCachedData(cacheKey);
-
-      if (!data) {
-        const response = await fetch(
-          `/api/character/cashitem-equipment?ocid=${ocid}`
-        );
-        if (!response.ok) {
-          throw new Error('載入現金裝備失敗');
-        }
-        data = await response.json();
-        setCachedData(cacheKey, data);
-      }
-
-      const processed = processCashItemEquipmentData(data);
-      setCashItemEquipment(processed);
-      setCashItemLoaded(true);
-    } catch (err) {
-      console.error('Failed to load cash item equipment:', err);
-      setCashItemError(err.message);
-    } finally {
-      setCashItemLoading(false);
-    }
-  }, [ocid]);
+  }, [prefetchedData]);
 
   useEffect(() => {
     if (character?.character_image) {
@@ -152,22 +85,8 @@ const EquipmentDialog = ({
       loadEquipment();
       setSelectedSlot(null);
       setTabIndex(0);
-      setCashItemLoaded(false);
-      setPetLoaded(false);
     }
   }, [open, ocid, loadEquipment]);
-
-  useEffect(() => {
-    if (tabIndex === 1 && !cashItemLoaded && ocid) {
-      loadCashItemEquipment();
-    }
-  }, [tabIndex, cashItemLoaded, ocid, loadCashItemEquipment]);
-
-  useEffect(() => {
-    if (tabIndex === 2 && !petLoaded && ocid) {
-      loadPetEquipment();
-    }
-  }, [tabIndex, petLoaded, ocid, loadPetEquipment]);
 
   const handleSlotClick = slotKey => {
     const source = tabIndex === 0 ? equipment : cashItemEquipment;
@@ -230,33 +149,6 @@ const EquipmentDialog = ({
   };
 
   const renderCashItemEquipment = () => {
-    if (cashItemLoading) {
-      return (
-        <Box sx={{ display: 'flex', justifyContent: 'center', p: 4 }}>
-          <CircularProgress />
-        </Box>
-      );
-    }
-    if (cashItemError) {
-      return (
-        <Box sx={{ p: 2 }}>
-          <Alert
-            severity="error"
-            action={
-              <Button
-                color="inherit"
-                size="small"
-                onClick={loadCashItemEquipment}
-              >
-                重試
-              </Button>
-            }
-          >
-            {cashItemError}
-          </Alert>
-        </Box>
-      );
-    }
     return (
       <Box sx={{ py: 1 }}>
         {isDesktop ? (
@@ -302,10 +194,9 @@ const EquipmentDialog = ({
           {tabIndex === 1 && renderCashItemEquipment()}
           {tabIndex === 2 && (
             <PetEquipmentPanel
-              loading={petLoading}
-              error={petError}
+              loading={false}
+              error={null}
               pets={petEquipment}
-              onRetry={loadPetEquipment}
             />
           )}
         </DialogContent>

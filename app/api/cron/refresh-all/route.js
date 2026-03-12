@@ -1,5 +1,5 @@
 import { NextResponse } from 'next/server';
-import { getAllOcids, deleteStaleCharacters } from '../../../../lib/db/queries.js';
+import { getStaleOcids, deleteStaleCharacters } from '../../../../lib/db/queries.js';
 import { syncAllCharacters } from '../../../../lib/characterSyncService.js';
 
 const validateAuth = request => {
@@ -15,7 +15,7 @@ export async function GET(request) {
   const startTime = Date.now();
 
   try {
-    const ocids = await getAllOcids();
+    const ocids = await getStaleOcids(6);
 
     if (ocids.length === 0) {
       return NextResponse.json({

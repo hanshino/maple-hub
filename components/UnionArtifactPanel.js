@@ -47,7 +47,7 @@ const UnionArtifactPanel = ({ loading, error, data, onRetry }) => {
           <Grid container spacing={1.5}>
             {crystals.map((crystal, i) => (
               <Grid key={i} size={{ xs: 12, sm: 6, lg: 4 }}>
-                <Paper variant="outlined" sx={{ p: 1.5, borderRadius: 2 }}>
+                <Paper variant="outlined" sx={{ p: 2, borderRadius: 2 }}>
                   <Box
                     sx={{
                       display: 'flex',

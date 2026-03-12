@@ -1,0 +1,1 @@
+ALTER TABLE `characters` ADD `character_class_level` tinyint;

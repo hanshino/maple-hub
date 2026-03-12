@@ -1,60 +1,17 @@
 'use client';
 
-import React, { useState, useEffect, useCallback } from 'react';
+import React, { useMemo } from 'react';
 import { Box, Typography, Grid } from '@mui/material';
 import { alpha } from '@mui/material/styles';
 import { processStatsData, formatStatValue } from '../lib/statsUtils';
-import { getCachedData, setCachedData } from '../lib/cache';
-import PanelSkeleton from './panel/PanelSkeleton';
-import PanelError from './panel/PanelError';
 import PanelEmpty from './panel/PanelEmpty';
 import SectionHeader from './panel/SectionHeader';
 
-const CharacterStats = ({ ocid }) => {
-  const [stats, setStats] = useState([]);
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState(null);
-
-  const loadStats = useCallback(async () => {
-    setLoading(true);
-    setError(null);
-    try {
-      const cacheKey = `stats_${ocid}`;
-      let data = getCachedData(cacheKey);
-
-      if (!data) {
-        const response = await fetch(`/api/character/stats?ocid=${ocid}`);
-        if (!response.ok) {
-          throw new Error('Failed to fetch stats data');
-        }
-        data = await response.json();
-        setCachedData(cacheKey, data);
-      }
-
-      const processed = processStatsData(data);
-      setStats(processed);
-    } catch (err) {
-      console.error('Failed to load stats:', err);
-      setError(err.message);
-      setStats([]);
-    } finally {
-      setLoading(false);
-    }
-  }, [ocid]);
-
-  useEffect(() => {
-    loadStats();
-  }, [loadStats]);
-
-  if (loading) {
-    return <PanelSkeleton rows={6} />;
-  }
-
-  if (error) {
-    return (
-      <PanelError message="無法載入能力值，請稍後再試" onRetry={loadStats} />
-    );
-  }
+const CharacterStats = ({ statsData }) => {
+  const stats = useMemo(() => {
+    if (!statsData) return [];
+    return processStatsData(statsData);
+  }, [statsData]);
 
   const coreStatsGroup1 = ['STR', 'DEX', 'INT', 'LUK', 'HP', 'MP'];
   const coreStatsGroup2 = [
