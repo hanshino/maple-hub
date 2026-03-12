@@ -36,6 +36,13 @@
       "when": 1773380100000,
       "tag": "0004_set_effect_info",
       "breakpoints": true
+    },
+    {
+      "idx": 5,
+      "version": "5",
+      "when": 1773580800000,
+      "tag": "0005_cash_equip_date_expire_datetime",
+      "breakpoints": true
     }
   ]
 }
