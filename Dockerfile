@@ -19,5 +19,6 @@ COPY --from=builder /app/.next/static ./.next/static
 COPY --from=builder /app/public ./public
 COPY --from=builder /app/drizzle ./drizzle
 COPY --from=builder /app/migrate.js ./migrate.js
+COPY --from=deps /app/node_modules ./node_modules
 EXPOSE 3000
 CMD ["sh", "-c", "node migrate.js && node server.js"]
