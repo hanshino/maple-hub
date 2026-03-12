@@ -211,10 +211,7 @@ describe('battle power display', () => {
 
     render(
       <TestWrapper>
-        <CharacterCard
-          character={mockCharacter}
-          unionData={unionData}
-        />
+        <CharacterCard character={mockCharacter} unionData={unionData} />
       </TestWrapper>
     );
 

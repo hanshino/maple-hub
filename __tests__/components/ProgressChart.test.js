@@ -30,9 +30,7 @@ describe('ProgressChart', () => {
     render(<ProgressChart progressData={mockData} />);
 
     expect(screen.getByTestId('pie-chart')).toBeInTheDocument();
-    expect(
-      screen.getByText(/僅有單日資料.*累積更多天數/)
-    ).toBeInTheDocument();
+    expect(screen.getByText(/僅有單日資料.*累積更多天數/)).toBeInTheDocument();
   });
 
   it('renders line chart for multiple data points', () => {
