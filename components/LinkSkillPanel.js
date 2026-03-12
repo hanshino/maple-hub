@@ -40,8 +40,8 @@ const SkillCard = ({ skill }) => (
     sx={{
       display: 'flex',
       flexDirection: 'column',
-      gap: 0.75,
-      p: 1.5,
+      gap: 1,
+      p: 2,
       borderRadius: 2,
       border: '1px solid',
       borderColor: 'divider',
@@ -65,11 +65,15 @@ const SkillCard = ({ skill }) => (
         }}
       />
       <Box sx={{ flex: 1, minWidth: 0 }}>
-        <Box sx={{ display: 'flex', alignItems: 'center', gap: 0.5, flexWrap: 'wrap' }}>
-          <Typography
-            variant="body2"
-            sx={{ fontWeight: 700, lineHeight: 1.3 }}
-          >
+        <Box
+          sx={{
+            display: 'flex',
+            alignItems: 'center',
+            gap: 0.5,
+            flexWrap: 'wrap',
+          }}
+        >
+          <Typography variant="body2" sx={{ fontWeight: 700, lineHeight: 1.3 }}>
             {skill.skill_name}
           </Typography>
           <Chip
@@ -100,7 +104,12 @@ const OwnedSkillSection = ({ skill }) => {
       <Box>
         <Typography
           variant="caption"
-          sx={{ fontWeight: 600, color: 'text.secondary', mb: 1, display: 'block' }}
+          sx={{
+            fontWeight: 600,
+            color: 'text.secondary',
+            mb: 1,
+            display: 'block',
+          }}
         >
           本角色提供的傳授技能
         </Typography>
@@ -115,7 +124,9 @@ const OwnedSkillSection = ({ skill }) => {
             }}
           />
           <Box>
-            <Box sx={{ display: 'flex', alignItems: 'center', gap: 0.5, mb: 0.5 }}>
+            <Box
+              sx={{ display: 'flex', alignItems: 'center', gap: 0.5, mb: 0.5 }}
+            >
               <Typography variant="body2" sx={{ fontWeight: 700 }}>
                 {skill.skill_name}
               </Typography>
@@ -147,7 +158,8 @@ const LinkSkillPanel = ({ loading, error, data, onRetry }) => {
   );
 
   if (loading) return <PanelSkeleton rows={4} />;
-  if (error) return <PanelError message="無法載入傳授技能資料" onRetry={onRetry} />;
+  if (error)
+    return <PanelError message="無法載入傳授技能資料" onRetry={onRetry} />;
   if (!data) return <PanelEmpty message="尚無傳授技能資料" />;
 
   const presets = [

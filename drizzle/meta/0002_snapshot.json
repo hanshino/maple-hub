@@ -1,0 +1,1695 @@
+{
+  "version": "5",
+  "dialect": "mysql",
+  "id": "5ab9329e-c47b-4d88-af7f-aee1f6537643",
+  "prevId": "92e19f8e-47bf-45c3-9d01-ef6f09a4bc5c",
+  "tables": {
+    "character_cash_equipment": {
+      "name": "character_cash_equipment",
+      "columns": {
+        "id": {
+          "name": "id",
+          "type": "bigint",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": true
+        },
+        "ocid": {
+          "name": "ocid",
+          "type": "varchar(64)",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false
+        },
+        "cash_item_name": {
+          "name": "cash_item_name",
+          "type": "varchar(200)",
+          "primaryKey": false,
+          "notNull": false,
+          "autoincrement": false
+        },
+        "cash_item_icon": {
+          "name": "cash_item_icon",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false,
+          "autoincrement": false
+        },
+        "cash_item_equipment_slot": {
+          "name": "cash_item_equipment_slot",
+          "type": "varchar(20)",
+          "primaryKey": false,
+          "notNull": false,
+          "autoincrement": false
+        },
+        "cash_item_option": {
+          "name": "cash_item_option",
+          "type": "json",
+          "primaryKey": false,
+          "notNull": false,
+          "autoincrement": false
+        },
+        "date_expire": {
+          "name": "date_expire",
+          "type": "timestamp",
+          "primaryKey": false,
+          "notNull": false,
+          "autoincrement": false
+        },
+        "updated_at": {
+          "name": "updated_at",
+          "type": "timestamp",
+          "primaryKey": false,
+          "notNull": false,
+          "autoincrement": false,
+          "onUpdate": true,
+          "default": "(now())"
+        }
+      },
+      "indexes": {
+        "idx_ocid": {
+          "name": "idx_ocid",
+          "columns": [
+            "ocid"
+          ],
+          "isUnique": false
+        }
+      },
+      "foreignKeys": {
+        "character_cash_equipment_ocid_characters_ocid_fk": {
+          "name": "character_cash_equipment_ocid_characters_ocid_fk",
+          "tableFrom": "character_cash_equipment",
+          "tableTo": "characters",
+          "columnsFrom": [
+            "ocid"
+          ],
+          "columnsTo": [
+            "ocid"
+          ],
+          "onDelete": "cascade",
+          "onUpdate": "no action"
+        }
+      },
+      "compositePrimaryKeys": {
+        "character_cash_equipment_id": {
+          "name": "character_cash_equipment_id",
+          "columns": [
+            "id"
+          ]
+        }
+      },
+      "uniqueConstraints": {},
+      "checkConstraint": {}
+    },
+    "character_equipment": {
+      "name": "character_equipment",
+      "columns": {
+        "id": {
+          "name": "id",
+          "type": "bigint",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": true
+        },
+        "ocid": {
+          "name": "ocid",
+          "type": "varchar(64)",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false
+        },
+        "preset_no": {
+          "name": "preset_no",
+          "type": "tinyint",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false
+        },
+        "item_equipment_slot": {
+          "name": "item_equipment_slot",
+          "type": "varchar(20)",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false
+        },
+        "item_equipment_part": {
+          "name": "item_equipment_part",
+          "type": "varchar(50)",
+          "primaryKey": false,
+          "notNull": false,
+          "autoincrement": false
+        },
+        "item_name": {
+          "name": "item_name",
+          "type": "varchar(100)",
+          "primaryKey": false,
+          "notNull": false,
+          "autoincrement": false
+        },
+        "item_icon": {
+          "name": "item_icon",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false,
+          "autoincrement": false
+        },
+        "item_level": {
+          "name": "item_level",
+          "type": "int",
+          "primaryKey": false,
+          "notNull": false,
+          "autoincrement": false
+        },
+        "starforce": {
+          "name": "starforce",
+          "type": "int",
+          "primaryKey": false,
+          "notNull": false,
+          "autoincrement": false,
+          "default": 0
+        },
+        "scroll_upgrade": {
+          "name": "scroll_upgrade",
+          "type": "int",
+          "primaryKey": false,
+          "notNull": false,
+          "autoincrement": false,
+          "default": 0
+        },
+        "potential_option_grade": {
+          "name": "potential_option_grade",
+          "type": "varchar(20)",
+          "primaryKey": false,
+          "notNull": false,
+          "autoincrement": false
+        },
+        "potential_option_1": {
+          "name": "potential_option_1",
+          "type": "varchar(200)",
+          "primaryKey": false,
+          "notNull": false,
+          "autoincrement": false
+        },
+        "potential_option_2": {
+          "name": "potential_option_2",
+          "type": "varchar(200)",
+          "primaryKey": false,
+          "notNull": false,
+          "autoincrement": false
+        },
+        "potential_option_3": {
+          "name": "potential_option_3",
+          "type": "varchar(200)",
+          "primaryKey": false,
+          "notNull": false,
+          "autoincrement": false
+        },
+        "additional_potential_option_grade": {
+          "name": "additional_potential_option_grade",
+          "type": "varchar(20)",
+          "primaryKey": false,
+          "notNull": false,
+          "autoincrement": false
+        },
+        "additional_potential_option_1": {
+          "name": "additional_potential_option_1",
+          "type": "varchar(200)",
+          "primaryKey": false,
+          "notNull": false,
+          "autoincrement": false
+        },
+        "additional_potential_option_2": {
+          "name": "additional_potential_option_2",
+          "type": "varchar(200)",
+          "primaryKey": false,
+          "notNull": false,
+          "autoincrement": false
+        },
+        "additional_potential_option_3": {
+          "name": "additional_potential_option_3",
+          "type": "varchar(200)",
+          "primaryKey": false,
+          "notNull": false,
+          "autoincrement": false
+        },
+        "item_total_option": {
+          "name": "item_total_option",
+          "type": "json",
+          "primaryKey": false,
+          "notNull": false,
+          "autoincrement": false
+        },
+        "item_base_option": {
+          "name": "item_base_option",
+          "type": "json",
+          "primaryKey": false,
+          "notNull": false,
+          "autoincrement": false
+        },
+        "item_starforce_option": {
+          "name": "item_starforce_option",
+          "type": "json",
+          "primaryKey": false,
+          "notNull": false,
+          "autoincrement": false
+        },
+        "item_add_option": {
+          "name": "item_add_option",
+          "type": "json",
+          "primaryKey": false,
+          "notNull": false,
+          "autoincrement": false
+        },
+        "item_etc_option": {
+          "name": "item_etc_option",
+          "type": "json",
+          "primaryKey": false,
+          "notNull": false,
+          "autoincrement": false
+        },
+        "updated_at": {
+          "name": "updated_at",
+          "type": "timestamp",
+          "primaryKey": false,
+          "notNull": false,
+          "autoincrement": false,
+          "onUpdate": true,
+          "default": "(now())"
+        }
+      },
+      "indexes": {
+        "uk_ocid_preset_slot": {
+          "name": "uk_ocid_preset_slot",
+          "columns": [
+            "ocid",
+            "preset_no",
+            "item_equipment_slot"
+          ],
+          "isUnique": true
+        },
+        "idx_ocid": {
+          "name": "idx_ocid",
+          "columns": [
+            "ocid"
+          ],
+          "isUnique": false
+        },
+        "idx_potential_grade": {
+          "name": "idx_potential_grade",
+          "columns": [
+            "potential_option_grade"
+          ],
+          "isUnique": false
+        }
+      },
+      "foreignKeys": {
+        "character_equipment_ocid_characters_ocid_fk": {
+          "name": "character_equipment_ocid_characters_ocid_fk",
+          "tableFrom": "character_equipment",
+          "tableTo": "characters",
+          "columnsFrom": [
+            "ocid"
+          ],
+          "columnsTo": [
+            "ocid"
+          ],
+          "onDelete": "cascade",
+          "onUpdate": "no action"
+        }
+      },
+      "compositePrimaryKeys": {
+        "character_equipment_id": {
+          "name": "character_equipment_id",
+          "columns": [
+            "id"
+          ]
+        }
+      },
+      "uniqueConstraints": {},
+      "checkConstraint": {}
+    },
+    "character_hexa_cores": {
+      "name": "character_hexa_cores",
+      "columns": {
+        "id": {
+          "name": "id",
+          "type": "bigint",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": true
+        },
+        "ocid": {
+          "name": "ocid",
+          "type": "varchar(64)",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false
+        },
+        "hexa_core_name": {
+          "name": "hexa_core_name",
+          "type": "varchar(100)",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false
+        },
+        "hexa_core_level": {
+          "name": "hexa_core_level",
+          "type": "int",
+          "primaryKey": false,
+          "notNull": false,
+          "autoincrement": false,
+          "default": 0
+        },
+        "hexa_core_type": {
+          "name": "hexa_core_type",
+          "type": "varchar(20)",
+          "primaryKey": false,
+          "notNull": false,
+          "autoincrement": false
+        },
+        "updated_at": {
+          "name": "updated_at",
+          "type": "timestamp",
+          "primaryKey": false,
+          "notNull": false,
+          "autoincrement": false,
+          "onUpdate": true,
+          "default": "(now())"
+        }
+      },
+      "indexes": {
+        "uk_ocid_core": {
+          "name": "uk_ocid_core",
+          "columns": [
+            "ocid",
+            "hexa_core_name"
+          ],
+          "isUnique": true
+        },
+        "idx_ocid": {
+          "name": "idx_ocid",
+          "columns": [
+            "ocid"
+          ],
+          "isUnique": false
+        }
+      },
+      "foreignKeys": {
+        "character_hexa_cores_ocid_characters_ocid_fk": {
+          "name": "character_hexa_cores_ocid_characters_ocid_fk",
+          "tableFrom": "character_hexa_cores",
+          "tableTo": "characters",
+          "columnsFrom": [
+            "ocid"
+          ],
+          "columnsTo": [
+            "ocid"
+          ],
+          "onDelete": "cascade",
+          "onUpdate": "no action"
+        }
+      },
+      "compositePrimaryKeys": {
+        "character_hexa_cores_id": {
+          "name": "character_hexa_cores_id",
+          "columns": [
+            "id"
+          ]
+        }
+      },
+      "uniqueConstraints": {},
+      "checkConstraint": {}
+    },
+    "character_hexa_stats": {
+      "name": "character_hexa_stats",
+      "columns": {
+        "id": {
+          "name": "id",
+          "type": "bigint",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": true
+        },
+        "ocid": {
+          "name": "ocid",
+          "type": "varchar(64)",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false
+        },
+        "slot_id": {
+          "name": "slot_id",
+          "type": "varchar(10)",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false
+        },
+        "main_stat_name": {
+          "name": "main_stat_name",
+          "type": "varchar(50)",
+          "primaryKey": false,
+          "notNull": false,
+          "autoincrement": false
+        },
+        "sub_stat_name_1": {
+          "name": "sub_stat_name_1",
+          "type": "varchar(50)",
+          "primaryKey": false,
+          "notNull": false,
+          "autoincrement": false
+        },
+        "sub_stat_name_2": {
+          "name": "sub_stat_name_2",
+          "type": "varchar(50)",
+          "primaryKey": false,
+          "notNull": false,
+          "autoincrement": false
+        },
+        "main_stat_level": {
+          "name": "main_stat_level",
+          "type": "int",
+          "primaryKey": false,
+          "notNull": false,
+          "autoincrement": false,
+          "default": 0
+        },
+        "sub_stat_level_1": {
+          "name": "sub_stat_level_1",
+          "type": "int",
+          "primaryKey": false,
+          "notNull": false,
+          "autoincrement": false,
+          "default": 0
+        },
+        "sub_stat_level_2": {
+          "name": "sub_stat_level_2",
+          "type": "int",
+          "primaryKey": false,
+          "notNull": false,
+          "autoincrement": false,
+          "default": 0
+        },
+        "stat_grade": {
+          "name": "stat_grade",
+          "type": "int",
+          "primaryKey": false,
+          "notNull": false,
+          "autoincrement": false,
+          "default": 0
+        },
+        "updated_at": {
+          "name": "updated_at",
+          "type": "timestamp",
+          "primaryKey": false,
+          "notNull": false,
+          "autoincrement": false,
+          "onUpdate": true,
+          "default": "(now())"
+        }
+      },
+      "indexes": {
+        "uk_ocid_slot": {
+          "name": "uk_ocid_slot",
+          "columns": [
+            "ocid",
+            "slot_id"
+          ],
+          "isUnique": true
+        },
+        "idx_ocid": {
+          "name": "idx_ocid",
+          "columns": [
+            "ocid"
+          ],
+          "isUnique": false
+        }
+      },
+      "foreignKeys": {
+        "character_hexa_stats_ocid_characters_ocid_fk": {
+          "name": "character_hexa_stats_ocid_characters_ocid_fk",
+          "tableFrom": "character_hexa_stats",
+          "tableTo": "characters",
+          "columnsFrom": [
+            "ocid"
+          ],
+          "columnsTo": [
+            "ocid"
+          ],
+          "onDelete": "cascade",
+          "onUpdate": "no action"
+        }
+      },
+      "compositePrimaryKeys": {
+        "character_hexa_stats_id": {
+          "name": "character_hexa_stats_id",
+          "columns": [
+            "id"
+          ]
+        }
+      },
+      "uniqueConstraints": {},
+      "checkConstraint": {}
+    },
+    "character_hyper_stat_presets": {
+      "name": "character_hyper_stat_presets",
+      "columns": {
+        "ocid": {
+          "name": "ocid",
+          "type": "varchar(64)",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false
+        },
+        "use_preset_no": {
+          "name": "use_preset_no",
+          "type": "tinyint",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false,
+          "default": 1
+        },
+        "updated_at": {
+          "name": "updated_at",
+          "type": "timestamp",
+          "primaryKey": false,
+          "notNull": false,
+          "autoincrement": false,
+          "onUpdate": true,
+          "default": "(now())"
+        }
+      },
+      "indexes": {},
+      "foreignKeys": {
+        "character_hyper_stat_presets_ocid_characters_ocid_fk": {
+          "name": "character_hyper_stat_presets_ocid_characters_ocid_fk",
+          "tableFrom": "character_hyper_stat_presets",
+          "tableTo": "characters",
+          "columnsFrom": [
+            "ocid"
+          ],
+          "columnsTo": [
+            "ocid"
+          ],
+          "onDelete": "cascade",
+          "onUpdate": "no action"
+        }
+      },
+      "compositePrimaryKeys": {
+        "character_hyper_stat_presets_ocid": {
+          "name": "character_hyper_stat_presets_ocid",
+          "columns": [
+            "ocid"
+          ]
+        }
+      },
+      "uniqueConstraints": {},
+      "checkConstraint": {}
+    },
+    "character_hyper_stats": {
+      "name": "character_hyper_stats",
+      "columns": {
+        "id": {
+          "name": "id",
+          "type": "bigint",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": true
+        },
+        "ocid": {
+          "name": "ocid",
+          "type": "varchar(64)",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false
+        },
+        "preset_no": {
+          "name": "preset_no",
+          "type": "tinyint",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false
+        },
+        "stat_type": {
+          "name": "stat_type",
+          "type": "varchar(20)",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false
+        },
+        "stat_level": {
+          "name": "stat_level",
+          "type": "int",
+          "primaryKey": false,
+          "notNull": false,
+          "autoincrement": false,
+          "default": 0
+        },
+        "stat_increase": {
+          "name": "stat_increase",
+          "type": "varchar(100)",
+          "primaryKey": false,
+          "notNull": false,
+          "autoincrement": false
+        },
+        "updated_at": {
+          "name": "updated_at",
+          "type": "timestamp",
+          "primaryKey": false,
+          "notNull": false,
+          "autoincrement": false,
+          "onUpdate": true,
+          "default": "(now())"
+        }
+      },
+      "indexes": {
+        "uk_ocid_preset_type": {
+          "name": "uk_ocid_preset_type",
+          "columns": [
+            "ocid",
+            "preset_no",
+            "stat_type"
+          ],
+          "isUnique": true
+        },
+        "idx_ocid": {
+          "name": "idx_ocid",
+          "columns": [
+            "ocid"
+          ],
+          "isUnique": false
+        }
+      },
+      "foreignKeys": {
+        "character_hyper_stats_ocid_characters_ocid_fk": {
+          "name": "character_hyper_stats_ocid_characters_ocid_fk",
+          "tableFrom": "character_hyper_stats",
+          "tableTo": "characters",
+          "columnsFrom": [
+            "ocid"
+          ],
+          "columnsTo": [
+            "ocid"
+          ],
+          "onDelete": "cascade",
+          "onUpdate": "no action"
+        }
+      },
+      "compositePrimaryKeys": {
+        "character_hyper_stats_id": {
+          "name": "character_hyper_stats_id",
+          "columns": [
+            "id"
+          ]
+        }
+      },
+      "uniqueConstraints": {},
+      "checkConstraint": {}
+    },
+    "character_link_skill_presets": {
+      "name": "character_link_skill_presets",
+      "columns": {
+        "ocid": {
+          "name": "ocid",
+          "type": "varchar(64)",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false
+        },
+        "use_preset_no": {
+          "name": "use_preset_no",
+          "type": "tinyint",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false,
+          "default": 1
+        },
+        "updated_at": {
+          "name": "updated_at",
+          "type": "timestamp",
+          "primaryKey": false,
+          "notNull": false,
+          "autoincrement": false,
+          "onUpdate": true,
+          "default": "(now())"
+        }
+      },
+      "indexes": {},
+      "foreignKeys": {
+        "character_link_skill_presets_ocid_characters_ocid_fk": {
+          "name": "character_link_skill_presets_ocid_characters_ocid_fk",
+          "tableFrom": "character_link_skill_presets",
+          "tableTo": "characters",
+          "columnsFrom": [
+            "ocid"
+          ],
+          "columnsTo": [
+            "ocid"
+          ],
+          "onDelete": "cascade",
+          "onUpdate": "no action"
+        }
+      },
+      "compositePrimaryKeys": {
+        "character_link_skill_presets_ocid": {
+          "name": "character_link_skill_presets_ocid",
+          "columns": [
+            "ocid"
+          ]
+        }
+      },
+      "uniqueConstraints": {},
+      "checkConstraint": {}
+    },
+    "character_link_skills": {
+      "name": "character_link_skills",
+      "columns": {
+        "id": {
+          "name": "id",
+          "type": "bigint",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": true
+        },
+        "ocid": {
+          "name": "ocid",
+          "type": "varchar(64)",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false
+        },
+        "preset_no": {
+          "name": "preset_no",
+          "type": "tinyint",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false
+        },
+        "skill_name": {
+          "name": "skill_name",
+          "type": "varchar(100)",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false
+        },
+        "skill_icon": {
+          "name": "skill_icon",
+          "type": "varchar(255)",
+          "primaryKey": false,
+          "notNull": false,
+          "autoincrement": false
+        },
+        "skill_description": {
+          "name": "skill_description",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false,
+          "autoincrement": false
+        },
+        "skill_effect": {
+          "name": "skill_effect",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false,
+          "autoincrement": false
+        },
+        "skill_level": {
+          "name": "skill_level",
+          "type": "int",
+          "primaryKey": false,
+          "notNull": false,
+          "autoincrement": false
+        },
+        "updated_at": {
+          "name": "updated_at",
+          "type": "timestamp",
+          "primaryKey": false,
+          "notNull": false,
+          "autoincrement": false,
+          "onUpdate": true,
+          "default": "(now())"
+        }
+      },
+      "indexes": {
+        "uk_ocid_preset_skill": {
+          "name": "uk_ocid_preset_skill",
+          "columns": [
+            "ocid",
+            "preset_no",
+            "skill_name"
+          ],
+          "isUnique": true
+        },
+        "idx_ocid": {
+          "name": "idx_ocid",
+          "columns": [
+            "ocid"
+          ],
+          "isUnique": false
+        }
+      },
+      "foreignKeys": {
+        "character_link_skills_ocid_characters_ocid_fk": {
+          "name": "character_link_skills_ocid_characters_ocid_fk",
+          "tableFrom": "character_link_skills",
+          "tableTo": "characters",
+          "columnsFrom": [
+            "ocid"
+          ],
+          "columnsTo": [
+            "ocid"
+          ],
+          "onDelete": "cascade",
+          "onUpdate": "no action"
+        }
+      },
+      "compositePrimaryKeys": {
+        "character_link_skills_id": {
+          "name": "character_link_skills_id",
+          "columns": [
+            "id"
+          ]
+        }
+      },
+      "uniqueConstraints": {},
+      "checkConstraint": {}
+    },
+    "character_pet_equipment": {
+      "name": "character_pet_equipment",
+      "columns": {
+        "id": {
+          "name": "id",
+          "type": "bigint",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": true
+        },
+        "ocid": {
+          "name": "ocid",
+          "type": "varchar(64)",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false
+        },
+        "pet_name": {
+          "name": "pet_name",
+          "type": "varchar(100)",
+          "primaryKey": false,
+          "notNull": false,
+          "autoincrement": false
+        },
+        "pet_icon": {
+          "name": "pet_icon",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false,
+          "autoincrement": false
+        },
+        "pet_equipment_slot": {
+          "name": "pet_equipment_slot",
+          "type": "varchar(20)",
+          "primaryKey": false,
+          "notNull": false,
+          "autoincrement": false
+        },
+        "pet_total_option": {
+          "name": "pet_total_option",
+          "type": "json",
+          "primaryKey": false,
+          "notNull": false,
+          "autoincrement": false
+        },
+        "updated_at": {
+          "name": "updated_at",
+          "type": "timestamp",
+          "primaryKey": false,
+          "notNull": false,
+          "autoincrement": false,
+          "onUpdate": true,
+          "default": "(now())"
+        }
+      },
+      "indexes": {
+        "idx_ocid": {
+          "name": "idx_ocid",
+          "columns": [
+            "ocid"
+          ],
+          "isUnique": false
+        }
+      },
+      "foreignKeys": {
+        "character_pet_equipment_ocid_characters_ocid_fk": {
+          "name": "character_pet_equipment_ocid_characters_ocid_fk",
+          "tableFrom": "character_pet_equipment",
+          "tableTo": "characters",
+          "columnsFrom": [
+            "ocid"
+          ],
+          "columnsTo": [
+            "ocid"
+          ],
+          "onDelete": "cascade",
+          "onUpdate": "no action"
+        }
+      },
+      "compositePrimaryKeys": {
+        "character_pet_equipment_id": {
+          "name": "character_pet_equipment_id",
+          "columns": [
+            "id"
+          ]
+        }
+      },
+      "uniqueConstraints": {},
+      "checkConstraint": {}
+    },
+    "character_set_effects": {
+      "name": "character_set_effects",
+      "columns": {
+        "id": {
+          "name": "id",
+          "type": "bigint",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": true
+        },
+        "ocid": {
+          "name": "ocid",
+          "type": "varchar(64)",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false
+        },
+        "set_name": {
+          "name": "set_name",
+          "type": "varchar(100)",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false
+        },
+        "set_level": {
+          "name": "set_level",
+          "type": "int",
+          "primaryKey": false,
+          "notNull": false,
+          "autoincrement": false,
+          "default": 0
+        },
+        "set_effect_level": {
+          "name": "set_effect_level",
+          "type": "int",
+          "primaryKey": false,
+          "notNull": false,
+          "autoincrement": false,
+          "default": 0
+        },
+        "updated_at": {
+          "name": "updated_at",
+          "type": "timestamp",
+          "primaryKey": false,
+          "notNull": false,
+          "autoincrement": false,
+          "onUpdate": true,
+          "default": "(now())"
+        }
+      },
+      "indexes": {
+        "uk_ocid_set": {
+          "name": "uk_ocid_set",
+          "columns": [
+            "ocid",
+            "set_name"
+          ],
+          "isUnique": true
+        },
+        "idx_ocid": {
+          "name": "idx_ocid",
+          "columns": [
+            "ocid"
+          ],
+          "isUnique": false
+        }
+      },
+      "foreignKeys": {
+        "character_set_effects_ocid_characters_ocid_fk": {
+          "name": "character_set_effects_ocid_characters_ocid_fk",
+          "tableFrom": "character_set_effects",
+          "tableTo": "characters",
+          "columnsFrom": [
+            "ocid"
+          ],
+          "columnsTo": [
+            "ocid"
+          ],
+          "onDelete": "cascade",
+          "onUpdate": "no action"
+        }
+      },
+      "compositePrimaryKeys": {
+        "character_set_effects_id": {
+          "name": "character_set_effects_id",
+          "columns": [
+            "id"
+          ]
+        }
+      },
+      "uniqueConstraints": {},
+      "checkConstraint": {}
+    },
+    "character_stats": {
+      "name": "character_stats",
+      "columns": {
+        "ocid": {
+          "name": "ocid",
+          "type": "varchar(64)",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false
+        },
+        "str": {
+          "name": "str",
+          "type": "int",
+          "primaryKey": false,
+          "notNull": false,
+          "autoincrement": false
+        },
+        "dex": {
+          "name": "dex",
+          "type": "int",
+          "primaryKey": false,
+          "notNull": false,
+          "autoincrement": false
+        },
+        "int_stat": {
+          "name": "int_stat",
+          "type": "int",
+          "primaryKey": false,
+          "notNull": false,
+          "autoincrement": false
+        },
+        "luk": {
+          "name": "luk",
+          "type": "int",
+          "primaryKey": false,
+          "notNull": false,
+          "autoincrement": false
+        },
+        "attack_power": {
+          "name": "attack_power",
+          "type": "int",
+          "primaryKey": false,
+          "notNull": false,
+          "autoincrement": false
+        },
+        "magic_power": {
+          "name": "magic_power",
+          "type": "int",
+          "primaryKey": false,
+          "notNull": false,
+          "autoincrement": false
+        },
+        "boss_damage": {
+          "name": "boss_damage",
+          "type": "decimal(6,2)",
+          "primaryKey": false,
+          "notNull": false,
+          "autoincrement": false
+        },
+        "critical_damage": {
+          "name": "critical_damage",
+          "type": "decimal(6,2)",
+          "primaryKey": false,
+          "notNull": false,
+          "autoincrement": false
+        },
+        "ignore_defense": {
+          "name": "ignore_defense",
+          "type": "decimal(6,2)",
+          "primaryKey": false,
+          "notNull": false,
+          "autoincrement": false
+        },
+        "damage": {
+          "name": "damage",
+          "type": "decimal(6,2)",
+          "primaryKey": false,
+          "notNull": false,
+          "autoincrement": false
+        },
+        "final_damage": {
+          "name": "final_damage",
+          "type": "decimal(6,2)",
+          "primaryKey": false,
+          "notNull": false,
+          "autoincrement": false
+        },
+        "all_stats": {
+          "name": "all_stats",
+          "type": "json",
+          "primaryKey": false,
+          "notNull": false,
+          "autoincrement": false
+        },
+        "updated_at": {
+          "name": "updated_at",
+          "type": "timestamp",
+          "primaryKey": false,
+          "notNull": false,
+          "autoincrement": false,
+          "onUpdate": true,
+          "default": "(now())"
+        }
+      },
+      "indexes": {},
+      "foreignKeys": {
+        "character_stats_ocid_characters_ocid_fk": {
+          "name": "character_stats_ocid_characters_ocid_fk",
+          "tableFrom": "character_stats",
+          "tableTo": "characters",
+          "columnsFrom": [
+            "ocid"
+          ],
+          "columnsTo": [
+            "ocid"
+          ],
+          "onDelete": "cascade",
+          "onUpdate": "no action"
+        }
+      },
+      "compositePrimaryKeys": {
+        "character_stats_ocid": {
+          "name": "character_stats_ocid",
+          "columns": [
+            "ocid"
+          ]
+        }
+      },
+      "uniqueConstraints": {},
+      "checkConstraint": {}
+    },
+    "character_symbols": {
+      "name": "character_symbols",
+      "columns": {
+        "id": {
+          "name": "id",
+          "type": "bigint",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": true
+        },
+        "ocid": {
+          "name": "ocid",
+          "type": "varchar(64)",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false
+        },
+        "symbol_name": {
+          "name": "symbol_name",
+          "type": "varchar(100)",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false
+        },
+        "symbol_icon": {
+          "name": "symbol_icon",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false,
+          "autoincrement": false
+        },
+        "symbol_level": {
+          "name": "symbol_level",
+          "type": "int",
+          "primaryKey": false,
+          "notNull": false,
+          "autoincrement": false,
+          "default": 0
+        },
+        "symbol_force": {
+          "name": "symbol_force",
+          "type": "int",
+          "primaryKey": false,
+          "notNull": false,
+          "autoincrement": false,
+          "default": 0
+        },
+        "symbol_growth_count": {
+          "name": "symbol_growth_count",
+          "type": "int",
+          "primaryKey": false,
+          "notNull": false,
+          "autoincrement": false,
+          "default": 0
+        },
+        "symbol_require_growth_count": {
+          "name": "symbol_require_growth_count",
+          "type": "int",
+          "primaryKey": false,
+          "notNull": false,
+          "autoincrement": false,
+          "default": 0
+        },
+        "updated_at": {
+          "name": "updated_at",
+          "type": "timestamp",
+          "primaryKey": false,
+          "notNull": false,
+          "autoincrement": false,
+          "onUpdate": true,
+          "default": "(now())"
+        }
+      },
+      "indexes": {
+        "uk_ocid_symbol": {
+          "name": "uk_ocid_symbol",
+          "columns": [
+            "ocid",
+            "symbol_name"
+          ],
+          "isUnique": true
+        },
+        "idx_ocid": {
+          "name": "idx_ocid",
+          "columns": [
+            "ocid"
+          ],
+          "isUnique": false
+        }
+      },
+      "foreignKeys": {
+        "character_symbols_ocid_characters_ocid_fk": {
+          "name": "character_symbols_ocid_characters_ocid_fk",
+          "tableFrom": "character_symbols",
+          "tableTo": "characters",
+          "columnsFrom": [
+            "ocid"
+          ],
+          "columnsTo": [
+            "ocid"
+          ],
+          "onDelete": "cascade",
+          "onUpdate": "no action"
+        }
+      },
+      "compositePrimaryKeys": {
+        "character_symbols_id": {
+          "name": "character_symbols_id",
+          "columns": [
+            "id"
+          ]
+        }
+      },
+      "uniqueConstraints": {},
+      "checkConstraint": {}
+    },
+    "character_union": {
+      "name": "character_union",
+      "columns": {
+        "ocid": {
+          "name": "ocid",
+          "type": "varchar(64)",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false
+        },
+        "union_level": {
+          "name": "union_level",
+          "type": "int",
+          "primaryKey": false,
+          "notNull": false,
+          "autoincrement": false
+        },
+        "union_grade": {
+          "name": "union_grade",
+          "type": "varchar(50)",
+          "primaryKey": false,
+          "notNull": false,
+          "autoincrement": false
+        },
+        "union_artifact_level": {
+          "name": "union_artifact_level",
+          "type": "int",
+          "primaryKey": false,
+          "notNull": false,
+          "autoincrement": false
+        },
+        "updated_at": {
+          "name": "updated_at",
+          "type": "timestamp",
+          "primaryKey": false,
+          "notNull": false,
+          "autoincrement": false,
+          "onUpdate": true,
+          "default": "(now())"
+        }
+      },
+      "indexes": {},
+      "foreignKeys": {
+        "character_union_ocid_characters_ocid_fk": {
+          "name": "character_union_ocid_characters_ocid_fk",
+          "tableFrom": "character_union",
+          "tableTo": "characters",
+          "columnsFrom": [
+            "ocid"
+          ],
+          "columnsTo": [
+            "ocid"
+          ],
+          "onDelete": "cascade",
+          "onUpdate": "no action"
+        }
+      },
+      "compositePrimaryKeys": {
+        "character_union_ocid": {
+          "name": "character_union_ocid",
+          "columns": [
+            "ocid"
+          ]
+        }
+      },
+      "uniqueConstraints": {},
+      "checkConstraint": {}
+    },
+    "character_union_artifacts": {
+      "name": "character_union_artifacts",
+      "columns": {
+        "id": {
+          "name": "id",
+          "type": "bigint",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": true
+        },
+        "ocid": {
+          "name": "ocid",
+          "type": "varchar(64)",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false
+        },
+        "crystal_name": {
+          "name": "crystal_name",
+          "type": "varchar(100)",
+          "primaryKey": false,
+          "notNull": false,
+          "autoincrement": false
+        },
+        "crystal_level": {
+          "name": "crystal_level",
+          "type": "int",
+          "primaryKey": false,
+          "notNull": false,
+          "autoincrement": false
+        },
+        "crystal_type": {
+          "name": "crystal_type",
+          "type": "varchar(50)",
+          "primaryKey": false,
+          "notNull": false,
+          "autoincrement": false
+        },
+        "is_primary": {
+          "name": "is_primary",
+          "type": "boolean",
+          "primaryKey": false,
+          "notNull": false,
+          "autoincrement": false,
+          "default": false
+        },
+        "updated_at": {
+          "name": "updated_at",
+          "type": "timestamp",
+          "primaryKey": false,
+          "notNull": false,
+          "autoincrement": false,
+          "onUpdate": true,
+          "default": "(now())"
+        }
+      },
+      "indexes": {
+        "idx_ocid": {
+          "name": "idx_ocid",
+          "columns": [
+            "ocid"
+          ],
+          "isUnique": false
+        }
+      },
+      "foreignKeys": {
+        "character_union_artifacts_ocid_characters_ocid_fk": {
+          "name": "character_union_artifacts_ocid_characters_ocid_fk",
+          "tableFrom": "character_union_artifacts",
+          "tableTo": "characters",
+          "columnsFrom": [
+            "ocid"
+          ],
+          "columnsTo": [
+            "ocid"
+          ],
+          "onDelete": "cascade",
+          "onUpdate": "no action"
+        }
+      },
+      "compositePrimaryKeys": {
+        "character_union_artifacts_id": {
+          "name": "character_union_artifacts_id",
+          "columns": [
+            "id"
+          ]
+        }
+      },
+      "uniqueConstraints": {},
+      "checkConstraint": {}
+    },
+    "character_union_raider_stats": {
+      "name": "character_union_raider_stats",
+      "columns": {
+        "id": {
+          "name": "id",
+          "type": "bigint",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": true
+        },
+        "ocid": {
+          "name": "ocid",
+          "type": "varchar(64)",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false
+        },
+        "stat_value": {
+          "name": "stat_value",
+          "type": "varchar(100)",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false
+        },
+        "updated_at": {
+          "name": "updated_at",
+          "type": "timestamp",
+          "primaryKey": false,
+          "notNull": false,
+          "autoincrement": false,
+          "onUpdate": true,
+          "default": "(now())"
+        }
+      },
+      "indexes": {
+        "idx_ocid": {
+          "name": "idx_ocid",
+          "columns": [
+            "ocid"
+          ],
+          "isUnique": false
+        }
+      },
+      "foreignKeys": {
+        "character_union_raider_stats_ocid_characters_ocid_fk": {
+          "name": "character_union_raider_stats_ocid_characters_ocid_fk",
+          "tableFrom": "character_union_raider_stats",
+          "tableTo": "characters",
+          "columnsFrom": [
+            "ocid"
+          ],
+          "columnsTo": [
+            "ocid"
+          ],
+          "onDelete": "cascade",
+          "onUpdate": "no action"
+        }
+      },
+      "compositePrimaryKeys": {
+        "character_union_raider_stats_id": {
+          "name": "character_union_raider_stats_id",
+          "columns": [
+            "id"
+          ]
+        }
+      },
+      "uniqueConstraints": {},
+      "checkConstraint": {}
+    },
+    "characters": {
+      "name": "characters",
+      "columns": {
+        "ocid": {
+          "name": "ocid",
+          "type": "varchar(64)",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false
+        },
+        "character_name": {
+          "name": "character_name",
+          "type": "varchar(100)",
+          "primaryKey": false,
+          "notNull": false,
+          "autoincrement": false
+        },
+        "character_level": {
+          "name": "character_level",
+          "type": "int",
+          "primaryKey": false,
+          "notNull": false,
+          "autoincrement": false
+        },
+        "character_class": {
+          "name": "character_class",
+          "type": "varchar(50)",
+          "primaryKey": false,
+          "notNull": false,
+          "autoincrement": false
+        },
+        "character_class_level": {
+          "name": "character_class_level",
+          "type": "tinyint",
+          "primaryKey": false,
+          "notNull": false,
+          "autoincrement": false
+        },
+        "world_name": {
+          "name": "world_name",
+          "type": "varchar(50)",
+          "primaryKey": false,
+          "notNull": false,
+          "autoincrement": false
+        },
+        "character_image": {
+          "name": "character_image",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false,
+          "autoincrement": false
+        },
+        "character_exp_rate": {
+          "name": "character_exp_rate",
+          "type": "decimal(10,6)",
+          "primaryKey": false,
+          "notNull": false,
+          "autoincrement": false
+        },
+        "character_gender": {
+          "name": "character_gender",
+          "type": "varchar(10)",
+          "primaryKey": false,
+          "notNull": false,
+          "autoincrement": false
+        },
+        "character_guild_name": {
+          "name": "character_guild_name",
+          "type": "varchar(100)",
+          "primaryKey": false,
+          "notNull": false,
+          "autoincrement": false
+        },
+        "combat_power": {
+          "name": "combat_power",
+          "type": "bigint",
+          "primaryKey": false,
+          "notNull": false,
+          "autoincrement": false
+        },
+        "status": {
+          "name": "status",
+          "type": "enum('success','not_found','error')",
+          "primaryKey": false,
+          "notNull": false,
+          "autoincrement": false,
+          "default": "'success'"
+        },
+        "not_found_count": {
+          "name": "not_found_count",
+          "type": "int",
+          "primaryKey": false,
+          "notNull": false,
+          "autoincrement": false,
+          "default": 0
+        },
+        "created_at": {
+          "name": "created_at",
+          "type": "timestamp",
+          "primaryKey": false,
+          "notNull": false,
+          "autoincrement": false,
+          "default": "(now())"
+        },
+        "updated_at": {
+          "name": "updated_at",
+          "type": "timestamp",
+          "primaryKey": false,
+          "notNull": false,
+          "autoincrement": false,
+          "onUpdate": true,
+          "default": "(now())"
+        }
+      },
+      "indexes": {
+        "idx_world_class": {
+          "name": "idx_world_class",
+          "columns": [
+            "world_name",
+            "character_class"
+          ],
+          "isUnique": false
+        },
+        "idx_combat_power": {
+          "name": "idx_combat_power",
+          "columns": [
+            "combat_power"
+          ],
+          "isUnique": false
+        },
+        "idx_name": {
+          "name": "idx_name",
+          "columns": [
+            "character_name"
+          ],
+          "isUnique": false
+        }
+      },
+      "foreignKeys": {},
+      "compositePrimaryKeys": {
+        "characters_ocid": {
+          "name": "characters_ocid",
+          "columns": [
+            "ocid"
+          ]
+        }
+      },
+      "uniqueConstraints": {},
+      "checkConstraint": {}
+    }
+  },
+  "views": {},
+  "_meta": {
+    "schemas": {},
+    "tables": {},
+    "columns": {}
+  },
+  "internal": {
+    "tables": {},
+    "indexes": {}
+  }
+}

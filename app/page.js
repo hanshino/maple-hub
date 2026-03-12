@@ -25,9 +25,10 @@ import CharacterSearch from '../components/CharacterSearch';
 import EquipmentDialog from '../components/EquipmentDialog';
 import CharacterDataTabs from '../components/CharacterDataTabs';
 import StatBalanceChart from '../components/StatBalanceChart';
+import RecentCharacters from '../components/RecentCharacters';
 import { generateDateRange } from '../lib/progressUtils';
-import { apiCall, batchApiCalls } from '../lib/apiUtils';
 import { analyzeAllPresets } from '../lib/combatPowerCalculator';
+import { saveSearchHistory, migrateStorage } from '../lib/localStorage';
 
 export default function Home() {
   return (
@@ -40,156 +41,71 @@ export default function Home() {
 function HomeContent() {
   const searchParams = useSearchParams();
   const [character, setCharacter] = useState(null);
-  const [unionData, setUnionData] = useState(null);
+  const [charData, setCharData] = useState(null);
   const [chartData, setChartData] = useState([]);
-  const [runes, setRunes] = useState([]);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
-  const [battlePower, setBattlePower] = useState(null);
-  const [equipmentDialogOpen, setEquipmentDialogOpen] = useState(false);
   const [lastOcid, setLastOcid] = useState(null);
-  const [presetAnalysis, setPresetAnalysis] = useState(null);
-  const [equipmentRawData, setEquipmentRawData] = useState(null);
-  const [setEffectData, setSetEffectData] = useState(null);
-  const [setEffectLoading, setSetEffectLoading] = useState(false);
-  const [setEffectError, setSetEffectError] = useState(null);
-  const [statsData, setStatsData] = useState(null);
+  const [equipmentDialogOpen, setEquipmentDialogOpen] = useState(false);
+
+  useEffect(() => {
+    migrateStorage();
+  }, []);
 
   const searchCharacter = async ocid => {
+    // Update URL so refresh preserves the selected character
+    const url = new URL(window.location);
+    url.searchParams.set('ocid', ocid);
+    window.history.replaceState({}, '', url);
+
     setLastOcid(ocid);
     setLoading(true);
     setError(null);
     setCharacter(null);
-    setUnionData(null);
+    setCharData(null);
     setChartData([]);
-    setRunes([]);
-    setBattlePower(null);
-    setPresetAnalysis(null);
-    setEquipmentRawData(null);
-    setSetEffectData(null);
-    setSetEffectLoading(false);
-    setSetEffectError(null);
-    setStatsData(null);
     try {
-      // Get data for the last 5 days (but only available dates after 2025-10-15)
+      // Fetch all character data in one call + historical data in parallel
       const dateConfigs = generateDateRange(7);
-      const apiUrls = dateConfigs.map(
+      const historyUrls = dateConfigs.map(
         config =>
           `/api/characters/${ocid}${config.needsDateParam ? `?date=${config.date}` : ''}`
       );
 
-      // Execute API calls with environment-based strategy
-      const characterResponses = await batchApiCalls(apiUrls);
+      const [charResponse, ...historyResponses] = await Promise.all([
+        fetch(`/api/character/${ocid}`),
+        ...historyUrls.map(url => fetch(url).catch(() => null)),
+      ]);
 
-      // Process responses (axios format)
-      const characterResults = characterResponses.map(response => {
-        if (response && response.status >= 200 && response.status < 300) {
+      if (!charResponse.ok) {
+        if (charResponse.status === 404) {
+          throw new Error('找不到此角色');
+        }
+        throw new Error('載入角色資料失敗');
+      }
+
+      const data = await charResponse.json();
+      setCharData(data);
+
+      const latestChar = { ...data.basicInfo, ocid };
+      setCharacter(latestChar);
+
+      // Save to search history
+      saveSearchHistory(latestChar);
+
+      // Process historical chart data
+      const historyResults = await Promise.all(
+        historyResponses.map(async res => {
+          if (!res || !res.ok) return null;
           try {
-            return response.data;
+            return await res.json();
           } catch {
             return null;
           }
-        }
-        return null;
-      });
+        })
+      );
 
-      // Filter out failed requests and get the most recent successful data
-      const validCharacters = characterResults.filter(char => char !== null);
-      const latestCharacter = validCharacters[validCharacters.length - 1];
-
-      if (!latestCharacter) {
-        throw new Error('No character data available');
-      }
-
-      setCharacter({ ...latestCharacter, ocid });
-
-      // Fetch stats, union, runes, equipment in parallel
-      const [statsResult, unionResult, runeResult, equipmentResult] =
-        await Promise.all([
-          apiCall(`/api/character/stats?ocid=${ocid}`).catch(() => null),
-          apiCall(`/api/union/${ocid}`).catch(() => null),
-          apiCall(`/api/character/${ocid}/runes`).catch(() => null),
-          apiCall(`/api/character/equipment?ocid=${ocid}`).catch(() => null),
-        ]);
-
-      // Process battle power
-      if (statsResult?.status >= 200 && statsResult?.status < 300) {
-        const battlePowerValue = statsResult.data.final_stat?.find(
-          stat => stat.stat_name === '戰鬥力'
-        )?.stat_value;
-        setBattlePower(battlePowerValue ? parseInt(battlePowerValue) : null);
-        setStatsData(statsResult.data);
-      }
-
-      // Process union data
-      if (unionResult?.status >= 200 && unionResult?.status < 300) {
-        setUnionData(unionResult.data);
-      }
-
-      // Process rune data
-      if (runeResult?.status >= 200 && runeResult?.status < 300) {
-        setRunes(runeResult.data.symbol || []);
-      }
-
-      // Staggered: set-effect, hyper-stat, link-skill (200ms delay to avoid rate limit)
-      let setEffectResult = null;
-      let hyperStatResult = null;
-      let linkSkillResult = null;
-      setSetEffectLoading(true);
-      try {
-        await new Promise(resolve => setTimeout(resolve, 200));
-        [setEffectResult, hyperStatResult, linkSkillResult] =
-          await Promise.all([
-            apiCall(`/api/character/set-effect?ocid=${ocid}`).catch(() => null),
-            apiCall(`/api/character/hyper-stat?ocid=${ocid}`).catch(() => null),
-            apiCall(`/api/character/link-skill?ocid=${ocid}`).catch(
-              () => null
-            ),
-          ]);
-      } catch {
-        // non-critical
-      } finally {
-        setSetEffectLoading(false);
-      }
-
-      // Process equipment data
-      let rawEquipment = null;
-      if (equipmentResult?.status >= 200 && equipmentResult?.status < 300) {
-        rawEquipment = equipmentResult.data;
-        setEquipmentRawData(rawEquipment);
-      }
-
-      // Process set effect data
-      if (setEffectResult?.status >= 200 && setEffectResult?.status < 300) {
-        setSetEffectData(setEffectResult.data);
-      }
-
-      // Compute preset analysis
-      if (
-        rawEquipment &&
-        statsResult?.status >= 200 &&
-        statsResult?.status < 300
-      ) {
-        const symbolData = runeResult?.status >= 200 ? runeResult.data : null;
-        const setEffect =
-          setEffectResult?.status >= 200 ? setEffectResult.data : null;
-        const hyperStat =
-          hyperStatResult?.status >= 200 ? hyperStatResult.data : null;
-        const linkSkill =
-          linkSkillResult?.status >= 200 ? linkSkillResult.data : null;
-        const analysis = analyzeAllPresets(
-          rawEquipment,
-          statsResult.data,
-          symbolData,
-          setEffect,
-          hyperStat,
-          linkSkill
-        );
-        setPresetAnalysis(analysis);
-      }
-
-      // Prepare chart data from all valid characters
-      const chartData = characterResults
+      const chartPoints = historyResults
         .map((char, index) =>
           char
             ? {
@@ -201,21 +117,16 @@ function HomeContent() {
         )
         .filter(item => item !== null);
 
-      // Always ensure we have at least current data for the chart
-      if (chartData.length === 0 && latestCharacter) {
-        const currentProgress = parseFloat(
-          latestCharacter.character_exp_rate || 0
-        );
-        const singleDataPoint = [
+      if (chartPoints.length === 0 && data.basicInfo) {
+        setChartData([
           {
             date: new Date().toISOString().split('T')[0],
-            percentage: currentProgress,
-            level: parseInt(latestCharacter.character_level || 0),
+            percentage: parseFloat(data.basicInfo.character_exp_rate || 0),
+            level: parseInt(data.basicInfo.character_level || 0),
           },
-        ];
-        setChartData(singleDataPoint);
+        ]);
       } else {
-        setChartData(chartData);
+        setChartData(chartPoints);
       }
     } catch (err) {
       setError(err.message);
@@ -232,6 +143,35 @@ function HomeContent() {
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
+
+  // Derived data from single API response
+  const battlePower = charData?.basicInfo?.combat_power || null;
+  const statsData = charData?.stats || null;
+  const equipmentRawData = charData?.equipment || null;
+  const unionData = charData?.union || null;
+  const unionRaiderData = charData?.unionRaider || null;
+  const runes = charData?.symbols?.symbol || [];
+  const setEffectData = charData?.setEffects || null;
+  const hexaCoreData = charData?.hexaCores || null;
+  const hexaStatData = charData?.hexaStats || null;
+  const hyperStatData = charData?.hyperStats || null;
+  const linkSkillData = charData?.linkSkills || null;
+  const unionArtifactData = charData?.unionArtifacts || null;
+  const cashEquipmentData = charData?.cashEquipment || null;
+  const petEquipmentData = charData?.petEquipment || null;
+
+  // Compute preset analysis
+  const presetAnalysis =
+    equipmentRawData && statsData
+      ? analyzeAllPresets(
+          equipmentRawData,
+          statsData,
+          charData?.symbols || null,
+          setEffectData,
+          hyperStatData,
+          linkSkillData
+        )
+      : null;
 
   return (
     <Container maxWidth="xl" sx={{ py: 4 }}>
@@ -272,6 +212,7 @@ function HomeContent() {
           >
             查看戰力排行榜
           </Button>
+          <RecentCharacters onSelect={searchCharacter} />
         </Paper>
       )}
 
@@ -470,7 +411,11 @@ function HomeContent() {
             <Grid size={{ xs: 12, md: 5 }}>
               <Card elevation={2} sx={{ height: '100%' }}>
                 <CardContent sx={{ p: 3, height: '100%' }}>
-                  <HexaMatrixProgress character={character} />
+                  <HexaMatrixProgress
+                    character={character}
+                    hexaCoreData={hexaCoreData}
+                    hexaStatData={hexaStatData}
+                  />
                 </CardContent>
               </Card>
             </Grid>
@@ -482,24 +427,11 @@ function HomeContent() {
               ocid={character.ocid}
               runes={runes}
               setEffectData={setEffectData}
-              setEffectLoading={setEffectLoading}
-              setEffectError={setEffectError}
-              onRetrySetEffect={async () => {
-                setSetEffectLoading(true);
-                setSetEffectError(null);
-                try {
-                  const res = await apiCall(
-                    `/api/character/set-effect?ocid=${character.ocid}`
-                  );
-                  if (res?.status >= 200 && res?.status < 300) {
-                    setSetEffectData(res.data);
-                  }
-                } catch {
-                  setSetEffectError('載入套裝效果失敗');
-                } finally {
-                  setSetEffectLoading(false);
-                }
-              }}
+              statsData={statsData}
+              hyperStatData={hyperStatData}
+              linkSkillData={linkSkillData}
+              unionRaiderData={unionRaiderData}
+              unionArtifactData={unionArtifactData}
             />
           </Box>
         </Box>
@@ -513,6 +445,8 @@ function HomeContent() {
           open={equipmentDialogOpen}
           onClose={() => setEquipmentDialogOpen(false)}
           prefetchedData={equipmentRawData}
+          cashEquipmentData={cashEquipmentData}
+          petEquipmentData={petEquipmentData}
         />
       )}
     </Container>

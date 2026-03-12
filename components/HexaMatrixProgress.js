@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useMemo } from 'react';
 import { useTheme } from '@mui/material/styles';
 import { Box, Typography } from '@mui/material';
 import {
@@ -12,7 +12,6 @@ import {
   PolarRadiusAxis,
   Radar,
 } from 'recharts';
-import { fetchHexaMatrixData, fetchHexaStatCores } from '../lib/hexaMatrixApi';
 import {
   filterHexaCoreSkills,
   formatResourceAmount,
@@ -20,75 +19,48 @@ import {
 import { calculateHexaMatrixProgress } from '../lib/progressUtils';
 import HexaStatTable from './HexaStatTable';
 
-export default function HexaMatrixProgress({ character }) {
+export default function HexaMatrixProgress({
+  character,
+  hexaCoreData,
+  hexaStatData,
+}) {
   const theme = useTheme();
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState(null);
-  const [progress, setProgress] = useState(null);
-  const [statCores, setStatCores] = useState([]);
 
-  useEffect(() => {
-    if (character.character_class_level < 6) return;
+  const { progress, statCores } = useMemo(() => {
+    if (!hexaCoreData?.character_hexa_core_equipment?.length) {
+      return { progress: null, statCores: [] };
+    }
 
-    const loadData = async () => {
-      try {
-        // Fetch both hexa matrix and stat core data in parallel
-        const [hexaData, statData] = await Promise.all([
-          fetchHexaMatrixData(character.ocid),
-          fetchHexaStatCores(character.ocid).catch(() => ({
-            character_hexa_stat_core: [],
-          })), // Gracefully handle stat core fetch failures
-        ]);
+    const filteredHexaCores = filterHexaCoreSkills(
+      hexaCoreData.character_hexa_core_equipment
+    );
 
-        // Process hexa matrix data
-        if (
-          !hexaData.character_hexa_core_equipment ||
-          hexaData.character_hexa_core_equipment.length === 0
-        ) {
-          setProgress(null);
-        } else {
-          // Filter hexa core data first to remove irrelevant skills
-          const filteredHexaCores = filterHexaCoreSkills(
-            hexaData.character_hexa_core_equipment
-          );
-
-          // Combine filtered equipment cores with stat core data for complete progress calculation
-          const combinedHexaData = {
-            character_hexa_core_equipment: filteredHexaCores,
-            ...statData, // Include stat core data
-          };
-          const calculatedProgress =
-            calculateHexaMatrixProgress(combinedHexaData);
-          setProgress(calculatedProgress);
-        }
-
-        // Set stat cores data
-        setStatCores(statData.character_hexa_stat_core || []);
-      } catch (err) {
-        setError(err.message);
-      } finally {
-        setLoading(false);
-      }
+    const combinedHexaData = {
+      character_hexa_core_equipment: filteredHexaCores,
+      ...(hexaStatData || {}),
     };
+    const calculatedProgress = calculateHexaMatrixProgress(combinedHexaData);
 
-    loadData();
-  }, [character]);
+    return {
+      progress: calculatedProgress,
+      statCores: [
+        ...(hexaStatData?.character_hexa_stat_core || []),
+        ...(hexaStatData?.character_hexa_stat_core_2 || []),
+        ...(hexaStatData?.character_hexa_stat_core_3 || []),
+      ],
+    };
+  }, [hexaCoreData, hexaStatData]);
 
   if (character.character_class_level < 6) return null;
-
-  if (loading) return <Typography>Loading Hexa Matrix data...</Typography>;
-
-  if (error)
-    return <Typography>Failed to load Hexa Matrix data: {error}</Typography>;
 
   if (!progress)
     return (
       <Typography>No Hexa Matrix data available for this character.</Typography>
     );
 
-  // Prepare data for radar chart - create a single data point with all cores
+  // Prepare data for radar chart
   const radarData = progress.equipmentCores.map(core => ({
-    core: core.name.length > 8 ? core.name.substring(0, 8) + '...' : core.name, // Truncate long names
+    core: core.name.length > 8 ? core.name.substring(0, 8) + '...' : core.name,
     level: core.level,
     fullMark: 30,
   }));

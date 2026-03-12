@@ -18,7 +18,7 @@ export default function RuneCard({ rune }) {
       role="article"
       aria-label={`${rune.symbol_name} 符文卡片`}
     >
-      <CardContent sx={{ p: 1.5, '&:last-child': { pb: 1.5 } }}>
+      <CardContent sx={{ p: 2, '&:last-child': { pb: 2 } }}>
         <Box sx={{ display: 'flex', alignItems: 'center', gap: 1.5 }}>
           <Box
             sx={{

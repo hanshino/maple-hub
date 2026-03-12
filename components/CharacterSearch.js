@@ -2,7 +2,7 @@
 
 import { useState, useEffect } from 'react';
 import { Autocomplete, TextField, Button, Box } from '@mui/material';
-import { saveSearchHistory, getSearchHistory } from '../lib/localStorage';
+import { getSearchHistory } from '../lib/localStorage';
 
 export default function CharacterSearch({ onSearch, loading }) {
   const [inputValue, setInputValue] = useState('');
@@ -16,18 +16,12 @@ export default function CharacterSearch({ onSearch, loading }) {
     if (!inputValue.trim()) return;
 
     try {
-      // Call search API to get OCID
       const response = await fetch(
         `/api/character/search?name=${encodeURIComponent(inputValue.trim())}`
       );
       if (!response.ok) throw new Error('Search failed');
       const searchData = await response.json();
 
-      // Save to history
-      saveSearchHistory(inputValue.trim(), searchData.ocid);
-      setHistory(getSearchHistory());
-
-      // Proceed with search
       onSearch(searchData.ocid);
     } catch (error) {
       console.error('Search failed:', error);
@@ -41,7 +35,6 @@ export default function CharacterSearch({ onSearch, loading }) {
 
   const handleAutocompleteChange = (event, value) => {
     if (value && typeof value === 'object' && value.ocid) {
-      // Selected from history
       setInputValue(value.characterName);
       onSearch(value.ocid);
     }
