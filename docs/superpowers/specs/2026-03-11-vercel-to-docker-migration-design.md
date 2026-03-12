@@ -18,14 +18,14 @@ All services connect through a shared Docker external network (`infra`). Traefik
 
 ## Tech Stack Changes
 
-| Component | Before | After |
-|-----------|--------|-------|
-| Hosting | Vercel Hobby (serverless) | Docker container (persistent) |
-| Database | Google Sheets API | MySQL 9.6 (Community) |
-| Cache | In-memory + localStorage | Redis 8.6 + localStorage |
-| ORM | googleapis SDK | Drizzle ORM |
-| Cron | Vercel Cron + external service | node-cron (in-process) |
-| Timeout | 10 seconds | None |
+| Component | Before                         | After                         |
+| --------- | ------------------------------ | ----------------------------- |
+| Hosting   | Vercel Hobby (serverless)      | Docker container (persistent) |
+| Database  | Google Sheets API              | MySQL 9.6 (Community)         |
+| Cache     | In-memory + localStorage       | Redis 8.6 + localStorage      |
+| ORM       | googleapis SDK                 | Drizzle ORM                   |
+| Cron      | Vercel Cron + external service | node-cron (in-process)        |
+| Timeout   | 10 seconds                     | None                          |
 
 ### New Dependencies (to add)
 
@@ -104,6 +104,7 @@ CREATE TABLE character_stats (
 ```
 
 Source: `/character/stat`
+
 - Key stats as columns for SQL queries (stat balance, ranking)
 - `all_stats` JSON preserves full response including lesser-used stats
 
@@ -143,6 +144,7 @@ CREATE TABLE character_equipment (
 ```
 
 Source: `/character/item-equipment`
+
 - Potential grades/lines as columns (queryable: "how many legendary weapons")
 - Stat breakdowns as JSON (display/calculation only)
 
@@ -351,15 +353,16 @@ Source: `/character/pet-equipment`
 
 ## Redis Design
 
-| Key Pattern | Purpose | TTL |
-|-------------|---------|-----|
-| `ocid:exists:{ocid}` | OCID existence check (Redis String, value "1") | 1 hour |
-| `ocid:buffer` | New OCID buffer (Redis Set data structure, SADD/SMEMBERS) | None (cleared after processing) |
-| `cache:api:{endpoint}:{ocid}` | API response cache | 5 min |
-| `leaderboard:latest` | Leaderboard cache | 10 min |
-| `leaderboard:filters` | Filter options cache | 30 min |
+| Key Pattern                   | Purpose                                                   | TTL                             |
+| ----------------------------- | --------------------------------------------------------- | ------------------------------- |
+| `ocid:exists:{ocid}`          | OCID existence check (Redis String, value "1")            | 1 hour                          |
+| `ocid:buffer`                 | New OCID buffer (Redis Set data structure, SADD/SMEMBERS) | None (cleared after processing) |
+| `cache:api:{endpoint}:{ocid}` | API response cache                                        | 5 min                           |
+| `leaderboard:latest`          | Leaderboard cache                                         | 10 min                          |
+| `leaderboard:filters`         | Filter options cache                                      | 30 min                          |
 
 ### Benefits over current in-memory cache
+
 - Survives container restarts (no cold start data loss)
 - Shared across potential future horizontal scaling
 - Built-in TTL management (no manual expiry logic)
@@ -370,30 +373,30 @@ Note: All new files use `.js` extension (project does not use TypeScript).
 
 ### Core Library Replacements
 
-| Current Module | Replacement | Notes |
-|----------------|-------------|-------|
-| `lib/googleSheets.js` (1,305 lines) | `lib/db/schema.js` + `lib/db/queries.js` (Drizzle) | Complete removal |
-| `lib/ocidLogger.js` | `lib/redis.js` (Redis SET for buffer) | No cold start loss |
-| `lib/sharedLogger.js` | `lib/redis.js` (re-export OCID buffer functions) | Currently wraps ocidLogger |
-| `lib/cache.js` (localStorage) | Keep as-is | Frontend cache unchanged |
-| `lib/combatPowerService.js` | Refactor: remove batch size limits, timeout budget | Direct DB writes |
-| `lib/characterInfoService.js` | Refactor into `lib/characterSyncService.js`: fetch all endpoints, write to all tables | Full data capture |
-| `lib/envValidation.js` | Update: validate DB/Redis env vars instead of Google Sheets | |
-| `lib/apiInterceptor.js` | Review: remove Vercel-specific 200ms throttle if unnecessary | |
+| Current Module                      | Replacement                                                                           | Notes                      |
+| ----------------------------------- | ------------------------------------------------------------------------------------- | -------------------------- |
+| `lib/googleSheets.js` (1,305 lines) | `lib/db/schema.js` + `lib/db/queries.js` (Drizzle)                                    | Complete removal           |
+| `lib/ocidLogger.js`                 | `lib/redis.js` (Redis SET for buffer)                                                 | No cold start loss         |
+| `lib/sharedLogger.js`               | `lib/redis.js` (re-export OCID buffer functions)                                      | Currently wraps ocidLogger |
+| `lib/cache.js` (localStorage)       | Keep as-is                                                                            | Frontend cache unchanged   |
+| `lib/combatPowerService.js`         | Refactor: remove batch size limits, timeout budget                                    | Direct DB writes           |
+| `lib/characterInfoService.js`       | Refactor into `lib/characterSyncService.js`: fetch all endpoints, write to all tables | Full data capture          |
+| `lib/envValidation.js`              | Update: validate DB/Redis env vars instead of Google Sheets                           |                            |
+| `lib/apiInterceptor.js`             | Review: remove Vercel-specific 200ms throttle if unnecessary                          |                            |
 
 ### API Route Replacements
 
-| Current Route | Change | Notes |
-|---------------|--------|-------|
-| `app/api/character/stats/route.js` | Refactor: replace GoogleSheetsClient + ocidLogger with Redis OCID buffer | Currently imports both |
-| `app/api/leaderboard/route.js` | Refactor: SQL query with Redis cache | |
-| `app/api/leaderboard/filters/route.js` | Refactor: `SELECT DISTINCT world_name, character_class FROM characters` | Currently imports GoogleSheetsClient |
-| `app/api/sync-ocids/route.js` | Simplified: Redis buffer → DB insert | |
-| `app/api/character/[ocid]/runes/route.js` | Refactor into `nexonApi.js` | Uses hardcoded TWMS API URL (see Nexon API note below) |
-| `app/api/hexa-matrix/route.js` | Refactor: use `nexonApi.js` instead of direct axios | Currently creates own axios client |
-| `app/api/hexa-matrix-stat/route.js` | Refactor: use `nexonApi.js` instead of direct axios | Same; has response transformation logic to preserve |
-| All `app/api/cron/*` routes | Keep as HTTP endpoints for manual trigger; also register in `lib/cron.js` (node-cron) | Dual access: cron + manual |
-| `app/api/debug-ocids/route.js` | Remove | Replaced by direct DB queries |
+| Current Route                             | Change                                                                                | Notes                                                  |
+| ----------------------------------------- | ------------------------------------------------------------------------------------- | ------------------------------------------------------ |
+| `app/api/character/stats/route.js`        | Refactor: replace GoogleSheetsClient + ocidLogger with Redis OCID buffer              | Currently imports both                                 |
+| `app/api/leaderboard/route.js`            | Refactor: SQL query with Redis cache                                                  |                                                        |
+| `app/api/leaderboard/filters/route.js`    | Refactor: `SELECT DISTINCT world_name, character_class FROM characters`               | Currently imports GoogleSheetsClient                   |
+| `app/api/sync-ocids/route.js`             | Simplified: Redis buffer → DB insert                                                  |                                                        |
+| `app/api/character/[ocid]/runes/route.js` | Refactor into `nexonApi.js`                                                           | Uses hardcoded TWMS API URL (see Nexon API note below) |
+| `app/api/hexa-matrix/route.js`            | Refactor: use `nexonApi.js` instead of direct axios                                   | Currently creates own axios client                     |
+| `app/api/hexa-matrix-stat/route.js`       | Refactor: use `nexonApi.js` instead of direct axios                                   | Same; has response transformation logic to preserve    |
+| All `app/api/cron/*` routes               | Keep as HTTP endpoints for manual trigger; also register in `lib/cron.js` (node-cron) | Dual access: cron + manual                             |
+| `app/api/debug-ocids/route.js`            | Remove                                                                                | Replaced by direct DB queries                          |
 
 ### Unchanged Routes (no modification needed)
 
@@ -414,15 +417,16 @@ These routes proxy Nexon API via `nexonApi.js` and do not use Google Sheets:
 
 ### Config File Changes
 
-| File | Change |
-|------|--------|
+| File             | Change                                                               |
+| ---------------- | -------------------------------------------------------------------- |
 | `next.config.js` | Add `output: 'standalone'`, add `serverExternalPackages: ['mysql2']` |
-| `vercel.json` | Remove |
-| `package.json` | Add new deps, remove googleapis + better-sqlite3 |
+| `vercel.json`    | Remove                                                               |
+| `package.json`   | Add new deps, remove googleapis + better-sqlite3                     |
 
 ### Test Files to Update
 
 All test files that mock GoogleSheetsClient need rewriting to mock Drizzle DB:
+
 - `__tests__/lib/googleSheets.test.js` — Remove
 - `__tests__/lib/googleSheets.combatPower.test.js` — Remove
 - `__tests__/lib/ocidLogger.test.js` — Rewrite for Redis
@@ -435,21 +439,21 @@ All test files that mock GoogleSheetsClient need rewriting to mock Drizzle DB:
 
 All endpoints that the cron job will fetch per character. 13 endpoints total:
 
-| # | Endpoint | API Base | Table(s) |
-|---|----------|----------|----------|
-| 1 | `/character/basic` | `maplestory/v1` | characters |
-| 2 | `/character/stat` | `maplestory/v1` | characters (combat_power), character_stats |
-| 3 | `/character/item-equipment` | `maplestory/v1` | character_equipment |
-| 4 | `/character/cashitem-equipment` | `maplestory/v1` | character_cash_equipment |
-| 5 | `/character/pet-equipment` | `maplestory/v1` | character_pet_equipment |
-| 6 | `/character/hyper-stat` | `maplestory/v1` | character_hyper_stats, character_hyper_stat_presets |
-| 7 | `/character/link-skill` | `maplestory/v1` | character_link_skills, character_link_skill_presets |
-| 8 | `/character/hexamatrix` | `maplestory/v1` | character_hexa_cores |
-| 9 | `/character/hexamatrix-stat` | `maplestory/v1` | character_hexa_stats |
-| 10 | `/character/set-effect` | `maplestory/v1` | character_set_effects |
-| 11 | `/character/symbol-equipment` | **`maplestorytw/v1`** | character_symbols |
-| 12 | `/user/union-raider` | `maplestory/v1` | character_union |
-| 13 | `/user/union-artifact` | `maplestory/v1` | character_union_artifacts |
+| #   | Endpoint                        | API Base              | Table(s)                                            |
+| --- | ------------------------------- | --------------------- | --------------------------------------------------- |
+| 1   | `/character/basic`              | `maplestory/v1`       | characters                                          |
+| 2   | `/character/stat`               | `maplestory/v1`       | characters (combat_power), character_stats          |
+| 3   | `/character/item-equipment`     | `maplestory/v1`       | character_equipment                                 |
+| 4   | `/character/cashitem-equipment` | `maplestory/v1`       | character_cash_equipment                            |
+| 5   | `/character/pet-equipment`      | `maplestory/v1`       | character_pet_equipment                             |
+| 6   | `/character/hyper-stat`         | `maplestory/v1`       | character_hyper_stats, character_hyper_stat_presets |
+| 7   | `/character/link-skill`         | `maplestory/v1`       | character_link_skills, character_link_skill_presets |
+| 8   | `/character/hexamatrix`         | `maplestory/v1`       | character_hexa_cores                                |
+| 9   | `/character/hexamatrix-stat`    | `maplestory/v1`       | character_hexa_stats                                |
+| 10  | `/character/set-effect`         | `maplestory/v1`       | character_set_effects                               |
+| 11  | `/character/symbol-equipment`   | **`maplestorytw/v1`** | character_symbols                                   |
+| 12  | `/user/union-raider`            | `maplestory/v1`       | character_union                                     |
+| 13  | `/user/union-artifact`          | `maplestory/v1`       | character_union_artifacts                           |
 
 **Note:** Endpoint #11 (symbol-equipment) uses the Taiwan-specific API path (`maplestorytw/v1`), not the standard `maplestory/v1`. Currently hardcoded in `app/api/character/[ocid]/runes/route.js`. Will be moved into `nexonApi.js` with a separate base URL constant.
 
@@ -459,11 +463,11 @@ All 13 endpoints need to be consolidated into `lib/nexonApi.js` (currently only 
 
 Without the 10-second timeout:
 
-| Job | Schedule | Behavior |
-|-----|----------|----------|
+| Job             | Schedule      | Behavior                                                                                                               |
+| --------------- | ------------- | ---------------------------------------------------------------------------------------------------------------------- |
 | **refresh-all** | Every 6 hours | Process ALL characters in one run. Fetch all 13 endpoints per character. Upsert to all tables. No offset/chain needed. |
-| **sync-ocids** | Every 5 min | Flush Redis OCID buffer → INSERT into characters table |
-| **cleanup** | Daily | Remove characters with `not_found_count >= 3` |
+| **sync-ocids**  | Every 5 min   | Flush Redis OCID buffer → INSERT into characters table                                                                 |
+| **cleanup**     | Daily         | Remove characters with `not_found_count >= 3`                                                                          |
 
 Concurrency control: 10 parallel Nexon API requests (existing pattern), with configurable rate limiting.
 
@@ -599,18 +603,18 @@ Note: Google Sheets only has basic info and combat power. Full data (equipment, 
 
 ## Data Volume Estimate (100K Characters)
 
-| Table | Estimated Rows | Estimated Size |
-|-------|---------------|----------------|
-| characters | 100K | ~50 MB |
-| character_stats | 100K | ~30 MB |
-| character_equipment | 7.5M (100K x 25 x 3) | ~3 GB |
-| character_hyper_stats | 3M (100K x 10 x 3) | ~300 MB |
-| character_link_skills | 3.6M (100K x 12 x 3) | ~400 MB |
-| character_hexa_cores | 1M | ~100 MB |
-| character_hexa_stats | 600K | ~50 MB |
-| character_symbols | 1M | ~80 MB |
-| Others (union, set, cash, pet) | ~2M | ~200 MB |
-| **Total** | **~17M** | **~4.2 GB** |
+| Table                          | Estimated Rows       | Estimated Size |
+| ------------------------------ | -------------------- | -------------- |
+| characters                     | 100K                 | ~50 MB         |
+| character_stats                | 100K                 | ~30 MB         |
+| character_equipment            | 7.5M (100K x 25 x 3) | ~3 GB          |
+| character_hyper_stats          | 3M (100K x 10 x 3)   | ~300 MB        |
+| character_link_skills          | 3.6M (100K x 12 x 3) | ~400 MB        |
+| character_hexa_cores           | 1M                   | ~100 MB        |
+| character_hexa_stats           | 600K                 | ~50 MB         |
+| character_symbols              | 1M                   | ~80 MB         |
+| Others (union, set, cash, pet) | ~2M                  | ~200 MB        |
+| **Total**                      | **~17M**             | **~4.2 GB**    |
 
 Well within MySQL capabilities. Proper indexes ensure query performance.
 
@@ -621,6 +625,7 @@ The `/dashboard-progress` page displays historical progress charts. This feature
 ## Removed Components
 
 ### Files Deleted
+
 - `lib/googleSheets.js` — entire file deleted (replaced by Drizzle DB layer)
 - `lib/ocidLogger.js` — replaced by Redis-based implementation in `lib/redis.js`
 - `lib/sharedLogger.js` — replaced by re-exports from `lib/redis.js`
@@ -633,10 +638,12 @@ The `/dashboard-progress` page displays historical progress charts. This feature
 - `__tests__/lib/googleSheets.combatPower.test.js` — removed with source
 
 ### Dependencies Removed
+
 - `googleapis` — replaced by MySQL via Drizzle
 - `better-sqlite3` — was unused
 
 ### Environment Variables Removed
+
 - `GOOGLE_SHEETS_PROJECT_ID`
 - `GOOGLE_SHEETS_PRIVATE_KEY_ID`
 - `GOOGLE_SHEETS_PRIVATE_KEY`

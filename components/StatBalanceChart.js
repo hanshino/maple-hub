@@ -51,7 +51,11 @@ const StatBalanceChart = ({ statsData, equipmentData, loading }) => {
       <Card elevation={4} sx={{ height: '100%' }}>
         <CardContent sx={{ p: 3 }}>
           <Skeleton variant="text" width={160} height={28} sx={{ mb: 1 }} />
-          <Skeleton variant="rectangular" height={260} sx={{ borderRadius: 2 }} />
+          <Skeleton
+            variant="rectangular"
+            height={260}
+            sx={{ borderRadius: 2 }}
+          />
         </CardContent>
       </Card>
     );
@@ -63,14 +67,32 @@ const StatBalanceChart = ({ statsData, equipmentData, loading }) => {
     <Card elevation={4} sx={{ height: '100%' }}>
       <CardContent sx={{ p: 3 }}>
         {/* Title + Legend row */}
-        <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', flexWrap: 'wrap', gap: 1, mb: 1 }}>
+        <Box
+          sx={{
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'space-between',
+            flexWrap: 'wrap',
+            gap: 1,
+            mb: 1,
+          }}
+        >
           <Typography variant="h6" fontWeight={700} color="primary">
             能力探測圖
           </Typography>
           <Box sx={{ display: 'flex', gap: 2 }}>
             <Box sx={{ display: 'flex', alignItems: 'center', gap: 0.5 }}>
-              <Box sx={{ width: 16, height: 3, bgcolor: '#f7931e', borderRadius: 1 }} />
-              <Typography variant="caption" color="text.secondary">目前狀況</Typography>
+              <Box
+                sx={{
+                  width: 16,
+                  height: 3,
+                  bgcolor: '#f7931e',
+                  borderRadius: 1,
+                }}
+              />
+              <Typography variant="caption" color="text.secondary">
+                目前狀況
+              </Typography>
             </Box>
             <Box sx={{ display: 'flex', alignItems: 'center', gap: 0.5 }}>
               <Box
@@ -79,9 +101,19 @@ const StatBalanceChart = ({ statsData, equipmentData, loading }) => {
                 height={4}
                 sx={{ overflow: 'visible' }}
               >
-                <line x1="0" y1="2" x2="16" y2="2" stroke="#9e9e9e" strokeDasharray="4 2" strokeWidth={2} />
+                <line
+                  x1="0"
+                  y1="2"
+                  x2="16"
+                  y2="2"
+                  stroke="#9e9e9e"
+                  strokeDasharray="4 2"
+                  strokeWidth={2}
+                />
               </Box>
-              <Typography variant="caption" color="text.secondary">完美平衡</Typography>
+              <Typography variant="caption" color="text.secondary">
+                完美平衡
+              </Typography>
             </Box>
           </Box>
         </Box>
@@ -108,7 +140,12 @@ const StatBalanceChart = ({ statsData, equipmentData, loading }) => {
               formatter={(value, name, props) => {
                 if (name === 'player') {
                   const equiv = props?.payload?.equiv;
-                  return [equiv != null ? equiv.toLocaleString() : Math.round(value * 100), '換算值'];
+                  return [
+                    equiv != null
+                      ? equiv.toLocaleString()
+                      : Math.round(value * 100),
+                    '換算值',
+                  ];
                 }
                 return null;
               }}
@@ -142,8 +179,20 @@ const StatBalanceChart = ({ statsData, equipmentData, loading }) => {
         </ResponsiveContainer>
 
         {recommendations.length > 0 && (
-          <Box sx={{ mt: 1.5, display: 'flex', flexWrap: 'wrap', gap: 1, alignItems: 'center' }}>
-            <Typography variant="body2" color="text.secondary" sx={{ fontWeight: 600 }}>
+          <Box
+            sx={{
+              mt: 1.5,
+              display: 'flex',
+              flexWrap: 'wrap',
+              gap: 1,
+              alignItems: 'center',
+            }}
+          >
+            <Typography
+              variant="body2"
+              color="text.secondary"
+              sx={{ fontWeight: 600 }}
+            >
               建議提升：
             </Typography>
             {recommendations.map(rec => (

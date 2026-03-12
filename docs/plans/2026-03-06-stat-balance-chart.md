@@ -13,6 +13,7 @@
 ### Task 1: Add `statsData` state to `app/page.js`
 
 **Files:**
+
 - Modify: `app/page.js`
 
 The page currently uses `statsResult.data` inline but never stores it in state. We need to persist it for the chart component.
@@ -61,6 +62,7 @@ git commit -m "feat: persist statsData in page state for balance chart"
 ### Task 2: Create `lib/statBalance.js`
 
 **Files:**
+
 - Create: `lib/statBalance.js`
 - Create: `__tests__/lib/statBalance.test.js`
 
@@ -76,7 +78,10 @@ import {
   getRecommendations,
 } from '../../lib/statBalance.js';
 
-const makeStat = (name, value) => ({ stat_name: name, stat_value: String(value) });
+const makeStat = (name, value) => ({
+  stat_name: name,
+  stat_value: String(value),
+});
 
 const mockStatsData = {
   final_stat: [
@@ -152,23 +157,37 @@ describe('computeEquivStats', () => {
     const equiv = computeEquivStats(raw);
 
     expect(equiv.mainEquiv).toBe(100000);
-    expect(equiv.atkEquiv).toBe(40000);         // 10000 × 4
-    expect(equiv.atkPctEquiv).toBe(60000);       // 0.60 × 100000
-    expect(equiv.bossEquiv).toBe(6000);          // 200 × 30
-    expect(equiv.critEquiv).toBe(9600);          // 80 × 120
+    expect(equiv.atkEquiv).toBe(40000); // 10000 × 4
+    expect(equiv.atkPctEquiv).toBe(60000); // 0.60 × 100000
+    expect(equiv.bossEquiv).toBe(6000); // 200 × 30
+    expect(equiv.critEquiv).toBe(9600); // 80 × 120
     // ignoreEquiv = (2 × (1 - 0.5 × (1 - 0.90)) - 1) × 100000
     // = (2 × 0.95 - 1) × 100000 = 0.9 × 100000 = 90000
     expect(equiv.ignoreEquiv).toBeCloseTo(90000, 0);
   });
 
   it('returns 0 for ignoreDef=0', () => {
-    const raw = { mainStat: 100000, atkValue: 0, atkPct: 0, bossDmg: 0, critDmg: 0, ignoreDef: 0 };
+    const raw = {
+      mainStat: 100000,
+      atkValue: 0,
+      atkPct: 0,
+      bossDmg: 0,
+      critDmg: 0,
+      ignoreDef: 0,
+    };
     const equiv = computeEquivStats(raw);
     expect(equiv.ignoreEquiv).toBe(0);
   });
 
   it('returns mainStat for ignoreDef=100', () => {
-    const raw = { mainStat: 100000, atkValue: 0, atkPct: 0, bossDmg: 0, critDmg: 0, ignoreDef: 100 };
+    const raw = {
+      mainStat: 100000,
+      atkValue: 0,
+      atkPct: 0,
+      bossDmg: 0,
+      critDmg: 0,
+      ignoreDef: 100,
+    };
     const equiv = computeEquivStats(raw);
     expect(equiv.ignoreEquiv).toBeCloseTo(100000, 0);
   });
@@ -207,22 +226,35 @@ describe('computeBalanceRatios', () => {
 
   it('returns null when total is 0', () => {
     const equivStats = {
-      mainEquiv: 0, atkEquiv: 0, atkPctEquiv: 0,
-      bossEquiv: 0, critEquiv: 0, ignoreEquiv: 0,
+      mainEquiv: 0,
+      atkEquiv: 0,
+      atkPctEquiv: 0,
+      bossEquiv: 0,
+      critEquiv: 0,
+      ignoreEquiv: 0,
     };
     expect(computeBalanceRatios(equivStats)).toBeNull();
   });
 
   it('returns array of 6 items with axis labels', () => {
     const equivStats = {
-      mainEquiv: 1000, atkEquiv: 1000, atkPctEquiv: 1000,
-      bossEquiv: 1000, critEquiv: 1000, ignoreEquiv: 1000,
+      mainEquiv: 1000,
+      atkEquiv: 1000,
+      atkPctEquiv: 1000,
+      bossEquiv: 1000,
+      critEquiv: 1000,
+      ignoreEquiv: 1000,
     };
     const ratios = computeBalanceRatios(equivStats);
     expect(ratios).toHaveLength(6);
-    expect(ratios.map(r => r.axis)).toEqual(
-      ['主屬性', '攻擊力', '攻擊力%', 'Boss傷害', '爆擊傷害', '無視防禦']
-    );
+    expect(ratios.map(r => r.axis)).toEqual([
+      '主屬性',
+      '攻擊力',
+      '攻擊力%',
+      'Boss傷害',
+      '爆擊傷害',
+      '無視防禦',
+    ]);
   });
 });
 
@@ -238,13 +270,14 @@ describe('getRecommendations', () => {
     ];
     const recs = getRecommendations(ratios);
     expect(recs).toHaveLength(2);
-    expect(recs[0].axis).toBe('攻擊力');   // lowest ratio first
+    expect(recs[0].axis).toBe('攻擊力'); // lowest ratio first
     expect(recs[1].axis).toBe('Boss傷害');
   });
 
   it('returns empty array when all axes above balance', () => {
     const ratios = [1.0, 1.1, 1.2, 0.95, 1.3, 1.4].map((ratio, i) => ({
-      axis: String(i), ratio,
+      axis: String(i),
+      ratio,
     }));
     // 0.95 is below 1.0 so still 1 recommendation
     const recs = getRecommendations(ratios);
@@ -275,8 +308,22 @@ import {
 
 const BOSS_DEF_RATE = 0.5; // Standard boss defense rate assumption
 
-const AXIS_KEYS = ['mainEquiv', 'atkEquiv', 'atkPctEquiv', 'bossEquiv', 'critEquiv', 'ignoreEquiv'];
-const AXIS_LABELS = ['主屬性', '攻擊力', '攻擊力%', 'Boss傷害', '爆擊傷害', '無視防禦'];
+const AXIS_KEYS = [
+  'mainEquiv',
+  'atkEquiv',
+  'atkPctEquiv',
+  'bossEquiv',
+  'critEquiv',
+  'ignoreEquiv',
+];
+const AXIS_LABELS = [
+  '主屬性',
+  '攻擊力',
+  '攻擊力%',
+  'Boss傷害',
+  '爆擊傷害',
+  '無視防禦',
+];
 
 /**
  * Extracts the 6 raw axis values from API responses.
@@ -317,7 +364,12 @@ export function extractBalanceStats(statsData, equipmentData) {
 
   const critDmg = getStat('크리티컬 데미지', '爆擊傷害');
 
-  const ignoreDef = getStat('무시 방어율', '방어율 무시', '無視防禦', '防禦無視');
+  const ignoreDef = getStat(
+    '무시 방어율',
+    '방어율 무시',
+    '無視防禦',
+    '防禦無視'
+  );
 
   // ATK% from equipment potentials only (union, set effects not included)
   let atkPct = 0;
@@ -327,11 +379,11 @@ export function extractBalanceStats(statsData, equipmentData) {
       const presetItems =
         equipmentData[`item_equipment_preset_${presetNo}`] || [];
       const independentItems = identifyIndependentItems(equipmentData);
-      const stats = extractEquipmentStats([...presetItems, ...independentItems]);
-      atkPct = Math.max(
-        stats.percent.attack_power,
-        stats.percent.magic_power
-      );
+      const stats = extractEquipmentStats([
+        ...presetItems,
+        ...independentItems,
+      ]);
+      atkPct = Math.max(stats.percent.attack_power, stats.percent.magic_power);
     } catch {
       atkPct = 0;
     }
@@ -372,7 +424,14 @@ export function computeEquivStats({
   const ignoreEquiv =
     ((iefFactor - BOSS_DEF_RATE) / (1 - BOSS_DEF_RATE)) * mainStat;
 
-  return { mainEquiv, atkEquiv, atkPctEquiv, bossEquiv, critEquiv, ignoreEquiv };
+  return {
+    mainEquiv,
+    atkEquiv,
+    atkPctEquiv,
+    bossEquiv,
+    critEquiv,
+    ignoreEquiv,
+  };
 }
 
 /**
@@ -430,6 +489,7 @@ git commit -m "feat: add statBalance pure functions with換算主屬 calculation
 ### Task 3: Create `components/StatBalanceChart.js`
 
 **Files:**
+
 - Create: `components/StatBalanceChart.js`
 
 No test for this component (it's a pure visualization layer; the logic is tested in Task 2).
@@ -437,6 +497,7 @@ No test for this component (it's a pure visualization layer; the logic is tested
 **Step 1: Create the component**
 
 UI/UX review applied:
+
 - Balance hexagon uses gray (`#9e9e9e`) to distinguish from player's orange
 - Outer frame: `fill="none"` (was `#f5f5f5` — invisible on cream background)
 - Added `<Tooltip>` for exact axis values on hover
@@ -489,7 +550,11 @@ const StatBalanceChart = ({ statsData, equipmentData, loading }) => {
       <Card elevation={2}>
         <CardContent sx={{ p: 3 }}>
           <Skeleton variant="text" width={160} height={28} sx={{ mb: 1 }} />
-          <Skeleton variant="rectangular" height={300} sx={{ borderRadius: 2 }} />
+          <Skeleton
+            variant="rectangular"
+            height={300}
+            sx={{ borderRadius: 2 }}
+          />
         </CardContent>
       </Card>
     );
@@ -509,14 +574,32 @@ const StatBalanceChart = ({ statsData, equipmentData, loading }) => {
     <Card elevation={2}>
       <CardContent sx={{ p: 3 }}>
         {/* Title + Legend row */}
-        <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', flexWrap: 'wrap', gap: 1, mb: 1 }}>
+        <Box
+          sx={{
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'space-between',
+            flexWrap: 'wrap',
+            gap: 1,
+            mb: 1,
+          }}
+        >
           <Typography variant="h6" fontWeight={700} color="primary">
             屬性平衡分析
           </Typography>
           <Box sx={{ display: 'flex', gap: 2 }}>
             <Box sx={{ display: 'flex', alignItems: 'center', gap: 0.5 }}>
-              <Box sx={{ width: 16, height: 3, bgcolor: '#f7931e', borderRadius: 1 }} />
-              <Typography variant="caption" color="text.secondary">目前狀況</Typography>
+              <Box
+                sx={{
+                  width: 16,
+                  height: 3,
+                  bgcolor: '#f7931e',
+                  borderRadius: 1,
+                }}
+              />
+              <Typography variant="caption" color="text.secondary">
+                目前狀況
+              </Typography>
             </Box>
             <Box sx={{ display: 'flex', alignItems: 'center', gap: 0.5 }}>
               <Box
@@ -525,9 +608,19 @@ const StatBalanceChart = ({ statsData, equipmentData, loading }) => {
                 height={4}
                 sx={{ overflow: 'visible' }}
               >
-                <line x1="0" y1="2" x2="16" y2="2" stroke="#9e9e9e" strokeDasharray="4 2" strokeWidth={2} />
+                <line
+                  x1="0"
+                  y1="2"
+                  x2="16"
+                  y2="2"
+                  stroke="#9e9e9e"
+                  strokeDasharray="4 2"
+                  strokeWidth={2}
+                />
               </Box>
-              <Typography variant="caption" color="text.secondary">完美平衡</Typography>
+              <Typography variant="caption" color="text.secondary">
+                完美平衡
+              </Typography>
             </Box>
           </Box>
         </Box>
@@ -584,8 +677,20 @@ const StatBalanceChart = ({ statsData, equipmentData, loading }) => {
         </ResponsiveContainer>
 
         {recommendations.length > 0 && (
-          <Box sx={{ mt: 1.5, display: 'flex', flexWrap: 'wrap', gap: 1, alignItems: 'center' }}>
-            <Typography variant="body2" color="text.secondary" sx={{ fontWeight: 600 }}>
+          <Box
+            sx={{
+              mt: 1.5,
+              display: 'flex',
+              flexWrap: 'wrap',
+              gap: 1,
+              alignItems: 'center',
+            }}
+          >
+            <Typography
+              variant="body2"
+              color="text.secondary"
+              sx={{ fontWeight: 600 }}
+            >
               建議提升：
             </Typography>
             {recommendations.map(rec => (
@@ -628,6 +733,7 @@ git commit -m "feat: add StatBalanceChart radar component"
 ### Task 4: Integrate into `app/page.js`
 
 **Files:**
+
 - Modify: `app/page.js`
 
 **Step 1: Add the import**

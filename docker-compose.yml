@@ -8,13 +8,13 @@ services:
       - traefik
       - infra
     labels:
-      - "traefik.enable=true"
-      - "traefik.http.routers.maple-hub.rule=Host(`maple-hub.hanshino.dev`)"
-      - "traefik.http.routers.maple-hub.entrypoints=websecure"
-      - "traefik.http.routers.maple-hub.tls.certresolver=leresolver"
-      - "traefik.http.services.maple-hub.loadbalancer.server.port=3000"
-      - "traefik.http.services.maple-hub.loadbalancer.healthcheck.path=/api/health"
-      - "traefik.http.services.maple-hub.loadbalancer.healthcheck.interval=30s"
+      - 'traefik.enable=true'
+      - 'traefik.http.routers.maple-hub.rule=Host(`maple-hub.hanshino.dev`)'
+      - 'traefik.http.routers.maple-hub.entrypoints=websecure'
+      - 'traefik.http.routers.maple-hub.tls.certresolver=leresolver'
+      - 'traefik.http.services.maple-hub.loadbalancer.server.port=3000'
+      - 'traefik.http.services.maple-hub.loadbalancer.healthcheck.path=/api/health'
+      - 'traefik.http.services.maple-hub.loadbalancer.healthcheck.interval=30s'
 
 networks:
   traefik:

@@ -5,7 +5,10 @@ import {
   getRecommendations,
 } from '../../lib/statBalance.js';
 
-const makeStat = (name, value) => ({ stat_name: name, stat_value: String(value) });
+const makeStat = (name, value) => ({
+  stat_name: name,
+  stat_value: String(value),
+});
 
 const mockStatsData = {
   final_stat: [
@@ -109,7 +112,7 @@ describe('computeEquivStats', () => {
     const equiv = computeEquivStats(baseRaw);
     const statFactor = 4 * 92434 + 9453;
     const atkEquiv = (statFactor / 4) * (1 + 40 / 100);
-    const expected = atkEquiv * 531 / (100 + 531 + 28);
+    const expected = (atkEquiv * 531) / (100 + 531 + 28);
     expect(equiv.bossEquiv).toBeCloseTo(expected, 0);
   });
 
@@ -117,7 +120,7 @@ describe('computeEquivStats', () => {
     const equiv = computeEquivStats(baseRaw);
     const statFactor = 4 * 92434 + 9453;
     const atkEquiv = (statFactor / 4) * (1 + 40 / 100);
-    const expected = atkEquiv * 123.25 / (37 + 123.25);
+    const expected = (atkEquiv * 123.25) / (37 + 123.25);
     expect(equiv.critEquiv).toBeCloseTo(expected, 0);
   });
 
@@ -147,8 +150,14 @@ describe('computeEquivStats', () => {
 
   it('handles zero stats gracefully', () => {
     const raw = {
-      mainStat: 0, subStat: 0, atkPct: 0, statPct: 0,
-      dmgPct: 0, bossDmg: 0, critDmg: 0, ignoreDef: 0,
+      mainStat: 0,
+      subStat: 0,
+      atkPct: 0,
+      statPct: 0,
+      dmgPct: 0,
+      bossDmg: 0,
+      critDmg: 0,
+      ignoreDef: 0,
     };
     const equiv = computeEquivStats(raw);
     expect(equiv.mainEquiv).toBe(0);
@@ -187,22 +196,35 @@ describe('computeBalanceRatios', () => {
 
   it('returns null when total is 0', () => {
     const equivStats = {
-      mainEquiv: 0, atkEquiv: 0, atkPctEquiv: 0,
-      bossEquiv: 0, critEquiv: 0, ignoreEquiv: 0,
+      mainEquiv: 0,
+      atkEquiv: 0,
+      atkPctEquiv: 0,
+      bossEquiv: 0,
+      critEquiv: 0,
+      ignoreEquiv: 0,
     };
     expect(computeBalanceRatios(equivStats)).toBeNull();
   });
 
   it('returns array of 6 items with axis labels', () => {
     const equivStats = {
-      mainEquiv: 1000, atkEquiv: 1000, atkPctEquiv: 1000,
-      bossEquiv: 1000, critEquiv: 1000, ignoreEquiv: 1000,
+      mainEquiv: 1000,
+      atkEquiv: 1000,
+      atkPctEquiv: 1000,
+      bossEquiv: 1000,
+      critEquiv: 1000,
+      ignoreEquiv: 1000,
     };
     const ratios = computeBalanceRatios(equivStats);
     expect(ratios).toHaveLength(6);
-    expect(ratios.map(r => r.axis)).toEqual(
-      ['主屬性', '攻擊力', '攻擊力%', 'Boss傷害', '爆擊傷害', '無視防禦']
-    );
+    expect(ratios.map(r => r.axis)).toEqual([
+      '主屬性',
+      '攻擊力',
+      '攻擊力%',
+      'Boss傷害',
+      '爆擊傷害',
+      '無視防禦',
+    ]);
   });
 });
 
@@ -224,7 +246,8 @@ describe('getRecommendations', () => {
 
   it('returns one recommendation when one axis is below balance', () => {
     const ratios = [1.0, 1.1, 1.2, 0.95, 1.3, 1.4].map((ratio, i) => ({
-      axis: String(i), ratio,
+      axis: String(i),
+      ratio,
     }));
     const recs = getRecommendations(ratios);
     expect(recs).toHaveLength(1);

@@ -83,6 +83,7 @@ __tests__/api/leaderboard-filters.test.js
 ### Task 1: Install Dependencies and Update Config
 
 **Files:**
+
 - Modify: `package.json`
 - Modify: `next.config.js`
 - Create: `drizzle.config.js`
@@ -159,6 +160,7 @@ docs
 - [ ] **Step 6: Add dev DB/Redis env vars to .env.local**
 
 Add these lines to `.env.local`:
+
 ```
 DB_HOST=localhost
 DB_PORT=3306
@@ -181,6 +183,7 @@ git commit -m "chore: add Drizzle, ioredis, node-cron deps; update next.config f
 ### Task 2: Drizzle DB Schema
 
 **Files:**
+
 - Create: `lib/db/schema.js`
 
 - [ ] **Step 1: Create lib/db/schema.js with all 13 tables**
@@ -537,6 +540,7 @@ git commit -m "feat: add Drizzle schema for all 13 database tables"
 ### Task 3: DB Connection + Migration Runner
 
 **Files:**
+
 - Create: `lib/db/index.js`
 - Create: `migrate.js`
 
@@ -621,6 +625,7 @@ node migrate.js
 ```
 
 Expected: Tables created. Verify with:
+
 ```bash
 docker exec maple-hub-mysql-1 mysql -u maple_hub -pmaple_hub maple_hub -e "SHOW TABLES;"
 ```
@@ -637,6 +642,7 @@ git commit -m "feat: add Drizzle DB connection and migration runner"
 ### Task 4: Redis Client
 
 **Files:**
+
 - Create: `lib/redis.js`
 
 - [ ] **Step 1: Create lib/redis.js**
@@ -740,6 +746,7 @@ git commit -m "feat: add Redis client with OCID buffer and cache operations"
 ### Task 5: DB Query Functions
 
 **Files:**
+
 - Create: `lib/db/queries.js`
 
 - [ ] **Step 1: Create lib/db/queries.js**
@@ -832,9 +839,7 @@ export async function deleteStaleCharacters(maxNotFoundCount = 3) {
   const db = getDb();
   const result = await db
     .delete(characters)
-    .where(
-      sql`not_found_count >= ${maxNotFoundCount}`
-    );
+    .where(sql`not_found_count >= ${maxNotFoundCount}`);
   return result[0]?.affectedRows || 0;
 }
 
@@ -979,12 +984,9 @@ export async function upsertEquipment(ocid, presetNo, items) {
       potentialOption3: item.potential_option_3 || null,
       additionalPotentialOptionGrade:
         item.additional_potential_option_grade || null,
-      additionalPotentialOption1:
-        item.additional_potential_option_1 || null,
-      additionalPotentialOption2:
-        item.additional_potential_option_2 || null,
-      additionalPotentialOption3:
-        item.additional_potential_option_3 || null,
+      additionalPotentialOption1: item.additional_potential_option_1 || null,
+      additionalPotentialOption2: item.additional_potential_option_2 || null,
+      additionalPotentialOption3: item.additional_potential_option_3 || null,
       itemTotalOption: item.item_total_option || null,
       itemBaseOption: item.item_base_option || null,
       itemStarforceOption: item.item_starforce_option || null,
@@ -1262,6 +1264,7 @@ git commit -m "feat: add DB query functions for all 13 tables"
 ### Task 6: Consolidate Nexon API Endpoints
 
 **Files:**
+
 - Modify: `lib/nexonApi.js`
 
 Add the 3 missing endpoints (#8 hexamatrix, #9 hexamatrix-stat, #11 symbol-equipment):
@@ -1283,9 +1286,7 @@ const twmsApiClient = axios.create({
 
 export const getCharacterHexaMatrix = async ocid => {
   try {
-    const response = await apiClient.get(
-      `/character/hexamatrix?ocid=${ocid}`
-    );
+    const response = await apiClient.get(`/character/hexamatrix?ocid=${ocid}`);
     return response.data;
   } catch (error) {
     throw new Error(`Failed to fetch hexa matrix: ${error.message}`);
@@ -1336,6 +1337,7 @@ git commit -m "feat: consolidate all Nexon API endpoints into nexonApi.js"
 ### Task 7: Character Sync Service
 
 **Files:**
+
 - Create: `lib/characterSyncService.js`
 
 This service fetches ALL 13 endpoints for a character and upserts to DB.
@@ -1595,7 +1597,10 @@ export async function syncCharacter(ocid) {
 /**
  * Sync all characters in batches with concurrency control.
  */
-export async function syncAllCharacters(ocids, { concurrency = CONCURRENCY } = {}) {
+export async function syncAllCharacters(
+  ocids,
+  { concurrency = CONCURRENCY } = {}
+) {
   const stats = { success: 0, failed: 0, notFound: 0, total: ocids.length };
   const startTime = Date.now();
 
@@ -1635,6 +1640,7 @@ git commit -m "feat: add character sync service for all 13 Nexon API endpoints"
 ### Task 8: Refactor API Routes
 
 **Files:**
+
 - Modify: `app/api/character/stats/route.js`
 - Modify: `app/api/leaderboard/route.js`
 - Modify: `app/api/leaderboard/filters/route.js`
@@ -1652,7 +1658,11 @@ import { NextResponse } from 'next/server';
 import { getCharacterStats } from '../../../../lib/nexonApi';
 import { getCachedData, setCachedData } from '../../../../lib/cache';
 import { handleApiError } from '../../../../lib/apiErrorHandler';
-import { bufferOcid, isOcidKnown, markOcidKnown } from '../../../../lib/redis.js';
+import {
+  bufferOcid,
+  isOcidKnown,
+  markOcidKnown,
+} from '../../../../lib/redis.js';
 
 async function recordOcidAsync(ocid) {
   try {
@@ -1838,6 +1848,7 @@ export async function POST(request) {
 - [ ] **Step 5: Refactor hexa-matrix routes to use nexonApi.js**
 
 `app/api/hexa-matrix/route.js` — full replacement:
+
 ```js
 import { getCharacterHexaMatrix } from '../../../lib/nexonApi';
 
@@ -1866,6 +1877,7 @@ export async function GET(request) {
 ```
 
 `app/api/hexa-matrix-stat/route.js` — full replacement (preserves combinedCores transformation):
+
 ```js
 import { getCharacterHexaMatrixStat } from '../../../lib/nexonApi';
 
@@ -1910,6 +1922,7 @@ export async function GET(request) {
 ```
 
 `app/api/character/[ocid]/runes/route.js` — replace hardcoded URL with:
+
 ```js
 import { getCharacterSymbolEquipment } from '../../../../lib/nexonApi';
 
@@ -1943,6 +1956,7 @@ git commit -m "refactor: replace Google Sheets with DB/Redis in all API routes"
 ### Task 9: Refactor Cron Routes + Add node-cron
 
 **Files:**
+
 - Modify: `app/api/cron/refresh-all/route.js`
 - Create: `lib/cron.js`
 - Create: `instrumentation.js`
@@ -1952,7 +1966,10 @@ git commit -m "refactor: replace Google Sheets with DB/Redis in all API routes"
 
 ```js
 import { NextResponse } from 'next/server';
-import { getAllOcids, deleteStaleCharacters } from '../../../../lib/db/queries.js';
+import {
+  getAllOcids,
+  deleteStaleCharacters,
+} from '../../../../lib/db/queries.js';
 import { syncAllCharacters } from '../../../../lib/characterSyncService.js';
 
 const validateAuth = request => {
@@ -2029,12 +2046,9 @@ export function initCronJobs() {
   // Refresh all characters every 6 hours
   cron.schedule('0 */6 * * *', async () => {
     try {
-      const { getAllOcids, deleteStaleCharacters } = await import(
-        './db/queries.js'
-      );
-      const { syncAllCharacters } = await import(
-        './characterSyncService.js'
-      );
+      const { getAllOcids, deleteStaleCharacters } =
+        await import('./db/queries.js');
+      const { syncAllCharacters } = await import('./characterSyncService.js');
 
       const ocids = await getAllOcids();
       console.log(`🔄 Starting refresh for ${ocids.length} characters...`);
@@ -2096,6 +2110,7 @@ git commit -m "feat: add node-cron scheduling + rewrite cron routes for MySQL"
 ### Task 10: Update envValidation.js
 
 **Files:**
+
 - Modify: `lib/envValidation.js`
 
 - [ ] **Step 1: Replace Google Sheets vars with DB/Redis vars**
@@ -2164,6 +2179,7 @@ git commit -m "refactor: replace Google Sheets env vars with DB/Redis in validat
 ### Task 11: Delete Old Files
 
 **Files:**
+
 - Delete: `lib/googleSheets.js`, `lib/ocidLogger.js`, `lib/sharedLogger.js`
 - Delete: `vercel.json`
 - Delete: `app/api/cron/combat-power-refresh/`, `app/api/cron/update-character-info/`, `app/api/cron/deduplicate-ocid/`
@@ -2214,6 +2230,7 @@ git commit -m "chore: remove Google Sheets, ocidLogger, deprecated cron routes, 
 ### Task 12: Docker Deployment Files
 
 **Files:**
+
 - Create: `Dockerfile`
 - Create: `docker-compose.yml`
 
@@ -2257,8 +2274,8 @@ services:
     networks:
       - infra
     labels:
-      - "traefik.enable=true"
-      - "traefik.http.services.maple-hub.loadbalancer.healthcheck.path=/api/health"
+      - 'traefik.enable=true'
+      - 'traefik.http.services.maple-hub.loadbalancer.healthcheck.path=/api/health'
 
 networks:
   infra:
@@ -2286,6 +2303,7 @@ git commit -m "feat: add Dockerfile and production docker-compose"
 ### Task 13: Data Migration Script
 
 **Files:**
+
 - Create: `scripts/migrate-from-sheets.js`
 
 - [ ] **Step 1: Create migration script**
@@ -2479,6 +2497,7 @@ npm run dev
 ```
 
 Verify:
+
 - `/api/health` returns `{ status: 'ok' }`
 - `/api/leaderboard` returns empty results (no data yet)
 - `/api/leaderboard/filters` returns empty worlds/classes

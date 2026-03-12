@@ -49,19 +49,11 @@ const CharacterDataTabs = ({
         );
       case TAB_HYPER_STAT:
         return (
-          <HyperStatPanel
-            data={hyperStatData}
-            loading={false}
-            error={null}
-          />
+          <HyperStatPanel data={hyperStatData} loading={false} error={null} />
         );
       case TAB_SET_EFFECT:
         return (
-          <SetEffectPanel
-            data={setEffectData}
-            loading={false}
-            error={null}
-          />
+          <SetEffectPanel data={setEffectData} loading={false} error={null} />
         );
       case TAB_UNION_ARTIFACT:
         return (
@@ -75,11 +67,7 @@ const CharacterDataTabs = ({
         return <RuneSystems runes={runes} ocid={ocid} />;
       case TAB_LINK_SKILL:
         return (
-          <LinkSkillPanel
-            data={linkSkillData}
-            loading={false}
-            error={null}
-          />
+          <LinkSkillPanel data={linkSkillData} loading={false} error={null} />
         );
       default:
         return null;
