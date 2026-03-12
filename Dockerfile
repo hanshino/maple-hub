@@ -11,14 +11,21 @@ COPY --from=deps /app/node_modules ./node_modules
 COPY . .
 RUN npm run build
 
+# Lightweight migration image (has full deps)
+FROM base AS migrator
+WORKDIR /app
+COPY --from=deps /app/node_modules ./node_modules
+COPY --from=builder /app/drizzle ./drizzle
+COPY --from=builder /app/migrate.js ./migrate.js
+COPY --from=builder /app/package.json ./package.json
+CMD ["node", "migrate.js"]
+
+# Slim production app (standalone only)
 FROM base AS runner
 WORKDIR /app
 ENV NODE_ENV=production
 COPY --from=builder /app/.next/standalone ./
 COPY --from=builder /app/.next/static ./.next/static
 COPY --from=builder /app/public ./public
-COPY --from=builder /app/drizzle ./drizzle
-COPY --from=builder /app/migrate.js ./migrate.js
-COPY --from=deps /app/node_modules ./node_modules
 EXPOSE 3000
-CMD ["sh", "-c", "node migrate.js && node server.js"]
+CMD ["node", "server.js"]

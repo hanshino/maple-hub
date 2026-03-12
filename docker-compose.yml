@@ -1,7 +1,18 @@
 services:
+  migrate:
+    image: ghcr.io/hanshino/maple-hub:migrator
+    restart: 'no'
+    env_file:
+      - .env
+    networks:
+      - infra
+
   maple-hub:
     image: ghcr.io/hanshino/maple-hub:latest
     restart: unless-stopped
+    depends_on:
+      migrate:
+        condition: service_completed_successfully
     env_file:
       - .env
     networks:
