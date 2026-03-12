@@ -43,7 +43,11 @@ export default function HexaMatrixProgress({
 
     return {
       progress: calculatedProgress,
-      statCores: hexaStatData?.character_hexa_stat_core || [],
+      statCores: [
+        ...(hexaStatData?.character_hexa_stat_core || []),
+        ...(hexaStatData?.character_hexa_stat_core_2 || []),
+        ...(hexaStatData?.character_hexa_stat_core_3 || []),
+      ],
     };
   }, [hexaCoreData, hexaStatData]);
 
@@ -56,8 +60,7 @@ export default function HexaMatrixProgress({
 
   // Prepare data for radar chart
   const radarData = progress.equipmentCores.map(core => ({
-    core:
-      core.name.length > 8 ? core.name.substring(0, 8) + '...' : core.name,
+    core: core.name.length > 8 ? core.name.substring(0, 8) + '...' : core.name,
     level: core.level,
     fullMark: 30,
   }));

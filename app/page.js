@@ -25,8 +25,10 @@ import CharacterSearch from '../components/CharacterSearch';
 import EquipmentDialog from '../components/EquipmentDialog';
 import CharacterDataTabs from '../components/CharacterDataTabs';
 import StatBalanceChart from '../components/StatBalanceChart';
+import RecentCharacters from '../components/RecentCharacters';
 import { generateDateRange } from '../lib/progressUtils';
 import { analyzeAllPresets } from '../lib/combatPowerCalculator';
+import { saveSearchHistory, migrateStorage } from '../lib/localStorage';
 
 export default function Home() {
   return (
@@ -46,7 +48,16 @@ function HomeContent() {
   const [lastOcid, setLastOcid] = useState(null);
   const [equipmentDialogOpen, setEquipmentDialogOpen] = useState(false);
 
+  useEffect(() => {
+    migrateStorage();
+  }, []);
+
   const searchCharacter = async ocid => {
+    // Update URL so refresh preserves the selected character
+    const url = new URL(window.location);
+    url.searchParams.set('ocid', ocid);
+    window.history.replaceState({}, '', url);
+
     setLastOcid(ocid);
     setLoading(true);
     setError(null);
@@ -78,6 +89,9 @@ function HomeContent() {
 
       const latestChar = { ...data.basicInfo, ocid };
       setCharacter(latestChar);
+
+      // Save to search history
+      saveSearchHistory(latestChar);
 
       // Process historical chart data
       const historyResults = await Promise.all(
@@ -198,6 +212,7 @@ function HomeContent() {
           >
             查看戰力排行榜
           </Button>
+          <RecentCharacters onSelect={searchCharacter} />
         </Paper>
       )}
 

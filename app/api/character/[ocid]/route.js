@@ -9,10 +9,7 @@ export async function GET(request, { params }) {
   const { ocid } = await params;
 
   if (!OCID_PATTERN.test(ocid)) {
-    return NextResponse.json(
-      { error: 'Invalid OCID format' },
-      { status: 400 }
-    );
+    return NextResponse.json({ error: 'Invalid OCID format' }, { status: 400 });
   }
 
   try {
