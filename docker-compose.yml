@@ -1,0 +1,16 @@
+services:
+  maple-hub:
+    build: .
+    restart: unless-stopped
+    env_file:
+      - .env
+    networks:
+      - infra
+    labels:
+      - "traefik.enable=true"
+      - "traefik.http.services.maple-hub.loadbalancer.healthcheck.path=/api/health"
+
+networks:
+  infra:
+    external: true
+    name: infra
