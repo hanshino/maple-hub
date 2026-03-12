@@ -1,16 +1,14 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState } from 'react';
 import { Box, Typography, Avatar, Paper } from '@mui/material';
 import HistoryIcon from '@mui/icons-material/History';
 import { getSearchHistory } from '../lib/localStorage';
 
 export default function RecentCharacters({ onSelect }) {
-  const [history, setHistory] = useState([]);
-
-  useEffect(() => {
-    setHistory(getSearchHistory());
-  }, []);
+  const [history] = useState(() =>
+    typeof window !== 'undefined' ? getSearchHistory() : []
+  );
 
   if (history.length === 0) return null;
 

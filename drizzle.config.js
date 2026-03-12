@@ -1,6 +1,6 @@
 import 'dotenv/config';
 
-export default {
+const config = {
   schema: './lib/db/schema.js',
   out: './drizzle',
   dialect: 'mysql',
@@ -12,3 +12,5 @@ export default {
     database: process.env.DB_NAME || 'maple_hub',
   },
 };
+
+export default config;

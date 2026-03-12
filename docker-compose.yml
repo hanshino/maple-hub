@@ -1,6 +1,6 @@
 services:
   maple-hub:
-    build: .
+    image: ghcr.io/hanshino/maple-hub:latest
     restart: unless-stopped
     env_file:
       - .env
