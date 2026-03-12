@@ -16,6 +16,7 @@ import {
 import SearchIcon from '@mui/icons-material/Search';
 import LeaderboardIcon from '@mui/icons-material/Leaderboard';
 import Link from 'next/link';
+import { useRouter } from 'next/navigation';
 import CharacterCard from '../components/CharacterCard';
 import ProgressChart from '../components/ProgressChart';
 import ErrorMessage from '../components/ErrorMessage';
@@ -40,6 +41,7 @@ export default function Home() {
 
 function HomeContent() {
   const searchParams = useSearchParams();
+  const router = useRouter();
   const [character, setCharacter] = useState(null);
   const [charData, setCharData] = useState(null);
   const [chartData, setChartData] = useState([]);
@@ -135,14 +137,21 @@ function HomeContent() {
     }
   };
 
-  // Auto-search when navigated with ?ocid= query param (e.g. from leaderboard)
+  // Reset state when navigating back to / without ocid param
+  const currentOcid = searchParams.get('ocid');
   useEffect(() => {
-    const ocid = searchParams.get('ocid');
-    if (ocid) {
-      searchCharacter(ocid);
+    if (currentOcid) {
+      searchCharacter(currentOcid);
+    } else {
+      // No ocid in URL — reset to welcome screen
+      setCharacter(null);
+      setCharData(null);
+      setChartData([]);
+      setError(null);
+      setLastOcid(null);
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []);
+  }, [currentOcid]);
 
   // Derived data from single API response
   const battlePower = charData?.basicInfo?.combat_power || null;
@@ -176,7 +185,12 @@ function HomeContent() {
   return (
     <Container maxWidth="xl" sx={{ py: 4 }}>
       <Paper elevation={2} sx={{ p: 3, mb: 4 }}>
-        <CharacterSearch onSearch={searchCharacter} loading={loading} />
+        <CharacterSearch
+          onSearch={searchCharacter}
+          loading={loading}
+          activeCharacter={character}
+          onClear={() => router.push('/')}
+        />
       </Paper>
 
       {/* Empty state: show when no character loaded and not loading */}
