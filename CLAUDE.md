@@ -4,7 +4,7 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 ## Project Overview
 
-MapleStory character progress tracker ("Maple Hub") — a Next.js 15 full-stack app deployed on Vercel Hobby tier. Players search characters, view stats/equipment, track progress over time, and compare combat power on leaderboards. Data persists via Google Sheets (no traditional database).
+MapleStory character progress tracker ("Maple Hub") — a Next.js 15 full-stack app self-hosted via Docker + Traefik on a VPS. Players search characters, view stats/equipment, track progress over time, and compare combat power on leaderboards. Data persists in MySQL (via Drizzle ORM) with Redis caching.
 
 ## Commands
 
@@ -27,19 +27,20 @@ npm run format:check # Prettier check (CI)
 ### Data Flow
 
 - Frontend components (`'use client'`) call internal API routes (`app/api/`)
-- API routes proxy to Nexon OpenAPI (character data) and Google Sheets API (persistence)
-- Middleware (`middleware.js`) captures OCIDs from API requests for logging
-- Client-side caching via localStorage (5-min expiry); server-side caching in Google Sheets module (5-min expiry, 10-min full refresh)
-- Cron jobs are API routes (`app/api/cron/`) called by external cron services, authenticated via `CRON_SECRET` Bearer token
+- API routes proxy to Nexon OpenAPI (character data) and persist to MySQL
+- `/api/character/[ocid]` auto-syncs from Nexon API if data is missing or stale (>10 min)
+- Client-side caching via localStorage (5-min expiry); server-side caching via Redis
+- Cron jobs run via `node-cron` in the Node.js process (`lib/cron.js`): refresh stale characters every 6 hours, cleanup daily
 
 ### Key Modules (lib/)
 
 - `nexonApi.js` — Nexon OpenAPI client (character, equipment, union, hexa data)
-- `googleSheets.js` — Google Sheets read/write with caching and deduplication
-- `ocidLogger.js` — In-memory OCID buffer, synced to Google Sheets periodically
-- `apiInterceptor.js` — Axios interceptor with throttling (0.2s delay in dev, none in prod)
-- `cache.js` — Client-side localStorage cache utility
-- `combatPowerService.js` / `characterInfoService.js` — Google Sheets-backed data services
+- `characterSyncService.js` — Syncs character data from Nexon API to MySQL (13 parallel API calls per OCID)
+- `db/schema.js` — Drizzle ORM schema (characters, stats, equipment, hyper stats, link skills, hexa, symbols, set effects, union, cash/pet equipment)
+- `db/queries.js` — All DB read/write operations (upsert, leaderboard, full character data)
+- `db/index.js` — MySQL connection pool (mysql2 + Drizzle)
+- `redis.js` — Redis client with key prefix and password auth
+- `cron.js` — node-cron scheduled jobs (stale refresh, cleanup)
 
 ### Pages
 
@@ -76,8 +77,6 @@ npm run format:check # Prettier check (CI)
 
 - Export named `GET`/`POST` functions
 - Return `NextResponse.json()` with appropriate status codes
-- Cron routes validate `Authorization: Bearer <CRON_SECRET>`
-- Must complete within 10-second Vercel timeout
 
 ### Testing
 
@@ -86,13 +85,15 @@ npm run format:check # Prettier check (CI)
 - Mock external APIs (axios, fetch) — never call real APIs in tests
 - `jest.setup.js` provides global mocks for fetch, Response, ResizeObserver
 
-## Platform Constraints (Vercel Hobby)
+## Deployment
 
-- **10-second serverless function timeout** — all API routes must complete within this
-- **No persistent disk storage** — use Google Sheets as database
-- **No native cron** — cron jobs are API routes triggered by external services
-- **Cold starts expected** — in-memory state (like OCID buffer) is ephemeral
-- **Zero-cost services only** — Google Sheets API, external cron free tiers
+- **Self-hosted** on VPS via Docker + Traefik reverse proxy
+- **Domain:** `maple-hub.hanshino.dev`
+- **Docker images:** built as multi-stage (`deps` → `builder` → `migrator` / `runner`), published to `ghcr.io/hanshino/maple-hub`
+- **Networks:** `traefik` (public-facing), `infra` (internal — MySQL, Redis)
+- **MySQL and Redis** are shared infrastructure on the `infra` Docker network (hosts: `infra-mysql-1`, `infra-redis-1`)
+- **Migrations** run as a separate `migrate` container before the app starts
+- **No serverless timeout constraints** — long-running operations are possible
 
 ## Feature Specifications
 
