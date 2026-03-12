@@ -22,6 +22,7 @@
 lib/db/index.js          — Drizzle DB connection (mysql2 pool)
 lib/db/schema.js         — Drizzle table definitions (13 tables)
 lib/db/queries.js         — DB query functions (CRUD for all tables)
+migrate.js               — Standalone migration runner (runs before app starts)
 lib/redis.js             — ioredis client + OCID buffer functions
 lib/cron.js              — node-cron job registration
 lib/characterSyncService.js — Fetch all 13 endpoints, upsert to DB
@@ -533,10 +534,11 @@ git commit -m "feat: add Drizzle schema for all 13 database tables"
 
 ---
 
-### Task 3: DB Connection + Push Schema
+### Task 3: DB Connection + Migration Runner
 
 **Files:**
 - Create: `lib/db/index.js`
+- Create: `migrate.js`
 
 - [ ] **Step 1: Create lib/db/index.js**
 
@@ -573,22 +575,61 @@ export async function closeDb() {
 }
 ```
 
-- [ ] **Step 2: Push schema to local MySQL**
+- [ ] **Step 2: Create migrate.js (standalone migration runner)**
 
-```bash
-npx drizzle-kit push
+This runs before the app starts (in Docker CMD). Separate from app runtime.
+
+```js
+import { drizzle } from 'drizzle-orm/mysql2';
+import { migrate } from 'drizzle-orm/mysql2/migrator';
+import mysql from 'mysql2/promise';
+
+async function runMigrations() {
+  const connection = await mysql.createConnection({
+    host: process.env.DB_HOST || 'localhost',
+    port: parseInt(process.env.DB_PORT || '3306'),
+    user: process.env.DB_USER || 'maple_hub',
+    password: process.env.DB_PASSWORD || 'maple_hub',
+    database: process.env.DB_NAME || 'maple_hub',
+  });
+
+  const db = drizzle(connection);
+  console.log('🔄 Running database migrations...');
+  await migrate(db, { migrationsFolder: './drizzle' });
+  await connection.end();
+  console.log('✅ Migrations complete');
+}
+
+runMigrations().catch(err => {
+  console.error('❌ Migration failed:', err);
+  process.exit(1);
+});
 ```
 
-Expected: Tables created in `maple_hub` database. Verify with:
+- [ ] **Step 3: Generate initial migration files**
+
+```bash
+npx drizzle-kit generate
+```
+
+Expected: Migration SQL files created in `./drizzle/` directory.
+
+- [ ] **Step 4: Run migration against local MySQL**
+
+```bash
+node migrate.js
+```
+
+Expected: Tables created. Verify with:
 ```bash
 docker exec maple-hub-mysql-1 mysql -u maple_hub -pmaple_hub maple_hub -e "SHOW TABLES;"
 ```
 
-- [ ] **Step 3: Commit**
+- [ ] **Step 5: Commit**
 
 ```bash
-git add lib/db/index.js
-git commit -m "feat: add Drizzle DB connection with mysql2 pool"
+git add lib/db/index.js migrate.js drizzle/
+git commit -m "feat: add Drizzle DB connection and migration runner"
 ```
 
 ---
@@ -2198,8 +2239,10 @@ ENV NODE_ENV=production
 COPY --from=builder /app/.next/standalone ./
 COPY --from=builder /app/.next/static ./.next/static
 COPY --from=builder /app/public ./public
+COPY --from=builder /app/drizzle ./drizzle
+COPY --from=builder /app/migrate.js ./migrate.js
 EXPOSE 3000
-CMD ["node", "server.js"]
+CMD ["sh", "-c", "node migrate.js && node server.js"]
 ```
 
 - [ ] **Step 2: Create docker-compose.yml (production)**
