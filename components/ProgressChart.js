@@ -2,7 +2,8 @@
 
 import { memo, useMemo } from 'react';
 import { useTheme } from '@mui/material/styles';
-import { Box } from '@mui/material';
+import { alpha } from '@mui/material/styles';
+import { Box, Typography } from '@mui/material';
 import {
   PieChart,
   Pie,
@@ -14,33 +15,27 @@ import {
   CartesianGrid,
   Tooltip,
   ResponsiveContainer,
+  Label,
 } from 'recharts';
 
-// Constants for chart configuration
 const CHART_COLORS = {
-  completed: '#f7931e', // Primary orange (theme)
+  completed: '#f7931e',
   remainingLight: '#E5E7EB',
   remainingDark: '#3a2f2a',
-  actual: '#f7931e', // Primary orange
-  prediction: '#8c6239', // Secondary brown (theme)
+  actual: '#f7931e',
+  prediction: '#8c6239',
 };
 
 const PREDICTION_CONFIG = {
   days: 10,
-  maxPercentage: 300, // For level-aware charts
-  maxPercentageLegacy: 100, // For legacy charts
+  maxPercentage: 300,
+  maxPercentageLegacy: 100,
 };
 
 const LEVEL_ADJUSTMENT = {
-  perLevel: 100, // Add 100% per level gained
+  perLevel: 100,
 };
 
-/**
- * Calculate prediction data for future progress based on historical data
- * @param {Array} data - Historical progress data
- * @param {boolean} isLevelAware - Whether to use level-aware calculations
- * @returns {Array} Prediction data points
- */
 const calculatePredictions = (data, isLevelAware = false) => {
   if (!data || data.length < 2) return [];
 
@@ -77,7 +72,7 @@ const calculatePredictions = (data, isLevelAware = false) => {
 
     predictionData.push({
       date: predictionDate.toISOString().split('T')[0],
-      percentage: null, // Actual data is null for predictions
+      percentage: null,
       prediction: currentProgress,
       isPrediction: true,
     });
@@ -86,11 +81,6 @@ const calculatePredictions = (data, isLevelAware = false) => {
   return predictionData;
 };
 
-/**
- * Process data for level-aware charts with percentage adjustments
- * @param {Array} validData - Validated progress data
- * @returns {Object} Processed chart data
- */
 const processLevelAwareData = validData => {
   const baselineLevel = validData[0].level;
 
@@ -102,7 +92,6 @@ const processLevelAwareData = validData => {
           ? item.progress * 100
           : 0;
 
-    // Calculate level difference (only apply for level gains)
     const levelDiff = Math.max(0, item.level - baselineLevel);
     const levelAdjustment = levelDiff * LEVEL_ADJUSTMENT.perLevel;
     const adjustedPercentage = rawPercentage + levelAdjustment;
@@ -110,7 +99,7 @@ const processLevelAwareData = validData => {
     return {
       ...item,
       percentage: adjustedPercentage,
-      progress: adjustedPercentage, // Keep progress field in percentage range for chart compatibility
+      progress: adjustedPercentage,
       rawPercentage,
       levelAdjustment,
     };
@@ -118,11 +107,16 @@ const processLevelAwareData = validData => {
 
   const predictionData = calculatePredictions(processedData, true);
 
-  // Combine actual and prediction data
-  const combinedData = [
-    ...processedData.map(item => ({ ...item, prediction: null })),
-    ...predictionData,
-  ];
+  const actualData = processedData.map((item, index) => ({
+    ...item,
+    // Connect the last actual point to the prediction line
+    prediction:
+      predictionData.length > 0 && index === processedData.length - 1
+        ? item.progress
+        : null,
+  }));
+
+  const combinedData = [...actualData, ...predictionData];
 
   return {
     type: 'line',
@@ -132,11 +126,6 @@ const processLevelAwareData = validData => {
   };
 };
 
-/**
- * Process data for legacy charts without level information
- * @param {Array} validData - Validated progress data
- * @returns {Object} Processed chart data
- */
 const processLegacyData = validData => {
   const processedData = validData.map(item => ({
     ...item,
@@ -146,7 +135,6 @@ const processLegacyData = validData => {
         : item.progress !== undefined
           ? item.progress * 100
           : 0,
-    // Keep progress field in percentage range for chart compatibility
     progress:
       item.percentage !== undefined
         ? item.percentage
@@ -157,11 +145,15 @@ const processLegacyData = validData => {
 
   const predictionData = calculatePredictions(processedData, false);
 
-  // Combine actual and prediction data
-  const combinedData = [
-    ...processedData.map(item => ({ ...item, prediction: null })),
-    ...predictionData,
-  ];
+  const actualData = processedData.map((item, index) => ({
+    ...item,
+    prediction:
+      predictionData.length > 0 && index === processedData.length - 1
+        ? item.progress
+        : null,
+  }));
+
+  const combinedData = [...actualData, ...predictionData];
 
   return {
     type: 'line',
@@ -171,35 +163,52 @@ const processLegacyData = validData => {
   };
 };
 
-/**
- * ProgressChart component with level-aware percentage adjustments
- *
- * Displays experience progress data using pie charts (single data point) or line charts (multiple data points).
- * For cross-level visualization, adds 100% to the percentage for each level gained above baseline.
- *
- * Supports both legacy format (progress: 0-1) and new format (percentage: 0-100, level: number).
- * When level data is present, applies level-aware calculations for continuous chart visualization.
- *
- * @param {Object|Array} progressData - Progress data to display
- * @param {string} progressData.date - ISO date string (for arrays)
- * @param {number} progressData.percentage - Raw percentage within level (0-100, preferred)
- * @param {number} progressData.progress - Legacy progress value (0-1, still supported)
- * @param {number} progressData.level - Character level (enables level-aware calculations)
- * @returns {JSX.Element} Chart component
- */
+/** Custom center label for the donut chart */
+const DonutCenterLabel = ({ viewBox, percentage, theme }) => {
+  const { cx, cy } = viewBox;
+  return (
+    <g>
+      <text
+        x={cx}
+        y={cy - 6}
+        textAnchor="middle"
+        dominantBaseline="central"
+        style={{
+          fontSize: '20px',
+          fontWeight: 800,
+          fill: theme.palette.primary.main,
+          fontFamily: '"Comic Neue", cursive',
+        }}
+      >
+        {percentage.toFixed(1)}%
+      </text>
+      <text
+        x={cx}
+        y={cy + 16}
+        textAnchor="middle"
+        dominantBaseline="central"
+        style={{
+          fontSize: '11px',
+          fontWeight: 500,
+          fill: theme.palette.text.secondary,
+        }}
+      >
+        經驗進度
+      </text>
+    </g>
+  );
+};
+
 const ProgressChart = memo(function ProgressChart({ progressData }) {
   const theme = useTheme();
-  // Memoize chart data to prevent unnecessary recalculations
+
   const chartData = useMemo(() => {
-    // If no data, show message
     if (!progressData || progressData.length === 0) {
       return { type: 'empty' };
     }
 
-    // If single data point or single progress value, prepare pie chart data
     if (!Array.isArray(progressData) || progressData.length === 1) {
       const item = Array.isArray(progressData) ? progressData[0] : progressData;
-      // Support both old 'progress' format and new 'percentage' + 'level' format
       const percentage =
         item.percentage !== undefined
           ? item.percentage
@@ -229,7 +238,6 @@ const ProgressChart = memo(function ProgressChart({ progressData }) {
       };
     }
 
-    // Validate data format for line chart - support both formats
     const validData = progressData.filter(
       item =>
         item &&
@@ -242,116 +250,188 @@ const ProgressChart = memo(function ProgressChart({ progressData }) {
       return { type: 'invalid' };
     }
 
-    // Check if data includes level information for level-aware calculations
     const hasLevelData = validData.some(item => 'level' in item);
 
-    const processedData = hasLevelData
+    return hasLevelData
       ? processLevelAwareData(validData)
       : processLegacyData(validData);
-
-    return processedData;
   }, [progressData, theme.palette.mode]);
 
-  // Early return for empty data
   if (chartData.type === 'empty') {
     return (
-      <div
-        className="w-full h-64 flex items-center justify-center"
-        style={{ color: theme.palette.text.secondary }}
+      <Box
+        sx={{
+          height: 200,
+          display: 'flex',
+          alignItems: 'center',
+          justifyContent: 'center',
+          color: 'text.secondary',
+          borderRadius: 2,
+          bgcolor: theme => alpha(theme.palette.primary.main, 0.03),
+        }}
         role="region"
         aria-label="進度圖表 - 無資料可顯示"
       >
-        <p>無進度資料可顯示</p>
-      </div>
+        <Typography variant="body2" sx={{ opacity: 0.6 }}>
+          無進度資料可顯示
+        </Typography>
+      </Box>
     );
   }
 
-  // Pie chart for single data point
   if (chartData.type === 'pie') {
     return (
       <figure
-        className="w-full h-32 sm:h-40"
+        className="w-full"
         role="region"
         aria-labelledby="pie-chart-title"
+        style={{ margin: 0 }}
       >
         <figcaption id="pie-chart-title" className="sr-only">
           目前進度圓餅圖顯示 {chartData.percentage.toFixed(1)}% 完成度
         </figcaption>
-        <div
-          className="text-xs mb-2 text-center sm:text-left"
-          style={{ color: theme.palette.text.secondary }}
-        >
-          目前進度: {chartData.percentage.toFixed(1)}%
-        </div>
-        <div className="flex justify-center">
-          <div
-            style={{ width: '250px', height: '120px' }}
-            role="img"
-            aria-label={`進度圖表: ${chartData.percentage.toFixed(1)}% 已完成, ${chartData.data[1].value.toFixed(1)}% 剩餘`}
-          >
-            <PieChart width={250} height={120}>
+        <Box sx={{ display: 'flex', justifyContent: 'center', py: 1 }}>
+          <ResponsiveContainer width={180} height={180}>
+            <PieChart>
               <Pie
                 data={chartData.data}
                 cx="50%"
                 cy="50%"
-                innerRadius={25}
-                outerRadius={45}
-                paddingAngle={5}
+                innerRadius={55}
+                outerRadius={75}
+                paddingAngle={3}
                 dataKey="value"
+                startAngle={90}
+                endAngle={-270}
+                strokeWidth={0}
               >
                 {chartData.data.map((entry, index) => (
                   <Cell key={`cell-${index}`} fill={entry.color} />
                 ))}
+                <Label
+                  content={
+                    <DonutCenterLabel
+                      percentage={chartData.percentage}
+                      theme={theme}
+                    />
+                  }
+                  position="center"
+                />
               </Pie>
               <Tooltip formatter={value => `${value.toFixed(1)}%`} />
             </PieChart>
-          </div>
-        </div>
+          </ResponsiveContainer>
+        </Box>
+        <Typography
+          variant="caption"
+          sx={{
+            display: 'block',
+            textAlign: 'center',
+            color: 'text.secondary',
+            mt: 0.5,
+            opacity: 0.7,
+          }}
+        >
+          僅有單日資料，累積更多天數後將顯示趨勢圖
+        </Typography>
       </figure>
     );
   }
 
-  // Invalid data
   if (chartData.type === 'invalid') {
     return (
-      <div
-        className="w-full h-64 flex items-center justify-center"
-        style={{ color: theme.palette.text.secondary }}
+      <Box
+        sx={{
+          height: 200,
+          display: 'flex',
+          alignItems: 'center',
+          justifyContent: 'center',
+          color: 'text.secondary',
+        }}
         role="region"
         aria-label="進度圖表 - 資料格式無效"
       >
-        <p>圖表資料格式無效</p>
-      </div>
+        <Typography variant="body2" sx={{ opacity: 0.6 }}>
+          圖表資料格式無效
+        </Typography>
+      </Box>
     );
   }
 
-  // Line chart for multiple data points
+  // Line chart
+  const actualCount = chartData.combinedData.filter(
+    d => d.progress !== null
+  ).length;
+
   return (
     <figure
-      className="w-full h-64 sm:h-80"
+      className="w-full"
       role="region"
       aria-label="進度趨勢圖表"
+      style={{ margin: 0 }}
     >
       <Box
         sx={{
-          fontSize: '0.75rem',
-          color: 'text.secondary',
-          mb: 3,
-          textAlign: { xs: 'center', sm: 'left' },
+          display: 'flex',
+          alignItems: 'center',
+          justifyContent: 'space-between',
+          mb: 2,
+          flexWrap: 'wrap',
+          gap: 0.5,
         }}
       >
-        實際資料點數量:{' '}
-        {chartData.combinedData.filter(d => d.progress !== null).length}
-        {chartData.hasPrediction ? ' | 灰色虛線: 未來10天預測進度' : ''}
+        <Box sx={{ display: 'flex', alignItems: 'center', gap: 1.5 }}>
+          <Box sx={{ display: 'flex', alignItems: 'center', gap: 0.5 }}>
+            <Box
+              sx={{
+                width: 12,
+                height: 3,
+                borderRadius: 1,
+                bgcolor: CHART_COLORS.actual,
+              }}
+            />
+            <Typography
+              variant="caption"
+              sx={{ color: 'text.secondary', fontSize: '0.7rem' }}
+            >
+              實際 ({actualCount}筆)
+            </Typography>
+          </Box>
+          {chartData.hasPrediction && (
+            <Box sx={{ display: 'flex', alignItems: 'center', gap: 0.5 }}>
+              <Box
+                sx={{
+                  width: 12,
+                  height: 3,
+                  borderRadius: 1,
+                  bgcolor: CHART_COLORS.prediction,
+                  opacity: 0.6,
+                  backgroundImage: `repeating-linear-gradient(90deg, ${CHART_COLORS.prediction} 0px, ${CHART_COLORS.prediction} 3px, transparent 3px, transparent 6px)`,
+                }}
+              />
+              <Typography
+                variant="caption"
+                sx={{ color: 'text.secondary', fontSize: '0.7rem' }}
+              >
+                預測 (10天)
+              </Typography>
+            </Box>
+          )}
+        </Box>
       </Box>
-      <ResponsiveContainer width="100%" height={400}>
+      <ResponsiveContainer width="100%" height={320}>
         <LineChart
           data={chartData.combinedData}
-          margin={{ top: 5, right: 30, left: 20, bottom: 60 }}
+          margin={{ top: 5, right: 16, left: 0, bottom: 40 }}
         >
           <CartesianGrid
             strokeDasharray="3 3"
-            stroke={theme.palette.mode === 'dark' ? '#3a2f2a' : '#e0e0e0'}
+            stroke={
+              theme.palette.mode === 'dark'
+                ? alpha(theme.palette.divider, 0.15)
+                : alpha(theme.palette.divider, 0.3)
+            }
+            vertical={false}
           />
           <XAxis
             dataKey="date"
@@ -362,6 +442,8 @@ const ProgressChart = memo(function ProgressChart({ progressData }) {
             }}
             height={40}
             interval="preserveStartEnd"
+            axisLine={{ stroke: theme.palette.divider }}
+            tickLine={false}
           />
           <YAxis
             tick={{ fontSize: 10, fill: theme.palette.text.secondary }}
@@ -370,12 +452,14 @@ const ProgressChart = memo(function ProgressChart({ progressData }) {
                 ? [
                     0,
                     dataMax => {
-                      const calculatedMax = Math.ceil(dataMax / 100) * 100;
-                      return calculatedMax;
+                      return Math.ceil(dataMax / 100) * 100;
                     },
                   ]
                 : ['dataMin', 'dataMax']
             }
+            axisLine={false}
+            tickLine={false}
+            width={40}
           />
           <Tooltip
             formatter={(value, name) => [
@@ -385,17 +469,30 @@ const ProgressChart = memo(function ProgressChart({ progressData }) {
             labelFormatter={label => `日期: ${label}`}
             contentStyle={{
               backgroundColor: theme.palette.background.paper,
-              border: `1px solid ${theme.palette.mode === 'dark' ? '#5a4a38' : '#ccc'}`,
-              borderRadius: '4px',
+              border: `1px solid ${theme.palette.divider}`,
+              borderRadius: '8px',
               color: theme.palette.text.primary,
+              fontSize: '12px',
+              boxShadow: '0 2px 8px rgba(0,0,0,0.1)',
             }}
           />
           <Line
             type="monotone"
             dataKey="progress"
             stroke={CHART_COLORS.actual}
-            strokeWidth={2}
-            dot={{ fill: CHART_COLORS.actual, strokeWidth: 2, r: 3 }}
+            strokeWidth={2.5}
+            dot={{
+              fill: CHART_COLORS.actual,
+              strokeWidth: 2,
+              r: 4,
+              stroke: theme.palette.background.paper,
+            }}
+            activeDot={{
+              fill: CHART_COLORS.actual,
+              strokeWidth: 2,
+              r: 6,
+              stroke: theme.palette.background.paper,
+            }}
             connectNulls={false}
           />
           {chartData.hasPrediction && (
@@ -404,8 +501,13 @@ const ProgressChart = memo(function ProgressChart({ progressData }) {
               dataKey="prediction"
               stroke={CHART_COLORS.prediction}
               strokeWidth={2}
-              strokeDasharray="5 5"
-              dot={{ fill: CHART_COLORS.prediction, strokeWidth: 2, r: 2 }}
+              strokeDasharray="6 4"
+              dot={{
+                fill: CHART_COLORS.prediction,
+                strokeWidth: 2,
+                r: 3,
+                stroke: theme.palette.background.paper,
+              }}
               connectNulls={false}
             />
           )}

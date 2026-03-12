@@ -6,6 +6,7 @@ jest.mock('recharts', () => ({
   PieChart: ({ children }) => <div data-testid="pie-chart">{children}</div>,
   Pie: ({ children }) => <div data-testid="pie">{children}</div>,
   Cell: () => <div data-testid="cell" />,
+  Label: () => <div data-testid="label" />,
   LineChart: ({ children }) => <div data-testid="line-chart">{children}</div>,
   Line: () => <div data-testid="line" />,
   XAxis: () => <div data-testid="x-axis" />,
@@ -28,8 +29,10 @@ describe('ProgressChart', () => {
     const mockData = [{ progress: 0.75 }];
     render(<ProgressChart progressData={mockData} />);
 
-    expect(screen.getByText('目前進度: 75.0%')).toBeInTheDocument();
     expect(screen.getByTestId('pie-chart')).toBeInTheDocument();
+    expect(
+      screen.getByText(/僅有單日資料.*累積更多天數/)
+    ).toBeInTheDocument();
   });
 
   it('renders line chart for multiple data points', () => {
@@ -40,7 +43,7 @@ describe('ProgressChart', () => {
     render(<ProgressChart progressData={mockData} />);
 
     expect(screen.getByTestId('line-chart')).toBeInTheDocument();
-    expect(screen.getByText(/實際資料點數量/)).toBeInTheDocument();
+    expect(screen.getByText(/實際/)).toBeInTheDocument();
   });
 
   it('handles invalid data gracefully', () => {
@@ -58,10 +61,8 @@ describe('ProgressChart', () => {
         { date: '2025-10-21', level: 151, percentage: 10 },
       ];
 
-      // This test will fail initially - we need to implement the level adjustment logic
       render(<ProgressChart progressData={mockData} />);
 
-      // For now, just verify the component renders without crashing
       expect(screen.getByTestId('line-chart')).toBeInTheDocument();
     });
 
@@ -73,7 +74,6 @@ describe('ProgressChart', () => {
 
       render(<ProgressChart progressData={mockData} />);
 
-      // Verify component renders
       expect(screen.getByTestId('line-chart')).toBeInTheDocument();
     });
 
@@ -85,7 +85,6 @@ describe('ProgressChart', () => {
 
       render(<ProgressChart progressData={mockData} />);
 
-      // Verify component renders
       expect(screen.getByTestId('line-chart')).toBeInTheDocument();
     });
   });
@@ -93,12 +92,11 @@ describe('ProgressChart', () => {
   // Additional edge case tests
   describe('Edge cases and performance', () => {
     it('handles large datasets efficiently', () => {
-      // Generate 50 data points spanning multiple levels (reduced for performance)
       const largeData = [];
       for (let i = 0; i < 50; i++) {
-        const level = 150 + Math.floor(i / 5); // Level increases every 5 points
-        const percentage = (i % 5) * 20; // 0, 20, 40, 60, 80
-        const date = new Date(2025, 9, 1 + i); // Start from Oct 1, increment by day
+        const level = 150 + Math.floor(i / 5);
+        const percentage = (i % 5) * 20;
+        const date = new Date(2025, 9, 1 + i);
         largeData.push({
           date: date.toISOString().split('T')[0],
           level,
@@ -108,20 +106,18 @@ describe('ProgressChart', () => {
 
       render(<ProgressChart progressData={largeData} />);
 
-      // Should render without performance issues
       expect(screen.getByTestId('line-chart')).toBeInTheDocument();
     });
 
     it('handles mixed data formats gracefully', () => {
       const mixedData = [
         { date: '2025-10-20', percentage: 50, level: 150 },
-        { date: '2025-10-21', progress: 0.75 }, // Legacy format
+        { date: '2025-10-21', progress: 0.75 },
         { date: '2025-10-22', percentage: 25, level: 151 },
       ];
 
       render(<ProgressChart progressData={mixedData} />);
 
-      // Should handle mixed formats without errors
       expect(screen.getByTestId('line-chart')).toBeInTheDocument();
     });
 
@@ -135,19 +131,17 @@ describe('ProgressChart', () => {
 
       render(<ProgressChart progressData={dataWithNulls} />);
 
-      // Should filter out invalid entries and render valid ones
       expect(screen.getByTestId('line-chart')).toBeInTheDocument();
     });
 
     it('handles extreme level differences', () => {
       const extremeData = [
         { date: '2025-10-20', level: 1, percentage: 50 },
-        { date: '2025-10-21', level: 300, percentage: 25 }, // Massive level jump
+        { date: '2025-10-21', level: 300, percentage: 25 },
       ];
 
       render(<ProgressChart progressData={extremeData} />);
 
-      // Should apply 299 * 100 = 29900% adjustment
       expect(screen.getByTestId('line-chart')).toBeInTheDocument();
     });
 
@@ -155,12 +149,12 @@ describe('ProgressChart', () => {
       const { rerender } = render(<ProgressChart progressData={[]} />);
       expect(screen.getByText('無進度資料可顯示')).toBeInTheDocument();
 
-      // Re-render with data
+      // Re-render with single data point
       const data = [{ date: '2025-10-20', percentage: 50, level: 150 }];
       rerender(<ProgressChart progressData={data} />);
-      expect(screen.getByText('目前進度: 50.0%')).toBeInTheDocument();
+      expect(screen.getByTestId('pie-chart')).toBeInTheDocument();
 
-      // Re-render with different data
+      // Re-render with multiple data points
       const newData = [
         { date: '2025-10-20', percentage: 50, level: 150 },
         { date: '2025-10-21', percentage: 75, level: 150 },

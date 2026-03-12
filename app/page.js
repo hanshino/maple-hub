@@ -400,31 +400,34 @@ function HomeContent() {
           </Grid>
 
           {/* Two columns: Progress + Hexa Matrix */}
-          <Grid container spacing={2} sx={{ mb: 4 }}>
+          <Grid container spacing={2} sx={{ mb: 4, alignItems: 'flex-start' }}>
             <Grid size={{ xs: 12, md: 7 }}>
-              <Card elevation={2} sx={{ height: '100%' }}>
-                <CardContent sx={{ height: '100%' }}>
-                  <Typography variant="h5" component="h3" gutterBottom>
-                    進度視覺化
+              <Card elevation={2}>
+                <CardContent>
+                  <Typography
+                    variant="h6"
+                    component="h3"
+                    sx={{ fontWeight: 700, mb: 2.5 }}
+                  >
+                    經驗值進度
                   </Typography>
-                  <Box sx={{ mt: 2, mb: 3 }}>
+                  <Box sx={{ mb: 3 }}>
                     <ProgressBar
                       progress={
                         parseFloat(character.character_exp_rate || 0) / 100
                       }
                       expRate={5}
                       historicalData={chartData}
+                      level={character.character_level}
                     />
                   </Box>
-                  <Box sx={{ mt: 2 }}>
-                    <ProgressChart progressData={chartData} />
-                  </Box>
+                  <ProgressChart progressData={chartData} />
                 </CardContent>
               </Card>
             </Grid>
             <Grid size={{ xs: 12, md: 5 }}>
-              <Card elevation={2} sx={{ height: '100%' }}>
-                <CardContent sx={{ p: 3, height: '100%' }}>
+              <Card elevation={2}>
+                <CardContent sx={{ p: 3 }}>
                   <HexaMatrixProgress
                     character={character}
                     hexaCoreData={hexaCoreData}
