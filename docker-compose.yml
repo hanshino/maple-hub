@@ -26,6 +26,7 @@ services:
       - 'traefik.http.services.maple-hub.loadbalancer.server.port=3000'
       - 'traefik.http.services.maple-hub.loadbalancer.healthcheck.path=/api/health'
       - 'traefik.http.services.maple-hub.loadbalancer.healthcheck.interval=30s'
+      - 'traefik.docker.network=traefik'
 
 networks:
   traefik:

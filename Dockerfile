@@ -9,6 +9,7 @@ FROM base AS builder
 WORKDIR /app
 COPY --from=deps /app/node_modules ./node_modules
 COPY . .
+ENV NEXT_BUILD_PHASE=1
 RUN npm run build
 
 # Lightweight migration image (has full deps)

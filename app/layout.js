@@ -15,8 +15,8 @@ import '@fontsource/nunito/800.css';
 import '@fontsource/comic-neue/400.css';
 import '@fontsource/comic-neue/700.css';
 
-// 應用程式啟動時驗證環境變數
-if (typeof window === 'undefined') {
+// 應用程式啟動時驗證環境變數（跳過 Docker build 階段）
+if (typeof window === 'undefined' && !process.env.NEXT_BUILD_PHASE) {
   validateEnvironmentOnLoad();
 }
 
