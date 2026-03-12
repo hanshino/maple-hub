@@ -1,6 +1,7 @@
 'use client';
 
 import React, { useMemo } from 'react';
+import { useTheme, alpha } from '@mui/material/styles';
 import {
   Box,
   Card,
@@ -28,6 +29,8 @@ import {
 const MAX_RATIO = 1.8;
 
 const StatBalanceChart = ({ statsData, equipmentData, loading }) => {
+  const theme = useTheme();
+
   const { ratios, chartData, recommendations } = useMemo(() => {
     if (!statsData) return { ratios: null, chartData: [], recommendations: [] };
     const raw = extractBalanceStats(statsData, equipmentData);
@@ -86,7 +89,7 @@ const StatBalanceChart = ({ statsData, equipmentData, loading }) => {
                 sx={{
                   width: 16,
                   height: 3,
-                  bgcolor: '#f7931e',
+                  bgcolor: 'primary.main',
                   borderRadius: 1,
                 }}
               />
@@ -106,7 +109,7 @@ const StatBalanceChart = ({ statsData, equipmentData, loading }) => {
                   y1="2"
                   x2="16"
                   y2="2"
-                  stroke="#9e9e9e"
+                  stroke={theme.palette.text.disabled}
                   strokeDasharray="4 2"
                   strokeWidth={2}
                 />
@@ -126,10 +129,20 @@ const StatBalanceChart = ({ statsData, equipmentData, loading }) => {
             role="img"
             aria-label="能力探測圖，顯示六個戰力維度的投資分佈"
           >
-            <PolarGrid stroke="#e0e0e0" />
+            <PolarGrid
+              stroke={
+                theme.palette.mode === 'dark'
+                  ? alpha(theme.palette.divider, 0.2)
+                  : alpha(theme.palette.divider, 0.4)
+              }
+            />
             <PolarAngleAxis
               dataKey="axis"
-              tick={{ fontSize: 11, fill: '#555', fontWeight: 600 }}
+              tick={{
+                fontSize: 11,
+                fill: theme.palette.text.secondary,
+                fontWeight: 600,
+              }}
             />
             <PolarRadiusAxis
               domain={[0, MAX_RATIO]}
@@ -149,19 +162,31 @@ const StatBalanceChart = ({ statsData, equipmentData, loading }) => {
                 }
                 return null;
               }}
+              contentStyle={{
+                backgroundColor: theme.palette.background.paper,
+                border: `1px solid ${theme.palette.divider}`,
+                borderRadius: '8px',
+                color: theme.palette.text.primary,
+                fontSize: '12px',
+                boxShadow: '0 2px 8px rgba(0,0,0,0.1)',
+              }}
             />
-            {/* Outer reference boundary — transparent fill to avoid blending with cream bg */}
+            {/* Outer reference boundary */}
             <Radar
               dataKey="outer"
-              stroke="#e0e0e0"
+              stroke={
+                theme.palette.mode === 'dark'
+                  ? alpha(theme.palette.divider, 0.2)
+                  : alpha(theme.palette.divider, 0.4)
+              }
               fill="none"
               strokeWidth={1}
               tooltipType="none"
             />
-            {/* Balance hexagon — gray dashed, distinct from player orange */}
+            {/* Balance hexagon — dashed, distinct from player */}
             <Radar
               dataKey="balance"
-              stroke="#9e9e9e"
+              stroke={theme.palette.text.disabled}
               fill="none"
               strokeDasharray="6 3"
               strokeWidth={1.5}
@@ -170,9 +195,9 @@ const StatBalanceChart = ({ statsData, equipmentData, loading }) => {
             {/* Player hexagon */}
             <Radar
               dataKey="player"
-              stroke="#f7931e"
-              fill="#f7931e"
-              fillOpacity={0.25}
+              stroke={theme.palette.primary.main}
+              fill={theme.palette.primary.main}
+              fillOpacity={0.2}
               strokeWidth={2}
             />
           </RadarChart>
