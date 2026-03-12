@@ -1,73 +1,41 @@
 import { NextResponse } from 'next/server';
-import GoogleSheetsClient from '../../../lib/googleSheets';
-import { ocidLogger } from '../../../lib/sharedLogger.js';
+import { flushOcidBuffer } from '../../../lib/redis.js';
+import { upsertCharacters } from '../../../lib/db/queries.js';
 
 export async function GET(request) {
+  const authHeader = request.headers.get('Authorization');
+  if (authHeader !== `Bearer ${process.env.CRON_SECRET}`) {
+    return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+  }
+
   try {
-    // 檢查是否為授權的 cron job 請求 - 根據 Vercel 官方文檔
-    const authHeader = request.headers.get('Authorization');
-    const expectedToken = process.env.CRON_SECRET;
-
-    if (!expectedToken || authHeader !== `Bearer ${expectedToken}`) {
-      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
-    }
-
-    const client = new GoogleSheetsClient();
-    const ocids = ocidLogger.getAllOcids();
+    const ocids = await flushOcidBuffer();
 
     if (ocids.length === 0) {
-      return NextResponse.json({
-        success: true,
-        message: 'No OCIDs to sync',
-        syncedCount: 0,
-      });
+      return NextResponse.json({ message: 'No new OCIDs to sync', count: 0 });
     }
 
-    await client.appendOcids(ocids);
-    ocidLogger.clear();
-
-    console.log(`✅ Cron job synced ${ocids.length} OCIDs to Google Sheets`);
+    await upsertCharacters(
+      ocids.map(ocid => ({
+        ocid,
+        status: 'success',
+        notFoundCount: 0,
+      }))
+    );
 
     return NextResponse.json({
-      success: true,
-      syncedCount: ocids.length,
-      timestamp: new Date().toISOString(),
+      message: `Synced ${ocids.length} OCIDs`,
+      count: ocids.length,
     });
   } catch (error) {
-    console.error('❌ Cron job failed:', error);
+    console.error('Sync OCIDs error:', error);
     return NextResponse.json(
-      {
-        success: false,
-        error: error.message,
-        timestamp: new Date().toISOString(),
-      },
+      { error: 'Failed to sync OCIDs' },
       { status: 500 }
     );
   }
 }
 
-// 保持 POST 方法以向後相容
-export async function POST() {
-  try {
-    const client = new GoogleSheetsClient();
-    const ocids = ocidLogger.getAllOcids();
-
-    await client.appendOcids(ocids);
-    ocidLogger.clear();
-
-    return NextResponse.json({
-      success: true,
-      syncedCount: ocids.length,
-      errors: [],
-    });
-  } catch (error) {
-    return NextResponse.json(
-      {
-        success: false,
-        error: error.message,
-        syncedCount: 0,
-      },
-      { status: 500 }
-    );
-  }
+export async function POST(request) {
+  return GET(request);
 }

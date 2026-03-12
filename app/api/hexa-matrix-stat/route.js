@@ -1,7 +1,4 @@
-import axios from 'axios';
-
-const API_BASE_URL = process.env.NEXT_PUBLIC_API_BASE_URL;
-const API_KEY = process.env.API_KEY;
+import { getCharacterHexaMatrixStat } from '../../../lib/nexonApi';
 
 export async function GET(request) {
   const { searchParams } = new URL(request.url);
@@ -15,43 +12,26 @@ export async function GET(request) {
   }
 
   try {
-    const response = await axios.get(
-      `${API_BASE_URL}/character/hexamatrix-stat`,
-      {
-        params: { ocid },
-        headers: {
-          accept: 'application/json',
-          'x-nxopen-api-key': API_KEY,
-        },
-        timeout: 10000,
-      }
-    );
+    const data = await getCharacterHexaMatrixStat(ocid);
 
     // Combine all hexa stat core arrays
     const combinedCores = [];
-
-    // Check for all fields that contain 'hexa_stat_core' but exclude preset fields
-    Object.keys(response.data).forEach(key => {
+    Object.keys(data).forEach(key => {
       if (
         key.includes('hexa_stat_core') &&
         !key.startsWith('preset_') &&
-        Array.isArray(response.data[key])
+        Array.isArray(data[key])
       ) {
-        combinedCores.push(...response.data[key]);
+        combinedCores.push(...data[key]);
       }
     });
 
-    const combinedData = {
-      ...response.data,
+    return Response.json({
+      ...data,
       character_hexa_stat_core: combinedCores,
-    };
-
-    return Response.json(combinedData);
+    });
   } catch (error) {
-    console.error(
-      'Error fetching Hexa Matrix Stat data:',
-      error.response?.data || error.message
-    );
+    console.error('Error fetching Hexa Matrix Stat data:', error.message);
     return Response.json(
       { error: 'Failed to fetch Hexa Matrix Stat data' },
       { status: 500 }
