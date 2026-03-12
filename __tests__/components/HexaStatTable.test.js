@@ -37,22 +37,19 @@ describe('HexaStatTable', () => {
     },
   ];
 
-  test('renders table with activated stat cores', () => {
+  test('renders stat cores with grades', () => {
     render(<HexaStatTable cores={mockStatCores} />);
 
-    expect(screen.getByText('Hexa 屬性核心')).toBeInTheDocument();
+    expect(screen.getByText('屬性核心')).toBeInTheDocument();
 
-    // Check headers
-    expect(screen.getByText('主要屬性')).toBeInTheDocument();
-    expect(screen.getByText('副屬性1')).toBeInTheDocument();
-    expect(screen.getByText('副屬性2')).toBeInTheDocument();
-    expect(screen.getByText('等級')).toBeInTheDocument();
+    // Check activated core main stat names
+    expect(screen.getByText('boss傷害增加')).toBeInTheDocument();
+    expect(screen.getByText('最終傷害增加')).toBeInTheDocument();
 
-    // Check activated core data
-    expect(screen.getByText('boss傷害增加 (Lv 3)')).toBeInTheDocument();
-    expect(screen.getByText('爆擊傷害增加 (Lv 7)')).toBeInTheDocument();
-    expect(screen.getByText('最終傷害增加 (Lv 5)')).toBeInTheDocument();
-    expect(screen.getByText('無視防禦力 (Lv 10)')).toBeInTheDocument();
+    // Check sub stats displayed as "name Lv.level"
+    expect(screen.getByText('爆擊傷害增加 Lv.7')).toBeInTheDocument();
+    expect(screen.getByText('主要屬性增加 Lv.10')).toBeInTheDocument();
+    expect(screen.getByText('無視防禦力 Lv.10')).toBeInTheDocument();
 
     // Check grades
     expect(screen.getByText('20/20')).toBeInTheDocument();
@@ -64,35 +61,32 @@ describe('HexaStatTable', () => {
     render(<HexaStatTable cores={mockStatCores} />);
 
     expect(screen.getByText('未啟用')).toBeInTheDocument();
-    // Core 1 has null sub_stat_name_2, Core 2 has null sub_stat_name_1 and sub_stat_name_2
-    expect(screen.getAllByText('-')).toHaveLength(3);
   });
 
   test('renders empty state when no cores provided', () => {
     render(<HexaStatTable cores={[]} />);
 
-    expect(screen.getByText('Hexa 屬性核心')).toBeInTheDocument();
+    expect(screen.getByText('屬性核心')).toBeInTheDocument();
     expect(screen.getByText('尚未啟用任何屬性核心')).toBeInTheDocument();
   });
 
   test('renders empty state when cores is null', () => {
     render(<HexaStatTable cores={null} />);
 
-    expect(screen.getByText('Hexa 屬性核心')).toBeInTheDocument();
+    expect(screen.getByText('屬性核心')).toBeInTheDocument();
     expect(screen.getByText('尚未啟用任何屬性核心')).toBeInTheDocument();
   });
 
   test('renders empty state when cores is undefined', () => {
     render(<HexaStatTable />);
 
-    expect(screen.getByText('Hexa 屬性核心')).toBeInTheDocument();
+    expect(screen.getByText('屬性核心')).toBeInTheDocument();
     expect(screen.getByText('尚未啟用任何屬性核心')).toBeInTheDocument();
   });
 
   test('applies correct styling for different grade levels', () => {
     render(<HexaStatTable cores={mockStatCores} />);
 
-    // Check that grades are displayed (styling would be tested with visual regression)
     const gradeElements = screen.getAllByText(/\/20/);
     expect(gradeElements).toHaveLength(3);
   });
@@ -113,8 +107,8 @@ describe('HexaStatTable', () => {
 
     render(<HexaStatTable cores={coresWithMissingSub2} />);
 
-    expect(screen.getByText('boss傷害增加 (Lv 3)')).toBeInTheDocument();
-    expect(screen.getByText('爆擊傷害增加 (Lv 7)')).toBeInTheDocument();
-    expect(screen.getByText('-')).toBeInTheDocument(); // Missing sub stat 2
+    expect(screen.getByText('boss傷害增加')).toBeInTheDocument();
+    expect(screen.getByText('爆擊傷害增加 Lv.7')).toBeInTheDocument();
+    expect(screen.getByText('10/20')).toBeInTheDocument();
   });
 });

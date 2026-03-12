@@ -16,6 +16,7 @@ import {
 import SearchIcon from '@mui/icons-material/Search';
 import LeaderboardIcon from '@mui/icons-material/Leaderboard';
 import Link from 'next/link';
+import { useRouter } from 'next/navigation';
 import CharacterCard from '../components/CharacterCard';
 import ProgressChart from '../components/ProgressChart';
 import ErrorMessage from '../components/ErrorMessage';
@@ -40,6 +41,7 @@ export default function Home() {
 
 function HomeContent() {
   const searchParams = useSearchParams();
+  const router = useRouter();
   const [character, setCharacter] = useState(null);
   const [charData, setCharData] = useState(null);
   const [chartData, setChartData] = useState([]);
@@ -135,14 +137,20 @@ function HomeContent() {
     }
   };
 
-  // Auto-search when navigated with ?ocid= query param (e.g. from leaderboard)
+  // Reset state when navigating back to / without ocid param
+  const currentOcid = searchParams.get('ocid');
   useEffect(() => {
-    const ocid = searchParams.get('ocid');
-    if (ocid) {
-      searchCharacter(ocid);
+    if (currentOcid) {
+      searchCharacter(currentOcid);
+    } else {
+      // No ocid in URL — reset to welcome screen
+      setCharacter(null);
+      setCharData(null);
+      setChartData([]);
+      setError(null);
+      setLastOcid(null);
     }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []);
+  }, [currentOcid]);
 
   // Derived data from single API response
   const battlePower = charData?.basicInfo?.combat_power || null;
@@ -176,7 +184,12 @@ function HomeContent() {
   return (
     <Container maxWidth="xl" sx={{ py: 4 }}>
       <Paper elevation={2} sx={{ p: 3, mb: 4 }}>
-        <CharacterSearch onSearch={searchCharacter} loading={loading} />
+        <CharacterSearch
+          onSearch={searchCharacter}
+          loading={loading}
+          activeCharacter={character}
+          onClear={() => router.push('/')}
+        />
       </Paper>
 
       {/* Empty state: show when no character loaded and not loading */}
@@ -386,31 +399,34 @@ function HomeContent() {
           </Grid>
 
           {/* Two columns: Progress + Hexa Matrix */}
-          <Grid container spacing={2} sx={{ mb: 4 }}>
+          <Grid container spacing={2} sx={{ mb: 4, alignItems: 'flex-start' }}>
             <Grid size={{ xs: 12, md: 7 }}>
-              <Card elevation={2} sx={{ height: '100%' }}>
-                <CardContent sx={{ height: '100%' }}>
-                  <Typography variant="h5" component="h3" gutterBottom>
-                    進度視覺化
+              <Card elevation={2}>
+                <CardContent>
+                  <Typography
+                    variant="h6"
+                    component="h3"
+                    sx={{ fontWeight: 700, mb: 2.5 }}
+                  >
+                    經驗值進度
                   </Typography>
-                  <Box sx={{ mt: 2, mb: 3 }}>
+                  <Box sx={{ mb: 3 }}>
                     <ProgressBar
                       progress={
                         parseFloat(character.character_exp_rate || 0) / 100
                       }
                       expRate={5}
                       historicalData={chartData}
+                      level={character.character_level}
                     />
                   </Box>
-                  <Box sx={{ mt: 2 }}>
-                    <ProgressChart progressData={chartData} />
-                  </Box>
+                  <ProgressChart progressData={chartData} />
                 </CardContent>
               </Card>
             </Grid>
             <Grid size={{ xs: 12, md: 5 }}>
-              <Card elevation={2} sx={{ height: '100%' }}>
-                <CardContent sx={{ p: 3, height: '100%' }}>
+              <Card elevation={2}>
+                <CardContent sx={{ p: 3 }}>
                   <HexaMatrixProgress
                     character={character}
                     hexaCoreData={hexaCoreData}

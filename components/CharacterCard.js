@@ -6,12 +6,17 @@ import {
   CardContent,
   Button,
   Chip,
-  Divider,
 } from '@mui/material';
+import { alpha } from '@mui/material/styles';
 import WorkIcon from '@mui/icons-material/Work';
 import GroupsIcon from '@mui/icons-material/Groups';
 import MilitaryTechIcon from '@mui/icons-material/MilitaryTech';
 import DiamondIcon from '@mui/icons-material/Diamond';
+import ShieldIcon from '@mui/icons-material/Shield';
+import AccessTimeIcon from '@mui/icons-material/AccessTime';
+
+const ICON_SIZE = 16;
+const TABLE_FONT_SIZE = '0.65rem';
 
 const COMBO_LABELS = [
   { key: 'equip', label: '裝備' },
@@ -19,6 +24,69 @@ const COMBO_LABELS = [
   { key: 'linkSkill', label: '傳授技能' },
 ];
 
+const formatTimestamp = dateStr => {
+  try {
+    const d = dateStr ? new Date(dateStr) : new Date();
+    return d.toLocaleString('zh-TW', {
+      year: 'numeric',
+      month: '2-digit',
+      day: '2-digit',
+      hour: '2-digit',
+      minute: '2-digit',
+    });
+  } catch {
+    return '-';
+  }
+};
+
+const formatPower = num => num?.toLocaleString() || '-';
+
+/** Battle power row for multi-preset display */
+const PowerRow = ({ label, data, isHighlight }) => (
+  <Box
+    sx={{
+      display: 'flex',
+      alignItems: 'baseline',
+      justifyContent: 'space-between',
+      gap: 1,
+      py: 0.25,
+    }}
+  >
+    <Typography
+      variant="caption"
+      sx={{ color: 'text.secondary', fontWeight: 500, minWidth: 28 }}
+    >
+      {label}
+    </Typography>
+    <Typography
+      variant="body1"
+      sx={{
+        fontWeight: 700,
+        fontFamily: '"Comic Neue", cursive',
+        color: isHighlight ? 'primary.main' : 'text.primary',
+        userSelect: 'all',
+        lineHeight: 1.3,
+      }}
+    >
+      {formatPower(data.power)}
+    </Typography>
+    {data.presetNo && (
+      <Chip
+        label={`P${data.presetNo}`}
+        size="small"
+        sx={{
+          height: 18,
+          fontSize: TABLE_FONT_SIZE,
+          fontWeight: 600,
+          bgcolor: theme => alpha(theme.palette.primary.main, 0.08),
+          color: 'text.secondary',
+        }}
+      />
+    )}
+  </Box>
+);
+
+/** Preset combination mini-table */
 const PresetCombinationTable = ({ combinations }) => {
   if (!combinations) return null;
 
@@ -32,49 +100,75 @@ const PresetCombinationTable = ({ combinations }) => {
     <Box sx={{ mt: 1 }}>
       <Typography
         variant="caption"
-        color="text.secondary"
-        sx={{ display: 'block', mb: 0.5 }}
+        sx={{
+          display: 'block',
+          mb: 0.5,
+          fontWeight: 600,
+          color: 'text.secondary',
+          fontSize: TABLE_FONT_SIZE,
+          textTransform: 'uppercase',
+          letterSpacing: 0.5,
+        }}
       >
         Preset 組合
       </Typography>
-      <Box
-        component="table"
-        sx={{
-          width: '100%',
-          borderCollapse: 'collapse',
-          '& th, & td': {
-            px: 0.75,
-            py: 0.25,
-            fontSize: '0.7rem',
-            textAlign: 'center',
-          },
-          '& th': { color: 'text.secondary', fontWeight: 600 },
-        }}
-      >
-        <thead>
-          <tr>
-            <th></th>
-            {scenarios.map(s => (
-              <th key={s.key}>{s.label}</th>
-            ))}
-          </tr>
-        </thead>
-        <tbody>
-          {COMBO_LABELS.map(({ key, label }) => (
-            <tr key={key}>
-              <Box component="td" sx={{ textAlign: 'left !important' }}>
-                {label}
-              </Box>
-              {scenarios.map(s => (
-                <td key={s.key}>
-                  {combinations[s.key]?.[key] != null
-                    ? combinations[s.key][key]
-                    : '-'}
-                </td>
-              ))}
-            </tr>
+      <Box sx={{ display: 'flex', flexDirection: 'column', gap: 0.25 }}>
+        {/* Header */}
+        <Box sx={{ display: 'flex', gap: 0.5 }}>
+          <Box sx={{ flex: 1.2 }} />
+          {scenarios.map(s => (
+            <Typography
+              key={s.key}
+              variant="caption"
+              sx={{
+                flex: 1,
+                textAlign: 'center',
+                fontWeight: 600,
+                color: 'text.secondary',
+                fontSize: TABLE_FONT_SIZE,
+              }}
+            >
+              {s.label}
+            </Typography>
           ))}
-        </tbody>
+        </Box>
+        {/* Rows */}
+        {COMBO_LABELS.map(({ key, label }) => (
+          <Box
+            key={key}
+            sx={{
+              display: 'flex',
+              gap: 0.5,
+              py: 0.25,
+              px: 0.5,
+              borderRadius: 0.75,
+              bgcolor: theme => alpha(theme.palette.primary.main, 0.04),
+            }}
+          >
+            <Typography
+              variant="caption"
+              sx={{ flex: 1.2, fontSize: TABLE_FONT_SIZE, fontWeight: 500 }}
+            >
+              {label}
+            </Typography>
+            {scenarios.map(s => (
+              <Typography
+                key={s.key}
+                variant="caption"
+                sx={{
+                  flex: 1,
+                  textAlign: 'center',
+                  fontSize: TABLE_FONT_SIZE,
+                  fontWeight: 600,
+                }}
+              >
+                {combinations[s.key]?.[key] != null
+                  ? combinations[s.key][key]
+                  : '-'}
+              </Typography>
+            ))}
+          </Box>
+        ))}
       </Box>
     </Box>
   );
@@ -87,59 +181,58 @@ const CharacterCard = memo(function CharacterCard({
   onEquipmentClick = null,
   presetAnalysis = null,
 }) {
-  const formatPower = num => num?.toLocaleString() || '-';
-
   return (
     <CardContent
       role="region"
       aria-labelledby={`character-${character.ocid || character.character_name}`}
       sx={{ p: 3 }}
     >
-      {/* Hero layout: horizontal on desktop, vertical on mobile */}
+      {/* === Layer 1: Identity — Avatar + Name + Level === */}
       <Box
         sx={{
           display: 'flex',
-          flexDirection: { xs: 'column', md: 'row' },
-          alignItems: { xs: 'center', md: 'flex-start' },
-          gap: { xs: 2, md: 3 },
+          alignItems: 'center',
+          gap: 2,
+          mb: 2,
         }}
       >
-        {/* Avatar - larger for hero style */}
-        {character.character_image && (
-          <Avatar
-            src={character.character_image}
-            alt={`${character.character_name} 角色頭像`}
-            sx={{
-              width: { xs: 80, md: 96 },
-              height: { xs: 80, md: 96 },
-              flexShrink: 0,
-            }}
-          />
-        )}
-
-        {/* Character info - middle section */}
-        <Box
+        <Avatar
+          src={character.character_image || undefined}
+          alt={`${character.character_name} 角色頭像`}
           sx={{
-            flex: 1,
-            minWidth: 0,
-            textAlign: { xs: 'center', md: 'left' },
+            width: { xs: 64, md: 80 },
+            height: { xs: 64, md: 80 },
+            flexShrink: 0,
+            fontSize: { xs: 24, md: 28 },
+            fontWeight: 700,
+            bgcolor: theme =>
+              character.character_image
+                ? 'transparent'
+                : alpha(theme.palette.primary.main, 0.12),
+            color: 'primary.main',
           }}
         >
-          {/* Name + Server + Level */}
+          {!character.character_image && (character.character_name?.[0] || '?')}
+        </Avatar>
+
+        <Box sx={{ flex: 1, minWidth: 0 }}>
           <Box
             sx={{
               display: 'flex',
-              flexDirection: { xs: 'column', sm: 'row' },
-              alignItems: { xs: 'center', sm: 'baseline' },
+              alignItems: 'baseline',
               gap: 1,
-              mb: 1,
+              flexWrap: 'wrap',
             }}
           >
             <Typography
               id={`character-${character.ocid || character.character_name}`}
               variant="h5"
               component="h3"
-              sx={{ fontWeight: 'bold', wordBreak: 'break-word' }}
+              sx={{
+                fontWeight: 700,
+                wordBreak: 'break-word',
+                lineHeight: 1.2,
+              }}
             >
               {character.character_name}
             </Typography>
@@ -147,177 +240,231 @@ const CharacterCard = memo(function CharacterCard({
               label={`Lv.${character.character_level}`}
               size="small"
               color="primary"
-              variant="outlined"
+              sx={{
+                fontWeight: 700,
+                fontSize: '0.75rem',
+                height: 22,
+              }}
             />
-            <Typography variant="body2" color="text.secondary">
-              {character.world_name}
-            </Typography>
           </Box>
-
-          {/* Stats row: class, guild, union as Chips */}
-          <Box
-            sx={{
-              display: 'flex',
-              flexWrap: 'wrap',
-              gap: 1,
-              justifyContent: { xs: 'center', md: 'flex-start' },
-              mb: 1.5,
-            }}
+          <Typography
+            variant="body2"
+            sx={{ color: 'text.secondary', mt: 0.25 }}
           >
+            {character.world_name}
+          </Typography>
+        </Box>
+      </Box>
+
+      {/* === Layer 2: Battle Power hero display === */}
+      {(presetAnalysis || battlePower) && (
+        <Box
+          sx={{
+            mb: 2,
+            p: 2,
+            borderRadius: 2,
+            bgcolor: theme => alpha(theme.palette.primary.main, 0.04),
+            border: theme =>
+              `1px solid ${alpha(theme.palette.primary.main, 0.1)}`,
+          }}
+        >
+          {presetAnalysis && presetAnalysis.bossing ? (
+            <Box
+              sx={{
+                display: 'flex',
+                flexDirection: { xs: 'column', sm: 'row' },
+                gap: { xs: 1.5, sm: 3 },
+              }}
+            >
+              {/* Primary: bossing power (hero number) */}
+              <Box sx={{ flex: 1 }}>
+                <Box
+                  sx={{
+                    display: 'flex',
+                    alignItems: 'center',
+                    gap: 0.5,
+                    mb: 0.5,
+                  }}
+                >
+                  <ShieldIcon sx={{ fontSize: 14, color: 'primary.main' }} />
+                  <Typography
+                    variant="caption"
+                    sx={{
+                      fontWeight: 600,
+                      color: 'text.secondary',
+                    }}
+                  >
+                    戰鬥力
+                  </Typography>
+                </Box>
+                {[
+                  {
+                    label: '打王',
+                    data: presetAnalysis.bossing,
+                    isHighlight: true,
+                  },
+                  {
+                    label: '目前',
+                    data: presetAnalysis.current,
+                    isHighlight: false,
+                  },
+                  ...(presetAnalysis.leveling
+                    ? [
+                        {
+                          label: '練等',
+                          data: presetAnalysis.leveling,
+                          isHighlight: false,
+                        },
+                      ]
+                    : []),
+                ].map(({ label, data, isHighlight }) => (
+                  <PowerRow
+                    key={label}
+                    label={label}
+                    data={data}
+                    isHighlight={isHighlight}
+                  />
+                ))}
+              </Box>
+
+              {/* Preset combination table */}
+              {presetAnalysis.presetCombinations && (
+                <Box
+                  sx={{
+                    flex: 1,
+                    borderLeft: { xs: 'none', sm: '1px solid' },
+                    borderTop: { xs: '1px solid', sm: 'none' },
+                    borderColor: theme => alpha(theme.palette.divider, 0.15),
+                    pl: { xs: 0, sm: 2 },
+                    pt: { xs: 1, sm: 0 },
+                  }}
+                >
+                  <PresetCombinationTable
+                    combinations={presetAnalysis.presetCombinations}
+                  />
+                </Box>
+              )}
+            </Box>
+          ) : (
+            <Box
+              sx={{
+                display: 'flex',
+                alignItems: 'center',
+                gap: 1.5,
+              }}
+            >
+              <ShieldIcon sx={{ fontSize: 20, color: 'primary.main' }} />
+              <Box>
+                <Typography
+                  variant="caption"
+                  sx={{
+                    display: 'block',
+                    fontWeight: 600,
+                    color: 'text.secondary',
+                    lineHeight: 1,
+                    mb: 0.25,
+                  }}
+                >
+                  戰鬥力
+                </Typography>
+                <Typography
+                  variant="h5"
+                  sx={{
+                    fontWeight: 800,
+                    fontFamily: '"Comic Neue", cursive',
+                    color: 'primary.main',
+                    userSelect: 'all',
+                    lineHeight: 1,
+                  }}
+                >
+                  {formatPower(battlePower)}
+                </Typography>
+              </Box>
+            </Box>
+          )}
+        </Box>
+      )}
+
+      {/* === Layer 3: Character attributes === */}
+      <Box
+        sx={{
+          display: 'flex',
+          flexWrap: 'wrap',
+          gap: 0.75,
+          mb: 2,
+        }}
+      >
+        <Chip
+          icon={<WorkIcon sx={{ fontSize: ICON_SIZE }} />}
+          label={`${character.character_class} ${character.character_class_level}`}
+          size="small"
+          variant="outlined"
+          sx={{ px: 1 }}
+        />
+        {character.character_guild_name && (
+          <Chip
+            icon={<GroupsIcon sx={{ fontSize: ICON_SIZE }} />}
+            label={character.character_guild_name}
+            size="small"
+            variant="outlined"
+            sx={{ px: 1 }}
+          />
+        )}
+        {unionData && (
+          <>
             <Chip
-              icon={<WorkIcon />}
-              label={`${character.character_class} ${character.character_class_level}`}
+              icon={<MilitaryTechIcon sx={{ fontSize: ICON_SIZE }} />}
+              label={`${unionData.union_grade} Lv.${unionData.union_level}`}
               size="small"
               variant="outlined"
               sx={{ px: 1 }}
             />
-            {character.character_guild_name && (
-              <Chip
-                icon={<GroupsIcon />}
-                label={character.character_guild_name}
-                size="small"
-                variant="outlined"
-                sx={{ px: 1 }}
-              />
-            )}
-            {unionData && (
-              <>
-                <Chip
-                  icon={<MilitaryTechIcon />}
-                  label={`${unionData.union_grade} Lv.${unionData.union_level}`}
-                  size="small"
-                  variant="outlined"
-                  sx={{ px: 1 }}
-                />
-                <Chip
-                  icon={<DiamondIcon />}
-                  label={`神器 Lv.${unionData.union_artifact_level}`}
-                  size="small"
-                  variant="outlined"
-                  sx={{ px: 1 }}
-                />
-              </>
-            )}
-          </Box>
-
-          {/* Action buttons + timestamp */}
-          <Box
-            sx={{
-              display: 'flex',
-              flexWrap: 'wrap',
-              gap: 1,
-              alignItems: 'center',
-              justifyContent: { xs: 'center', md: 'flex-start' },
-            }}
-          >
-            {onEquipmentClick && (
-              <Button
-                variant="outlined"
-                size="small"
-                onClick={onEquipmentClick}
-                sx={{ fontWeight: 'medium' }}
-              >
-                裝備
-              </Button>
-            )}
-            <Typography variant="caption" color="text.secondary">
-              最後更新:{' '}
-              {character.date
-                ? new Date(character.date).toLocaleString()
-                : new Date().toLocaleString()}
-            </Typography>
-          </Box>
-        </Box>
-
-        {/* Battle Power - right section */}
-        {(presetAnalysis || battlePower) && (
-          <>
-            <Divider
-              orientation="vertical"
-              flexItem
-              sx={{ display: { xs: 'none', md: 'block' } }}
+            <Chip
+              icon={<DiamondIcon sx={{ fontSize: ICON_SIZE }} />}
+              label={`神器 Lv.${unionData.union_artifact_level}`}
+              size="small"
+              variant="outlined"
+              sx={{ px: 1 }}
             />
-            <Box
-              sx={{
-                textAlign: { xs: 'center', md: 'right' },
-                flexShrink: 0,
-                px: { md: 1 },
-                minWidth: { md: 160 },
-                minHeight: { md: 80 },
-              }}
-            >
-              {presetAnalysis && presetAnalysis.bossing ? (
-                <>
-                  <Typography
-                    variant="caption"
-                    color="text.secondary"
-                    sx={{ display: 'block', mb: 0.5 }}
-                  >
-                    戰鬥力
-                  </Typography>
-                  {[
-                    { label: '打王', data: presetAnalysis.bossing },
-                    { label: '目前', data: presetAnalysis.current },
-                    ...(presetAnalysis.leveling
-                      ? [{ label: '練等', data: presetAnalysis.leveling }]
-                      : []),
-                  ].map(({ label, data }) => (
-                    <Box
-                      key={label}
-                      sx={{
-                        display: 'flex',
-                        justifyContent: { xs: 'center', md: 'space-between' },
-                        alignItems: 'baseline',
-                        gap: 1,
-                      }}
-                    >
-                      <Typography variant="body2" color="text.secondary">
-                        {label}
-                      </Typography>
-                      <Typography
-                        variant="body1"
-                        sx={{
-                          fontWeight: 'bold',
-                          color:
-                            label === '打王' ? 'primary.main' : 'text.primary',
-                        }}
-                      >
-                        {formatPower(data.power)}
-                      </Typography>
-                      {data.presetNo && (
-                        <Typography
-                          variant="caption"
-                          sx={{ color: 'text.primary', opacity: 0.7 }}
-                        >
-                          P{data.presetNo}
-                        </Typography>
-                      )}
-                    </Box>
-                  ))}
-                  <PresetCombinationTable
-                    combinations={presetAnalysis.presetCombinations}
-                  />
-                </>
-              ) : (
-                <>
-                  <Typography
-                    variant="caption"
-                    color="text.secondary"
-                    sx={{ display: 'block', mb: 0.5 }}
-                  >
-                    戰鬥力
-                  </Typography>
-                  <Typography
-                    variant="h5"
-                    sx={{ fontWeight: 'bold', color: 'primary.main' }}
-                  >
-                    {battlePower?.toLocaleString()}
-                  </Typography>
-                </>
-              )}
-            </Box>
           </>
         )}
+      </Box>
+
+      {/* === Layer 4: Actions + meta === */}
+      <Box
+        sx={{
+          display: 'flex',
+          alignItems: 'center',
+          justifyContent: 'space-between',
+          flexWrap: 'wrap',
+          gap: 1,
+        }}
+      >
+        {onEquipmentClick && (
+          <Button
+            variant="outlined"
+            size="small"
+            onClick={onEquipmentClick}
+            sx={{ fontWeight: 600 }}
+          >
+            裝備
+          </Button>
+        )}
+        <Box
+          sx={{
+            display: 'flex',
+            alignItems: 'center',
+            gap: 0.5,
+          }}
+        >
+          <AccessTimeIcon sx={{ fontSize: 13, color: 'text.disabled' }} />
+          <Typography
+            variant="caption"
+            sx={{ color: 'text.disabled', fontSize: '0.7rem' }}
+          >
+            {formatTimestamp(character.date)}
+          </Typography>
+        </Box>
       </Box>
     </CardContent>
   );
