@@ -53,7 +53,7 @@ export default function HexaMatrixProgress({
         ...(hexaStatData?.character_hexa_stat_core_3 || []),
       ],
     };
-  }, [character, hexaCoreData, hexaStatData]);
+  }, [hexaCoreData, hexaStatData]);
 
   if (character.character_class_level < 6) return null;
 

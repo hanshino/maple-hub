@@ -150,7 +150,6 @@ function HomeContent() {
       setError(null);
       setLastOcid(null);
     }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [currentOcid]);
 
   // Derived data from single API response

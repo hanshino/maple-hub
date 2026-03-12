@@ -16,6 +16,7 @@ import ShieldIcon from '@mui/icons-material/Shield';
 import AccessTimeIcon from '@mui/icons-material/AccessTime';
 
 const ICON_SIZE = 16;
+const TABLE_FONT_SIZE = '0.65rem';
 
 const COMBO_LABELS = [
   { key: 'equip', label: '裝備' },
@@ -34,7 +35,7 @@ const formatTimestamp = dateStr => {
       minute: '2-digit',
     });
   } catch {
-    return new Date().toLocaleString('zh-TW');
+    return '-';
   }
 };
 
@@ -75,7 +76,7 @@ const PowerRow = ({ label, data, isHighlight }) => (
         size="small"
         sx={{
           height: 18,
-          fontSize: '0.65rem',
+          fontSize: TABLE_FONT_SIZE,
           fontWeight: 600,
           bgcolor: theme => alpha(theme.palette.primary.main, 0.08),
           color: 'text.secondary',
@@ -104,7 +105,7 @@ const PresetCombinationTable = ({ combinations }) => {
           mb: 0.5,
           fontWeight: 600,
           color: 'text.secondary',
-          fontSize: '0.65rem',
+          fontSize: TABLE_FONT_SIZE,
           textTransform: 'uppercase',
           letterSpacing: 0.5,
         }}
@@ -124,7 +125,7 @@ const PresetCombinationTable = ({ combinations }) => {
                 textAlign: 'center',
                 fontWeight: 600,
                 color: 'text.secondary',
-                fontSize: '0.65rem',
+                fontSize: TABLE_FONT_SIZE,
               }}
             >
               {s.label}
@@ -146,7 +147,7 @@ const PresetCombinationTable = ({ combinations }) => {
           >
             <Typography
               variant="caption"
-              sx={{ flex: 1.2, fontSize: '0.65rem', fontWeight: 500 }}
+              sx={{ flex: 1.2, fontSize: TABLE_FONT_SIZE, fontWeight: 500 }}
             >
               {label}
             </Typography>
@@ -157,7 +158,7 @@ const PresetCombinationTable = ({ combinations }) => {
                 sx={{
                   flex: 1,
                   textAlign: 'center',
-                  fontSize: '0.65rem',
+                  fontSize: TABLE_FONT_SIZE,
                   fontWeight: 600,
                 }}
               >
@@ -180,8 +181,6 @@ const CharacterCard = memo(function CharacterCard({
   onEquipmentClick = null,
   presetAnalysis = null,
 }) {
-  const hasPower = presetAnalysis || battlePower;
-
   return (
     <CardContent
       role="region"
@@ -258,7 +257,7 @@ const CharacterCard = memo(function CharacterCard({
       </Box>
 
       {/* === Layer 2: Battle Power hero display === */}
-      {hasPower && (
+      {(presetAnalysis || battlePower) && (
         <Box
           sx={{
             mb: 2,
@@ -299,23 +298,31 @@ const CharacterCard = memo(function CharacterCard({
                   </Typography>
                 </Box>
                 {[
-                  { label: '打王', data: presetAnalysis.bossing, hl: true },
-                  { label: '目前', data: presetAnalysis.current, hl: false },
+                  {
+                    label: '打王',
+                    data: presetAnalysis.bossing,
+                    isHighlight: true,
+                  },
+                  {
+                    label: '目前',
+                    data: presetAnalysis.current,
+                    isHighlight: false,
+                  },
                   ...(presetAnalysis.leveling
                     ? [
                         {
                           label: '練等',
                           data: presetAnalysis.leveling,
-                          hl: false,
+                          isHighlight: false,
                         },
                       ]
                     : []),
-                ].map(({ label, data, hl }) => (
+                ].map(({ label, data, isHighlight }) => (
                   <PowerRow
                     key={label}
                     label={label}
                     data={data}
-                    isHighlight={hl}
+                    isHighlight={isHighlight}
                   />
                 ))}
               </Box>
@@ -370,7 +377,7 @@ const CharacterCard = memo(function CharacterCard({
                     lineHeight: 1,
                   }}
                 >
-                  {battlePower?.toLocaleString()}
+                  {formatPower(battlePower)}
                 </Typography>
               </Box>
             </Box>
@@ -448,7 +455,6 @@ const CharacterCard = memo(function CharacterCard({
             display: 'flex',
             alignItems: 'center',
             gap: 0.5,
-            ml: 'auto',
           }}
         >
           <AccessTimeIcon sx={{ fontSize: 13, color: 'text.disabled' }} />

@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useMemo } from 'react';
+import { memo, useMemo } from 'react';
 import { useTheme, alpha } from '@mui/material/styles';
 import {
   Box,
@@ -30,6 +30,10 @@ const MAX_RATIO = 1.8;
 
 const StatBalanceChart = ({ statsData, equipmentData, loading }) => {
   const theme = useTheme();
+  const gridStroke = alpha(
+    theme.palette.divider,
+    theme.palette.mode === 'dark' ? 0.2 : 0.4
+  );
 
   const { ratios, chartData, recommendations } = useMemo(() => {
     if (!statsData) return { ratios: null, chartData: [], recommendations: [] };
@@ -129,13 +133,7 @@ const StatBalanceChart = ({ statsData, equipmentData, loading }) => {
             role="img"
             aria-label="能力探測圖，顯示六個戰力維度的投資分佈"
           >
-            <PolarGrid
-              stroke={
-                theme.palette.mode === 'dark'
-                  ? alpha(theme.palette.divider, 0.2)
-                  : alpha(theme.palette.divider, 0.4)
-              }
-            />
+            <PolarGrid stroke={gridStroke} />
             <PolarAngleAxis
               dataKey="axis"
               tick={{
@@ -174,11 +172,7 @@ const StatBalanceChart = ({ statsData, equipmentData, loading }) => {
             {/* Outer reference boundary */}
             <Radar
               dataKey="outer"
-              stroke={
-                theme.palette.mode === 'dark'
-                  ? alpha(theme.palette.divider, 0.2)
-                  : alpha(theme.palette.divider, 0.4)
-              }
+              stroke={gridStroke}
               fill="none"
               strokeWidth={1}
               tooltipType="none"
@@ -237,4 +231,4 @@ const StatBalanceChart = ({ statsData, equipmentData, loading }) => {
   );
 };
 
-export default React.memo(StatBalanceChart);
+export default memo(StatBalanceChart);
