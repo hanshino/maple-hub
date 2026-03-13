@@ -1,4 +1,4 @@
-import { memo } from 'react';
+import { memo, useState, useCallback } from 'react';
 import {
   Box,
   Typography,
@@ -6,6 +6,7 @@ import {
   CardContent,
   Button,
   Chip,
+  Snackbar,
 } from '@mui/material';
 import { alpha } from '@mui/material/styles';
 import WorkIcon from '@mui/icons-material/Work';
@@ -14,6 +15,7 @@ import MilitaryTechIcon from '@mui/icons-material/MilitaryTech';
 import DiamondIcon from '@mui/icons-material/Diamond';
 import ShieldIcon from '@mui/icons-material/Shield';
 import AccessTimeIcon from '@mui/icons-material/AccessTime';
+import ShareIcon from '@mui/icons-material/Share';
 
 const ICON_SIZE = 16;
 const TABLE_FONT_SIZE = '0.65rem';
@@ -181,6 +183,25 @@ const CharacterCard = memo(function CharacterCard({
   onEquipmentClick = null,
   presetAnalysis = null,
 }) {
+  const [snackOpen, setSnackOpen] = useState(false);
+
+  const handleShare = useCallback(async () => {
+    const shareUrl = `${window.location.origin}/character/${encodeURIComponent(character.character_name)}`;
+    try {
+      await navigator.clipboard.writeText(shareUrl);
+      setSnackOpen(true);
+    } catch {
+      // Fallback for browsers without clipboard API
+      const textarea = document.createElement('textarea');
+      textarea.value = shareUrl;
+      document.body.appendChild(textarea);
+      textarea.select();
+      document.execCommand('copy');
+      document.body.removeChild(textarea);
+      setSnackOpen(true);
+    }
+  }, [character.character_name]);
+
   return (
     <CardContent
       role="region"
@@ -440,16 +461,27 @@ const CharacterCard = memo(function CharacterCard({
           gap: 1,
         }}
       >
-        {onEquipmentClick && (
+        <Box sx={{ display: 'flex', gap: 1 }}>
+          {onEquipmentClick && (
+            <Button
+              variant="outlined"
+              size="small"
+              onClick={onEquipmentClick}
+              sx={{ fontWeight: 600 }}
+            >
+              裝備
+            </Button>
+          )}
           <Button
             variant="outlined"
             size="small"
-            onClick={onEquipmentClick}
+            onClick={handleShare}
+            startIcon={<ShareIcon sx={{ fontSize: 16 }} />}
             sx={{ fontWeight: 600 }}
           >
-            裝備
+            分享
           </Button>
-        )}
+        </Box>
         <Box
           sx={{
             display: 'flex',
@@ -466,6 +498,14 @@ const CharacterCard = memo(function CharacterCard({
           </Typography>
         </Box>
       </Box>
+
+      <Snackbar
+        open={snackOpen}
+        autoHideDuration={2000}
+        onClose={() => setSnackOpen(false)}
+        message="已複製分享連結"
+        anchorOrigin={{ vertical: 'bottom', horizontal: 'center' }}
+      />
     </CardContent>
   );
 });
