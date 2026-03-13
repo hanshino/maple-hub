@@ -139,9 +139,16 @@ function HomeContent() {
 
   // Reset state when navigating back to / without ocid param
   const currentOcid = searchParams.get('ocid');
+  const currentName = searchParams.get('name');
   useEffect(() => {
     if (currentOcid) {
       searchCharacter(currentOcid);
+    } else if (currentName) {
+      // Support ?name= param: resolve name to ocid then search
+      fetch(`/api/character/search?name=${encodeURIComponent(currentName)}`)
+        .then(res => (res.ok ? res.json() : Promise.reject()))
+        .then(data => searchCharacter(data.ocid))
+        .catch(() => setError('找不到此角色'));
     } else {
       // No ocid in URL — reset to welcome screen
       setCharacter(null);
@@ -150,7 +157,7 @@ function HomeContent() {
       setError(null);
       setLastOcid(null);
     }
-  }, [currentOcid]);
+  }, [currentOcid, currentName]);
 
   // Derived data from single API response
   const battlePower = charData?.basicInfo?.combat_power || null;

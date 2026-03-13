@@ -52,7 +52,9 @@ export default function RootLayout({ children }) {
       <body>
         <MuiThemeProvider>
           <Navigation />
-          <PageTransition>{children}</PageTransition>
+          <main id="main-content">
+            <PageTransition>{children}</PageTransition>
+          </main>
         </MuiThemeProvider>
       </body>
     </html>

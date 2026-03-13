@@ -9,10 +9,12 @@ import {
   CircularProgress,
   Alert,
   Button,
+  IconButton,
   useMediaQuery,
   Tabs,
   Tab,
 } from '@mui/material';
+import CloseIcon from '@mui/icons-material/Close';
 import {
   processEquipmentData,
   processCashItemEquipmentData,
@@ -179,7 +181,28 @@ const EquipmentDialog = ({
         fullScreen={!isDesktop}
         aria-labelledby="equipment-dialog-title"
       >
-        <DialogTitle id="equipment-dialog-title">角色裝備</DialogTitle>
+        <DialogTitle
+          id="equipment-dialog-title"
+          sx={{
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'space-between',
+            pr: 1.5,
+          }}
+        >
+          角色裝備
+          <IconButton
+            onClick={onClose}
+            aria-label="關閉裝備視窗"
+            size="small"
+            sx={{
+              color: 'text.secondary',
+              '&:hover': { color: 'text.primary' },
+            }}
+          >
+            <CloseIcon />
+          </IconButton>
+        </DialogTitle>
         <Tabs
           value={tabIndex}
           onChange={handleTabChange}
