@@ -39,6 +39,17 @@ function renderWithProviders() {
 }
 
 describe('Navigation', () => {
+  it('renders logo with maple leaf icon and text', () => {
+    renderWithProviders();
+    expect(screen.getByText('Maple Hub')).toBeInTheDocument();
+  });
+
+  it('renders nav links', () => {
+    renderWithProviders();
+    expect(screen.getByText('首頁')).toBeInTheDocument();
+    expect(screen.getByText('排行榜')).toBeInTheDocument();
+  });
+
   it('renders theme toggle button', () => {
     renderWithProviders();
     expect(screen.getByLabelText('切換深色模式')).toBeInTheDocument();
@@ -50,5 +61,18 @@ describe('Navigation', () => {
     fireEvent.click(toggleBtn);
     expect(localStorage.getItem('color-mode')).toBe('dark');
     expect(screen.getByLabelText('切換淺色模式')).toBeInTheDocument();
+  });
+
+  it('renders skip to content link for accessibility', () => {
+    renderWithProviders();
+    expect(screen.getByText('跳到主要內容')).toBeInTheDocument();
+  });
+
+  it('has correct nav aria label', () => {
+    renderWithProviders();
+    expect(screen.getByRole('navigation')).toHaveAttribute(
+      'aria-label',
+      '主導覽列'
+    );
   });
 });
