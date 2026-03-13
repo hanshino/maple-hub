@@ -43,5 +43,6 @@ export async function generateMetadata({ params }) {
 
 export default async function CharacterPage({ params }) {
   const { name } = await params;
-  redirect(`/?name=${encodeURIComponent(name)}`);
+  const characterName = decodeURIComponent(name);
+  redirect(`/?name=${encodeURIComponent(characterName)}`);
 }
