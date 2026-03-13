@@ -48,6 +48,7 @@ npm run format:check # Prettier check (CI)
 - `/dashboard` — Character detail view
 - `/dashboard-progress` — Historical progress charts (Recharts)
 - `/leaderboard` — Combat power rankings
+- `/about` — Project info, author profile, social links
 
 ## Conventions
 
@@ -72,6 +73,14 @@ npm run format:check # Prettier check (CI)
 - MUI 7 as primary component library; prefer MUI over custom components
 - Tailwind CSS 4 for utility styling (secondary to MUI)
 - Theme: orange primary (`#f7931e`), cream background (`#fff7ec`), Nunito + Comic Neue fonts
+
+### Design System
+
+- Glassmorphism 風格：半透明卡片 + `backdropFilter: blur` + 細邊框，參考 `app/about/page.js` 的 `glassCardSx`
+- Hover 用 `translateY` + `boxShadow`，不用 `scale`（避免 layout shift）
+- Icon button 與 Chip 混排時，保持相同邊框色和高度（參考 `linkBtnSx`）
+- Chip 要加足夠的 `px` padding，避免文字太擠
+- Light/dark mode 顏色定義集中在各元件的 `mode === 'dark'` 三元判斷
 
 ### API Routes
 
