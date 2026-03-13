@@ -1,5 +1,5 @@
-import { redirect } from 'next/navigation';
 import { getCharacterByName } from '../../../lib/db/queries.js';
+import CharacterRedirect from './CharacterRedirect';
 
 const formatPower = num => (num ? num.toLocaleString() : '');
 
@@ -44,5 +44,5 @@ export async function generateMetadata({ params }) {
 export default async function CharacterPage({ params }) {
   const { name } = await params;
   const characterName = decodeURIComponent(name);
-  redirect(`/?name=${encodeURIComponent(characterName)}`);
+  return <CharacterRedirect name={characterName} />;
 }
