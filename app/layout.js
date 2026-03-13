@@ -21,6 +21,9 @@ if (typeof window === 'undefined' && !process.env.NEXT_BUILD_PHASE) {
 }
 
 export const metadata = {
+  metadataBase: new URL(
+    process.env.NEXT_PUBLIC_SITE_URL || 'https://maple-hub.hanshino.dev'
+  ),
   title: 'Maple Hub',
   description: 'MapleStory 角色資訊儀表板',
   icons: {
