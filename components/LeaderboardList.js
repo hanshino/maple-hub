@@ -22,6 +22,7 @@ import CheckCircleIcon from '@mui/icons-material/CheckCircle';
 import SearchIcon from '@mui/icons-material/Search';
 import FilterListOffIcon from '@mui/icons-material/FilterListOff';
 import LeaderboardCard from './LeaderboardCard';
+import { track } from '../lib/analytics';
 
 const ITEMS_PER_PAGE = 20;
 const DEBOUNCE_DELAY = 300; // ms
@@ -128,11 +129,15 @@ export default function LeaderboardList() {
   }, []);
 
   const handleWorldChange = useCallback(e => {
-    setWorldName(e.target.value);
+    const value = e.target.value;
+    setWorldName(value);
+    if (value) track('leaderboard-filter', { type: 'world', value });
   }, []);
 
   const handleClassChange = useCallback(e => {
-    setCharacterClass(e.target.value);
+    const value = e.target.value;
+    setCharacterClass(value);
+    if (value) track('leaderboard-filter', { type: 'class', value });
   }, []);
 
   const handleClearFilters = useCallback(() => {

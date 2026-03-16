@@ -3,6 +3,7 @@
 import { createContext, useContext, useMemo, useState } from 'react';
 import { createTheme, ThemeProvider } from '@mui/material/styles';
 import CssBaseline from '@mui/material/CssBaseline';
+import { track } from '../lib/analytics';
 
 const ColorModeContext = createContext({
   mode: 'light',
@@ -87,6 +88,7 @@ export default function AppThemeProvider({ children }) {
         setMode(prev => {
           const next = prev === 'light' ? 'dark' : 'light';
           localStorage.setItem('color-mode', next);
+          track('theme-toggle', { mode: next });
           return next;
         });
       },

@@ -30,6 +30,7 @@ import RecentCharacters from '../components/RecentCharacters';
 import { generateDateRange } from '../lib/progressUtils';
 import { analyzeAllPresets } from '../lib/combatPowerCalculator';
 import { saveSearchHistory, migrateStorage } from '../lib/localStorage';
+import { track } from '../lib/analytics';
 
 export default function Home() {
   return (
@@ -91,6 +92,12 @@ function HomeContent() {
 
       const latestChar = { ...data.basicInfo, ocid };
       setCharacter(latestChar);
+
+      track('character-view', {
+        name: latestChar.character_name,
+        level: latestChar.character_level,
+        class: latestChar.character_class,
+      });
 
       // Save to search history
       saveSearchHistory(latestChar);
