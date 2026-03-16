@@ -10,6 +10,7 @@ import {
   Avatar,
 } from '@mui/material';
 import { getSearchHistory } from '../lib/localStorage';
+import { track } from '../lib/analytics';
 
 export default function CharacterSearch({
   onSearch,
@@ -33,6 +34,8 @@ export default function CharacterSearch({
 
   const handleSearch = async () => {
     if (!inputValue.trim()) return;
+
+    track('character-search', { name: inputValue.trim() });
 
     try {
       const response = await fetch(

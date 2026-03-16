@@ -10,6 +10,7 @@ import HyperStatPanel from './HyperStatPanel';
 import SetEffectPanel from './SetEffectPanel';
 import UnionArtifactPanel from './UnionArtifactPanel';
 import LinkSkillPanel from './LinkSkillPanel';
+import { track } from '../lib/analytics';
 
 const TAB_STATS = 0;
 const TAB_UNION_RAIDER = 1;
@@ -31,8 +32,19 @@ const CharacterDataTabs = ({
 }) => {
   const [activeTab, setActiveTab] = useState(TAB_STATS);
 
+  const tabNames = [
+    '能力值',
+    '聯盟戰地',
+    '極限屬性',
+    '套裝效果',
+    '聯盟神器',
+    '符文系統',
+    '傳授技能',
+  ];
+
   const handleTabChange = (_event, newValue) => {
     setActiveTab(newValue);
+    track('tab-switch', { tab: tabNames[newValue] });
   };
 
   const renderTabContent = () => {
