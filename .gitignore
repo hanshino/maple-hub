@@ -104,3 +104,8 @@ Desktop.ini
 
 # oh-my-claudecode
 .omc/
+
+# Import script data
+.import-progress.json
+.import-failed.json
+ocids.csv
