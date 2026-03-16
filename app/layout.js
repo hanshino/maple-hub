@@ -59,6 +59,14 @@ export default function RootLayout({ children }) {
             <PageTransition>{children}</PageTransition>
           </main>
         </MuiThemeProvider>
+        {process.env.NEXT_PUBLIC_UMAMI_WEBSITE_ID && (
+          <Script
+            defer
+            src={`${process.env.NEXT_PUBLIC_UMAMI_URL || 'https://umami.hanshino.dev'}/script.js`}
+            data-website-id={process.env.NEXT_PUBLIC_UMAMI_WEBSITE_ID}
+            strategy="afterInteractive"
+          />
+        )}
       </body>
     </html>
   );
