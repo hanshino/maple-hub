@@ -4,9 +4,6 @@ import { useMemo } from 'react';
 import { Box, Typography, Grid } from '@mui/material';
 import { useTheme } from '@mui/material/styles';
 import {
-  PieChart,
-  Pie,
-  Cell,
   Tooltip,
   ResponsiveContainer,
   BarChart,
@@ -18,19 +15,6 @@ import {
 import { useColorMode } from './MuiThemeProvider';
 import { getGlassCardSx } from '@/lib/theme';
 
-const COLORS = [
-  '#f7931e',
-  '#cc6e00',
-  '#ffb347',
-  '#8c6239',
-  '#b07d52',
-  '#7cb342',
-  '#e53935',
-  '#ffa726',
-  '#4fc3f7',
-  '#ab47bc',
-];
-
 export default function GuildDistributions({ members }) {
   const { mode } = useColorMode();
   const theme = useTheme();
@@ -39,14 +23,24 @@ export default function GuildDistributions({ members }) {
     [members]
   );
 
+  const MAX_CLASS_DISPLAY = 10;
+
   const classData = useMemo(() => {
     const counts = {};
     syncedMembers.forEach(m => {
       counts[m.characterClass] = (counts[m.characterClass] || 0) + 1;
     });
-    return Object.entries(counts)
-      .map(([name, value]) => ({ name, value }))
-      .sort((a, b) => b.value - a.value);
+    const sorted = Object.entries(counts)
+      .map(([name, count]) => ({ name, count }))
+      .sort((a, b) => b.count - a.count);
+
+    if (sorted.length <= MAX_CLASS_DISPLAY) return sorted;
+
+    const top = sorted.slice(0, MAX_CLASS_DISPLAY);
+    const otherCount = sorted
+      .slice(MAX_CLASS_DISPLAY)
+      .reduce((sum, item) => sum + item.count, 0);
+    return [...top, { name: '其他', count: otherCount }];
   }, [syncedMembers]);
 
   const levelData = useMemo(() => {
@@ -100,30 +94,49 @@ export default function GuildDistributions({ members }) {
           </Typography>
           <ResponsiveContainer
             width="100%"
-            height={300}
+            height={Math.max(300, classData.length * 32)}
             role="img"
-            aria-label="工會成員職業分布圓餅圖"
+            aria-label="工會成員職業分布長條圖"
           >
-            <PieChart>
-              <Pie
-                data={classData}
-                dataKey="value"
-                nameKey="name"
-                cx="50%"
-                cy="50%"
-                innerRadius={60}
-                outerRadius={100}
-                paddingAngle={2}
-                label={({ name, percent }) =>
-                  `${name} ${(percent * 100).toFixed(0)}%`
-                }
-              >
-                {classData.map((_, i) => (
-                  <Cell key={i} fill={COLORS[i % COLORS.length]} />
-                ))}
-              </Pie>
+            <BarChart
+              data={classData}
+              layout="vertical"
+              margin={{ top: 0, right: 20, left: 0, bottom: 0 }}
+            >
+              <CartesianGrid
+                strokeDasharray="3 3"
+                stroke={gridStroke}
+                horizontal={false}
+              />
+              <XAxis
+                type="number"
+                allowDecimals={false}
+                tick={{
+                  fontSize: 11,
+                  fill: theme.palette.text.secondary,
+                }}
+                axisLine={false}
+                tickLine={false}
+              />
+              <YAxis
+                type="category"
+                dataKey="name"
+                width={90}
+                tick={{
+                  fontSize: 12,
+                  fill: theme.palette.text.primary,
+                }}
+                axisLine={false}
+                tickLine={false}
+              />
               <Tooltip contentStyle={tooltipStyle} />
-            </PieChart>
+              <Bar
+                dataKey="count"
+                fill="#f7931e"
+                radius={[0, 4, 4, 0]}
+                name="人數"
+              />
+            </BarChart>
           </ResponsiveContainer>
         </Box>
       </Grid>
