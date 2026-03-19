@@ -41,9 +41,8 @@ describe('GET /api/guild/search', () => {
   });
 
   it('should return guild data on success', async () => {
-    const { searchAndSyncGuild, startGuildSync } = await import(
-      '../../../lib/guildSyncService.js'
-    );
+    const { searchAndSyncGuild, startGuildSync } =
+      await import('../../../lib/guildSyncService.js');
     const { getCached, setCache } = await import('../../../lib/redis.js');
 
     getCached.mockResolvedValue(null);
@@ -80,9 +79,8 @@ describe('GET /api/guild/search', () => {
   });
 
   it('should return 404 when guild not found', async () => {
-    const { searchAndSyncGuild } = await import(
-      '../../../lib/guildSyncService.js'
-    );
+    const { searchAndSyncGuild } =
+      await import('../../../lib/guildSyncService.js');
     const { getCached } = await import('../../../lib/redis.js');
 
     getCached.mockResolvedValue(null);

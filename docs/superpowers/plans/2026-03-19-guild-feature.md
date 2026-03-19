@@ -15,40 +15,43 @@
 ## File Map
 
 ### New Files
-| File | Responsibility |
-|------|---------------|
-| `lib/db/guildSchema.js` | Drizzle table definitions: guilds, guild_skills, guild_members |
-| `lib/db/guildQueries.js` | Guild DB operations: upsert, read, member joins |
-| `lib/rateLimiter.js` | Shared token-bucket rate limiter for all Nexon API calls |
-| `lib/guildSyncService.js` | Guild member background sync logic |
-| `app/api/guild/search/route.js` | Guild search API endpoint |
-| `app/api/guild/[oguildId]/route.js` | Guild detail API endpoint |
-| `app/api/guild/[oguildId]/sync-status/route.js` | Sync status polling endpoint |
-| `app/guild/page.js` | Guild search page (server component) |
-| `app/guild/[server]/[guildName]/page.js` | Guild detail page (server component) |
-| `app/guild/[server]/[guildName]/GuildDetailClient.js` | Client-side guild detail with polling |
-| `components/GuildSearch.js` | Guild search form component |
-| `components/GuildInfoCard.js` | Guild info display card |
-| `components/GuildMemberTable.js` | Member leaderboard table |
-| `components/GuildDistributions.js` | Class pie chart + level histogram |
-| `components/GuildMyPosition.js` | Personal position panel |
-| `components/GuildHighlights.js` | Fun guild badges/highlights |
-| `components/GuildSyncProgress.js` | Sync progress indicator |
-| `drizzle/migrations/XXXX_add_guild_tables.sql` | Migration file |
+
+| File                                                  | Responsibility                                                 |
+| ----------------------------------------------------- | -------------------------------------------------------------- |
+| `lib/db/guildSchema.js`                               | Drizzle table definitions: guilds, guild_skills, guild_members |
+| `lib/db/guildQueries.js`                              | Guild DB operations: upsert, read, member joins                |
+| `lib/rateLimiter.js`                                  | Shared token-bucket rate limiter for all Nexon API calls       |
+| `lib/guildSyncService.js`                             | Guild member background sync logic                             |
+| `app/api/guild/search/route.js`                       | Guild search API endpoint                                      |
+| `app/api/guild/[oguildId]/route.js`                   | Guild detail API endpoint                                      |
+| `app/api/guild/[oguildId]/sync-status/route.js`       | Sync status polling endpoint                                   |
+| `app/guild/page.js`                                   | Guild search page (server component)                           |
+| `app/guild/[server]/[guildName]/page.js`              | Guild detail page (server component)                           |
+| `app/guild/[server]/[guildName]/GuildDetailClient.js` | Client-side guild detail with polling                          |
+| `components/GuildSearch.js`                           | Guild search form component                                    |
+| `components/GuildInfoCard.js`                         | Guild info display card                                        |
+| `components/GuildMemberTable.js`                      | Member leaderboard table                                       |
+| `components/GuildDistributions.js`                    | Class pie chart + level histogram                              |
+| `components/GuildMyPosition.js`                       | Personal position panel                                        |
+| `components/GuildHighlights.js`                       | Fun guild badges/highlights                                    |
+| `components/GuildSyncProgress.js`                     | Sync progress indicator                                        |
+| `drizzle/migrations/XXXX_add_guild_tables.sql`        | Migration file                                                 |
 
 ### Modified Files
-| File | Change |
-|------|--------|
-| `lib/nexonApi.js` | Add `getCharacterOcid(name)`, `getGuildId()`, `getGuildBasic()` |
-| `lib/cron.js` | Add guild refresh cron job |
-| `app/character/[name]/page.js` or relevant component | Add clickable guild name link |
-| Layout/Navbar component | Add `/guild` navigation link |
+
+| File                                                 | Change                                                          |
+| ---------------------------------------------------- | --------------------------------------------------------------- |
+| `lib/nexonApi.js`                                    | Add `getCharacterOcid(name)`, `getGuildId()`, `getGuildBasic()` |
+| `lib/cron.js`                                        | Add guild refresh cron job                                      |
+| `app/character/[name]/page.js` or relevant component | Add clickable guild name link                                   |
+| Layout/Navbar component                              | Add `/guild` navigation link                                    |
 
 ---
 
 ## Task 1: Extract `getCharacterOcid` into nexonApi.js
 
 **Files:**
+
 - Modify: `lib/nexonApi.js`
 - Modify: `app/api/character/search/route.js`
 - Test: `__tests__/lib/nexonApi.test.js`
@@ -85,8 +88,9 @@ Expected: FAIL — `getCharacterOcid` is not exported
 - [ ] **Step 3: Add `getCharacterOcid` to nexonApi.js**
 
 Add to `lib/nexonApi.js`:
+
 ```javascript
-export const getCharacterOcid = async (characterName) => {
+export const getCharacterOcid = async characterName => {
   try {
     const response = await apiClient.get(
       `/id?character_name=${encodeURIComponent(characterName)}`
@@ -108,6 +112,7 @@ Expected: PASS
 - [ ] **Step 5: Update character search route to use new function**
 
 In `app/api/character/search/route.js`, replace the inline OCID lookup with:
+
 ```javascript
 import { getCharacterOcid } from '../../../lib/nexonApi.js';
 // ...
@@ -131,6 +136,7 @@ git commit -m "refactor: extract getCharacterOcid into nexonApi.js"
 ## Task 2: Rate Limiter
 
 **Files:**
+
 - Create: `lib/rateLimiter.js`
 - Test: `__tests__/lib/rateLimiter.test.js`
 
@@ -207,13 +213,18 @@ export class RateLimiter {
       const newTokens = elapsed / this.interval;
 
       if (newTokens >= 1) {
-        this.tokens = Math.min(this.maxTokens, this.tokens + Math.floor(newTokens));
+        this.tokens = Math.min(
+          this.maxTokens,
+          this.tokens + Math.floor(newTokens)
+        );
         this.lastRefill = now;
       }
 
       if (this.tokens < 1) {
         const waitTime = this.interval - (Date.now() - this.lastRefill);
-        await new Promise(resolve => setTimeout(resolve, Math.max(waitTime, 10)));
+        await new Promise(resolve =>
+          setTimeout(resolve, Math.max(waitTime, 10))
+        );
       }
     }
 
@@ -254,6 +265,7 @@ git commit -m "feat: add token-bucket rate limiter for Nexon API"
 ## Task 3: Guild DB Schema + Migration
 
 **Files:**
+
 - Create: `lib/db/guildSchema.js`
 - Modify: `lib/db/schema.js`
 
@@ -289,9 +301,7 @@ export const guilds = mysqlTable(
     createdAt: timestamp('created_at').defaultNow(),
     updatedAt: timestamp('updated_at').defaultNow().onUpdateNow(),
   },
-  table => [
-    index('idx_guild_name_world').on(table.guildName, table.worldName),
-  ]
+  table => [index('idx_guild_name_world').on(table.guildName, table.worldName)]
 );
 
 export const guildSkills = mysqlTable(
@@ -325,10 +335,9 @@ export const guildMembers = mysqlTable(
       .notNull()
       .references(() => guilds.oguildId, { onDelete: 'cascade' }),
     characterName: varchar('character_name', { length: 50 }).notNull(),
-    ocid: varchar('ocid', { length: 64 }).references(
-      () => characters.ocid,
-      { onDelete: 'set null' }
-    ),
+    ocid: varchar('ocid', { length: 64 }).references(() => characters.ocid, {
+      onDelete: 'set null',
+    }),
     createdAt: timestamp('created_at').defaultNow(),
     updatedAt: timestamp('updated_at').defaultNow().onUpdateNow(),
   },
@@ -344,6 +353,7 @@ export const guildMembers = mysqlTable(
 Do **not** re-export from `schema.js` (avoids circular imports since `guildSchema.js` imports `characters` from `schema.js`). Instead, import `guildSchema.js` directly wherever guild tables are needed (queries, migrations).
 
 If the Drizzle config needs all schemas, update `drizzle.config.js` to include both files:
+
 ```javascript
 schema: ['./lib/db/schema.js', './lib/db/guildSchema.js'],
 ```
@@ -353,6 +363,7 @@ schema: ['./lib/db/schema.js', './lib/db/guildSchema.js'],
 Run: `npx drizzle-kit generate` then `npx drizzle-kit migrate` (or the project's migration command).
 
 If using manual migrations, create the SQL:
+
 ```sql
 CREATE TABLE `guilds` (
   `oguild_id` varchar(64) PRIMARY KEY,
@@ -413,6 +424,7 @@ git commit -m "feat: add guild DB schema and migration"
 ## Task 4: Guild API Functions in nexonApi.js
 
 **Files:**
+
 - Modify: `lib/nexonApi.js`
 - Test: `__tests__/lib/nexonApi.test.js` (extend existing)
 
@@ -421,6 +433,7 @@ Guild endpoints use the same TWMS base URL (`NEXT_PUBLIC_API_BASE_URL`) and the 
 - [ ] **Step 1: Add guild API test cases**
 
 Add to `__tests__/lib/nexonApi.test.js`:
+
 ```javascript
 describe('getGuildId', () => {
   it('should return oguild_id for guild name + world', async () => {
@@ -448,6 +461,7 @@ Expected: FAIL — `getGuildId` is not exported
 - [ ] **Step 3: Add guild functions to nexonApi.js**
 
 Add to `lib/nexonApi.js` (uses existing `apiClient`):
+
 ```javascript
 export const getGuildId = async (guildName, worldName) => {
   try {
@@ -469,9 +483,7 @@ export const getGuildBasic = async (oguildId, date) => {
     const response = await apiClient.get(url);
     return response.data;
   } catch (error) {
-    throw new Error(
-      `Failed to fetch guild basic info: ${error.message}`
-    );
+    throw new Error(`Failed to fetch guild basic info: ${error.message}`);
   }
 };
 ```
@@ -493,6 +505,7 @@ git commit -m "feat: add guild API functions to nexonApi.js"
 ## Task 5: Guild DB Queries
 
 **Files:**
+
 - Create: `lib/db/guildQueries.js`
 - Test: `__tests__/lib/db/guildQueries.test.js`
 
@@ -623,14 +636,12 @@ export async function syncGuildMembers(oguildId, memberNames) {
   // Remove members who left
   const toRemove = existing.filter(m => !newNames.has(m.characterName));
   if (toRemove.length > 0) {
-    await db
-      .delete(guildMembers)
-      .where(
-        inArray(
-          guildMembers.id,
-          toRemove.map(m => m.id)
-        )
-      );
+    await db.delete(guildMembers).where(
+      inArray(
+        guildMembers.id,
+        toRemove.map(m => m.id)
+      )
+    );
   }
 
   // Add new members
@@ -714,9 +725,7 @@ export async function getGuildsByRecentActivity(days = 7) {
   return db
     .select()
     .from(guilds)
-    .where(
-      sql`${guilds.updatedAt} > DATE_SUB(NOW(), INTERVAL ${days} DAY)`
-    );
+    .where(sql`${guilds.updatedAt} > DATE_SUB(NOW(), INTERVAL ${days} DAY)`);
 }
 
 /**
@@ -789,6 +798,7 @@ git commit -m "feat: add guild DB query functions"
 ## Task 6: Guild Sync Service
 
 **Files:**
+
 - Create: `lib/guildSyncService.js`
 - Test: `__tests__/lib/guildSyncService.test.js`
 
@@ -796,7 +806,10 @@ git commit -m "feat: add guild DB query functions"
 
 ```javascript
 // __tests__/lib/guildSyncService.test.js
-import { syncGuildMemberBasic, startGuildSync } from '../../lib/guildSyncService.js';
+import {
+  syncGuildMemberBasic,
+  startGuildSync,
+} from '../../lib/guildSyncService.js';
 
 jest.mock('../../lib/nexonApi.js');
 jest.mock('../../lib/guildApi.js');
@@ -829,7 +842,12 @@ Expected: FAIL — module not found
 
 ```javascript
 // lib/guildSyncService.js
-import { getCharacterOcid, getCharacterBasicInfo, getGuildId, getGuildBasic } from './nexonApi.js';
+import {
+  getCharacterOcid,
+  getCharacterBasicInfo,
+  getGuildId,
+  getGuildBasic,
+} from './nexonApi.js';
 import {
   upsertGuild,
   upsertGuildSkills,
@@ -879,13 +897,9 @@ export async function syncGuildMemberBasic(oguildId, characterName) {
   const limiter = getGlobalRateLimiter();
 
   try {
-    const ocid = await limiter.execute(() =>
-      getCharacterOcid(characterName)
-    );
+    const ocid = await limiter.execute(() => getCharacterOcid(characterName));
 
-    const basicInfo = await limiter.execute(() =>
-      getCharacterBasicInfo(ocid)
-    );
+    const basicInfo = await limiter.execute(() => getCharacterBasicInfo(ocid));
 
     // Use guild-specific lightweight upsert that does NOT overwrite
     // combatPower or other fields from the full sync (stats API).
@@ -907,7 +921,10 @@ export async function syncGuildMemberBasic(oguildId, characterName) {
     await updateGuildMemberOcid(oguildId, characterName, ocid);
     return { success: true, characterName, ocid };
   } catch (error) {
-    console.error(`Guild member sync failed for "${characterName}":`, error.message);
+    console.error(
+      `Guild member sync failed for "${characterName}":`,
+      error.message
+    );
     return { success: false, characterName, error: error.message };
   }
 }
@@ -921,9 +938,7 @@ export async function searchAndSyncGuild(guildName, worldName) {
   );
 
   // Step 2: Get guild basic info
-  const guildInfo = await limiter.execute(() =>
-    getGuildBasic(oguildId)
-  );
+  const guildInfo = await limiter.execute(() => getGuildBasic(oguildId));
 
   // Step 3: Upsert guild data
   await upsertGuild({
@@ -1031,6 +1046,7 @@ git commit -m "feat: add guild background sync service"
 ## Task 7: Guild API Routes
 
 **Files:**
+
 - Create: `app/api/guild/search/route.js`
 - Create: `app/api/guild/[oguildId]/route.js`
 - Create: `app/api/guild/[oguildId]/sync-status/route.js`
@@ -1047,13 +1063,17 @@ jest.mock('../../../lib/redis.js');
 
 describe('GET /api/guild/search', () => {
   it('should return 400 if name is missing', async () => {
-    const request = new Request('http://localhost/api/guild/search?world=艾麗亞');
+    const request = new Request(
+      'http://localhost/api/guild/search?world=艾麗亞'
+    );
     const response = await GET(request);
     expect(response.status).toBe(400);
   });
 
   it('should return 400 if world is missing', async () => {
-    const request = new Request('http://localhost/api/guild/search?name=TestGuild');
+    const request = new Request(
+      'http://localhost/api/guild/search?name=TestGuild'
+    );
     const response = await GET(request);
     expect(response.status).toBe(400);
   });
@@ -1070,7 +1090,10 @@ Expected: FAIL — module not found
 ```javascript
 // app/api/guild/search/route.js
 import { NextResponse } from 'next/server';
-import { searchAndSyncGuild, startGuildSync } from '../../../../lib/guildSyncService.js';
+import {
+  searchAndSyncGuild,
+  startGuildSync,
+} from '../../../../lib/guildSyncService.js';
 import { getCached, setCache } from '../../../../lib/redis.js';
 
 export async function GET(request) {
@@ -1092,8 +1115,10 @@ export async function GET(request) {
       return NextResponse.json(cached);
     }
 
-    const { oguildId, guildInfo, memberCount } =
-      await searchAndSyncGuild(name, world);
+    const { oguildId, guildInfo, memberCount } = await searchAndSyncGuild(
+      name,
+      world
+    );
 
     // Start background member sync
     const syncStatus = await startGuildSync(oguildId);
@@ -1117,16 +1142,10 @@ export async function GET(request) {
     console.error('Guild search error:', error);
 
     if (error.message.includes('404') || error.message.includes('not found')) {
-      return NextResponse.json(
-        { error: '找不到此工會' },
-        { status: 404 }
-      );
+      return NextResponse.json({ error: '找不到此工會' }, { status: 404 });
     }
 
-    return NextResponse.json(
-      { error: '搜尋工會時發生錯誤' },
-      { status: 500 }
-    );
+    return NextResponse.json({ error: '搜尋工會時發生錯誤' }, { status: 500 });
   }
 }
 ```
@@ -1145,10 +1164,7 @@ export async function GET(request, { params }) {
   try {
     const guild = await getGuildWithMembers(oguildId);
     if (!guild) {
-      return NextResponse.json(
-        { error: '工會不存在' },
-        { status: 404 }
-      );
+      return NextResponse.json({ error: '工會不存在' }, { status: 404 });
     }
 
     const syncStatus = await getSyncStatus(oguildId);
@@ -1215,6 +1231,7 @@ git commit -m "feat: add guild API routes (search, detail, sync-status)"
 ## Task 8: Cron Integration
 
 **Files:**
+
 - Modify: `lib/cron.js`
 
 - [ ] **Step 1: Add guild refresh cron job**
@@ -1226,7 +1243,8 @@ Add to `lib/cron.js` inside `initCronJobs()`:
 cron.schedule('30 */6 * * *', async () => {
   try {
     const { getGuildsByRecentActivity } = await import('./db/guildQueries.js');
-    const { searchAndSyncGuild, startGuildSync } = await import('./guildSyncService.js');
+    const { searchAndSyncGuild, startGuildSync } =
+      await import('./guildSyncService.js');
 
     const guilds = await getGuildsByRecentActivity(7);
     console.log(`[Cron] Refreshing ${guilds.length} active guilds`);
@@ -1237,7 +1255,10 @@ cron.schedule('30 */6 * * *', async () => {
         await startGuildSync(guild.oguildId);
         console.log(`[Cron] Refreshed guild: ${guild.guildName}`);
       } catch (error) {
-        console.error(`[Cron] Failed to refresh guild ${guild.guildName}:`, error.message);
+        console.error(
+          `[Cron] Failed to refresh guild ${guild.guildName}:`,
+          error.message
+        );
       }
     }
   } catch (error) {
@@ -1265,6 +1286,7 @@ git commit -m "feat: add guild refresh cron job (every 6 hours)"
 ## Task 9: Guild Search Page
 
 **Files:**
+
 - Create: `app/guild/page.js`
 - Create: `components/GuildSearch.js`
 
@@ -1290,8 +1312,15 @@ import {
 import SearchIcon from '@mui/icons-material/Search';
 
 const WORLDS = [
-  '殺人鯨', '琉德', '普力特', '優依娜', '艾麗亞',
-  '引那斯', '瑞普', '克洛亞', '文森',
+  '殺人鯨',
+  '琉德',
+  '普力特',
+  '優依娜',
+  '艾麗亞',
+  '引那斯',
+  '瑞普',
+  '克洛亞',
+  '文森',
 ];
 
 export default function GuildSearch() {
@@ -1301,32 +1330,35 @@ export default function GuildSearch() {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
 
-  const handleSearch = useCallback(async (e) => {
-    e.preventDefault();
-    if (!guildName.trim() || !world) return;
+  const handleSearch = useCallback(
+    async e => {
+      e.preventDefault();
+      if (!guildName.trim() || !world) return;
 
-    setLoading(true);
-    setError('');
+      setLoading(true);
+      setError('');
 
-    try {
-      const res = await fetch(
-        `/api/guild/search?name=${encodeURIComponent(guildName.trim())}&world=${encodeURIComponent(world)}`
-      );
+      try {
+        const res = await fetch(
+          `/api/guild/search?name=${encodeURIComponent(guildName.trim())}&world=${encodeURIComponent(world)}`
+        );
 
-      if (!res.ok) {
-        const data = await res.json();
-        throw new Error(data.error || '搜尋失敗');
+        if (!res.ok) {
+          const data = await res.json();
+          throw new Error(data.error || '搜尋失敗');
+        }
+
+        router.push(
+          `/guild/${encodeURIComponent(world)}/${encodeURIComponent(guildName.trim())}`
+        );
+      } catch (err) {
+        setError(err.message);
+      } finally {
+        setLoading(false);
       }
-
-      router.push(
-        `/guild/${encodeURIComponent(world)}/${encodeURIComponent(guildName.trim())}`
-      );
-    } catch (err) {
-      setError(err.message);
-    } finally {
-      setLoading(false);
-    }
-  }, [guildName, world, router]);
+    },
+    [guildName, world, router]
+  );
 
   return (
     <Box
@@ -1344,10 +1376,12 @@ export default function GuildSearch() {
         <Select
           value={world}
           label="伺服器"
-          onChange={(e) => setWorld(e.target.value)}
+          onChange={e => setWorld(e.target.value)}
         >
           {WORLDS.map(w => (
-            <MenuItem key={w} value={w}>{w}</MenuItem>
+            <MenuItem key={w} value={w}>
+              {w}
+            </MenuItem>
           ))}
         </Select>
       </FormControl>
@@ -1355,7 +1389,7 @@ export default function GuildSearch() {
       <TextField
         label="工會名稱"
         value={guildName}
-        onChange={(e) => setGuildName(e.target.value)}
+        onChange={e => setGuildName(e.target.value)}
         sx={{ flex: 1 }}
       />
 
@@ -1434,6 +1468,7 @@ git commit -m "feat: add guild search page and component"
 ## Task 10: Guild Detail Page + Components
 
 **Files:**
+
 - Create: `app/guild/[server]/[guildName]/page.js`
 - Create: `components/GuildInfoCard.js`
 - Create: `components/GuildMemberTable.js`
@@ -1543,9 +1578,18 @@ export default function GuildInfoCard({ guild }) {
 
 import { useState, useMemo } from 'react';
 import {
-  Box, Table, TableBody, TableCell, TableContainer,
-  TableHead, TableRow, TableSortLabel, TextField,
-  Typography, Avatar, Chip,
+  Box,
+  Table,
+  TableBody,
+  TableCell,
+  TableContainer,
+  TableHead,
+  TableRow,
+  TableSortLabel,
+  TextField,
+  Typography,
+  Avatar,
+  Chip,
 } from '@mui/material';
 import Link from 'next/link';
 
@@ -1566,7 +1610,7 @@ export default function GuildMemberTable({ members, myCharacterName }) {
     });
   }, [members, orderBy, order, search]);
 
-  const handleSort = (field) => {
+  const handleSort = field => {
     if (orderBy === field) {
       setOrder(order === 'desc' ? 'asc' : 'desc');
     } else {
@@ -1594,7 +1638,7 @@ export default function GuildMemberTable({ members, myCharacterName }) {
         size="small"
         placeholder="搜尋成員..."
         value={search}
-        onChange={(e) => setSearch(e.target.value)}
+        onChange={e => setSearch(e.target.value)}
         sx={{ mb: 2, width: '100%', maxWidth: 300 }}
       />
 
@@ -1651,7 +1695,12 @@ export default function GuildMemberTable({ members, myCharacterName }) {
                       >
                         {member.characterName}
                         {isMe && (
-                          <Chip label="ME" size="small" color="warning" sx={{ ml: 1 }} />
+                          <Chip
+                            label="ME"
+                            size="small"
+                            color="warning"
+                            sx={{ ml: 1 }}
+                          />
                         )}
                       </Link>
                     </Box>
@@ -1663,9 +1712,7 @@ export default function GuildMemberTable({ members, myCharacterName }) {
                       </Typography>
                     )}
                   </TableCell>
-                  <TableCell>
-                    {member.characterLevel ?? '—'}
-                  </TableCell>
+                  <TableCell>{member.characterLevel ?? '—'}</TableCell>
                   <TableCell>
                     {member.combatPower
                       ? Number(member.combatPower).toLocaleString()
@@ -1690,11 +1737,29 @@ export default function GuildMemberTable({ members, myCharacterName }) {
 
 import { useMemo } from 'react';
 import { Box, Typography, Grid2 } from '@mui/material';
-import { PieChart, Pie, Cell, Tooltip, ResponsiveContainer, BarChart, Bar, XAxis, YAxis } from 'recharts';
+import {
+  PieChart,
+  Pie,
+  Cell,
+  Tooltip,
+  ResponsiveContainer,
+  BarChart,
+  Bar,
+  XAxis,
+  YAxis,
+} from 'recharts';
 
 const COLORS = [
-  '#f7931e', '#ff6b6b', '#4ecdc4', '#45b7d1', '#96ceb4',
-  '#ffeaa7', '#dfe6e9', '#a29bfe', '#fd79a8', '#55a3e8',
+  '#f7931e',
+  '#ff6b6b',
+  '#4ecdc4',
+  '#45b7d1',
+  '#96ceb4',
+  '#ffeaa7',
+  '#dfe6e9',
+  '#a29bfe',
+  '#fd79a8',
+  '#55a3e8',
 ];
 
 export default function GuildDistributions({ members }) {
@@ -1868,7 +1933,7 @@ export default function GuildMyPosition({ members }) {
         options={memberNames}
         value={myName || null}
         onChange={(_, val) => setMyName(val || '')}
-        renderInput={(params) => (
+        renderInput={params => (
           <TextField {...params} label="選擇你的角色" size="small" />
         )}
         sx={{ mb: 2, maxWidth: 300 }}
@@ -1959,7 +2024,8 @@ export default function GuildHighlights({ members }) {
     const classCounts = {};
     syncedMembers.forEach(m => {
       if (m.characterClass) {
-        classCounts[m.characterClass] = (classCounts[m.characterClass] || 0) + 1;
+        classCounts[m.characterClass] =
+          (classCounts[m.characterClass] || 0) + 1;
       }
     });
     const topClass = Object.entries(classCounts).sort((a, b) => b[1] - a[1])[0];
@@ -2157,6 +2223,7 @@ git commit -m "feat: add guild detail page with member table, distributions, and
 ## Task 11: Character Page Guild Link
 
 **Files:**
+
 - Modify: `app/character/[name]/page.js` (or the component that displays character info)
 
 - [ ] **Step 1: Find where guild name is displayed**
@@ -2171,14 +2238,16 @@ Where the guild name is displayed, wrap it in a Next.js `Link`:
 import Link from 'next/link';
 
 // Replace plain guild name text with:
-{character.characterGuildName && (
-  <Link
-    href={`/guild/${encodeURIComponent(character.worldName)}/${encodeURIComponent(character.characterGuildName)}`}
-    style={{ color: 'inherit', textDecoration: 'underline' }}
-  >
-    {character.characterGuildName}
-  </Link>
-)}
+{
+  character.characterGuildName && (
+    <Link
+      href={`/guild/${encodeURIComponent(character.worldName)}/${encodeURIComponent(character.characterGuildName)}`}
+      style={{ color: 'inherit', textDecoration: 'underline' }}
+    >
+      {character.characterGuildName}
+    </Link>
+  );
+}
 ```
 
 - [ ] **Step 3: Verify link works**
@@ -2242,6 +2311,7 @@ git commit -m "fix: polish guild feature integration"
 Every component must use the `useColorMode()` hook and apply mode-aware colors. The plan's code uses hardcoded `rgba(255,255,255,0.6)` which only works in light mode.
 
 **Correct glassmorphism pattern** (from `app/about/page.js` `glassCardSx`):
+
 ```javascript
 import { useColorMode } from '../components/MuiThemeProvider';
 
@@ -2251,15 +2321,17 @@ const { mode } = useColorMode();
 const glassCardSx = {
   borderRadius: 3,
   border: '1px solid',
-  borderColor: mode === 'dark' ? 'rgba(255,255,255,0.08)' : 'rgba(247,147,30,0.15)',
+  borderColor:
+    mode === 'dark' ? 'rgba(255,255,255,0.08)' : 'rgba(247,147,30,0.15)',
   bgcolor: mode === 'dark' ? 'rgba(42,31,26,0.6)' : 'rgba(255,255,255,0.7)',
   backdropFilter: 'blur(8px)',
   transition: 'transform 0.2s ease, box-shadow 0.2s ease',
   '&:hover': {
     transform: 'translateY(-2px)',
-    boxShadow: mode === 'dark'
-      ? '0 8px 24px rgba(0,0,0,0.3)'
-      : '0 8px 24px rgba(247,147,30,0.12)',
+    boxShadow:
+      mode === 'dark'
+        ? '0 8px 24px rgba(0,0,0,0.3)'
+        : '0 8px 24px rgba(247,147,30,0.12)',
   },
 };
 ```
@@ -2268,15 +2340,15 @@ Apply this pattern to: `GuildInfoCard`, `GuildMemberTable`, `GuildDistributions`
 
 ### Theme Colors
 
-| Token | Light | Dark | Usage |
-|-------|-------|------|-------|
-| Primary | `#f7931e` | `#f7931e` | Buttons, active states, accents |
-| Primary light | `#ffb347` | `#ffb347` | Hover backgrounds |
-| Background | `#fff7ec` | `#1a1210` | Page background |
-| Paper | `#fff3e0` | `#2a1f1a` | Card backgrounds |
-| Text primary | `#4e342e` | `#f5e6d3` | Body text |
-| Text secondary | `#6d4c41` | `#c4a882` | Captions, metadata |
-| Border (glass) | `rgba(247,147,30,0.15)` | `rgba(255,255,255,0.08)` | Card borders |
+| Token          | Light                   | Dark                     | Usage                           |
+| -------------- | ----------------------- | ------------------------ | ------------------------------- |
+| Primary        | `#f7931e`               | `#f7931e`                | Buttons, active states, accents |
+| Primary light  | `#ffb347`               | `#ffb347`                | Hover backgrounds               |
+| Background     | `#fff7ec`               | `#1a1210`                | Page background                 |
+| Paper          | `#fff3e0`               | `#2a1f1a`                | Card backgrounds                |
+| Text primary   | `#4e342e`               | `#f5e6d3`                | Body text                       |
+| Text secondary | `#6d4c41`               | `#c4a882`                | Captions, metadata              |
+| Border (glass) | `rgba(247,147,30,0.15)` | `rgba(255,255,255,0.08)` | Card borders                    |
 
 ### Recharts Color Palette (P0)
 
@@ -2284,12 +2356,21 @@ The plan uses cool-tone colors (`#4ecdc4`, `#45b7d1`) that clash with the warm o
 
 ```javascript
 const COLORS = [
-  '#f7931e', '#cc6e00', '#ffb347', '#8c6239', '#b07d52',
-  '#7cb342', '#e53935', '#ffa726', '#4fc3f7', '#ab47bc',
+  '#f7931e',
+  '#cc6e00',
+  '#ffb347',
+  '#8c6239',
+  '#b07d52',
+  '#7cb342',
+  '#e53935',
+  '#ffa726',
+  '#4fc3f7',
+  '#ab47bc',
 ];
 ```
 
 Also apply these Recharts conventions from `components/ProgressChart.js`:
+
 - `CartesianGrid` stroke: `mode === 'dark' ? 'rgba(255,255,255,0.15)' : 'rgba(0,0,0,0.1)'`
 - Tooltip: `bgcolor: theme.palette.background.paper`, `borderRadius: 8`, box-shadow
 - XAxis/YAxis tick: `fill: theme.palette.text.secondary`, `fontSize: 11`
@@ -2308,9 +2389,11 @@ The existing leaderboard uses card-style rows (`LeaderboardCard.js`), not MUI `T
 ### Chip Styling (P1)
 
 Per existing feedback (see CLAUDE.md): Chips must have sufficient padding. Always add:
+
 ```javascript
 sx={{ px: 1.5 }}  // minimum, not px: 1
 ```
+
 Use explicit `height` for alignment when mixing Chips with other elements. Reference: `components/CharacterCard.js` Chip patterns.
 
 ### Hover Effects (P1)
@@ -2319,16 +2402,16 @@ All interactive cards must have hover feedback. Use `translateY(-2px)` + box-sha
 
 ### Component-Specific Notes
 
-| Component | Key Fix |
-|-----------|---------|
-| `GuildInfoCard` | Add guild skills section (expandable). Add hover effect. Avatar should be default (round), not `variant="rounded"`. |
-| `GuildMemberTable` | Top-3 rank colors. Avatar 48px. Add empty state for 0 members. Distinguish "syncing" vs "failed" members (show different icon/text). |
-| `GuildDistributions` | Warm color palette. Donut chart (add `innerRadius`). Custom Tooltip matching theme. 300px+ height. |
-| `GuildMyPosition` | Persist selected character to localStorage. Show character image when selected. Outlined Chips need explicit `borderColor` for dark mode. |
-| `GuildHighlights` | Use different icons per highlight (not all `EmojiEventsIcon`). Consider card-style badges instead of just Chips for more visual impact. |
-| `GuildSearch` | Add recent searches (localStorage, follow `lib/localStorage.js`). Move `Alert` outside the flex form row. Verify TWMS server names are correct. |
-| `GuildDetailClient` | Check DB freshness before calling Nexon API. Polling interval 5s (not 3s). Consider skeleton loading instead of plain spinner. |
-| Guild detail page | `maxWidth="lg"` is OK for the dual-column distribution layout, but wrap other sections in narrower containers if needed. |
+| Component            | Key Fix                                                                                                                                         |
+| -------------------- | ----------------------------------------------------------------------------------------------------------------------------------------------- |
+| `GuildInfoCard`      | Add guild skills section (expandable). Add hover effect. Avatar should be default (round), not `variant="rounded"`.                             |
+| `GuildMemberTable`   | Top-3 rank colors. Avatar 48px. Add empty state for 0 members. Distinguish "syncing" vs "failed" members (show different icon/text).            |
+| `GuildDistributions` | Warm color palette. Donut chart (add `innerRadius`). Custom Tooltip matching theme. 300px+ height.                                              |
+| `GuildMyPosition`    | Persist selected character to localStorage. Show character image when selected. Outlined Chips need explicit `borderColor` for dark mode.       |
+| `GuildHighlights`    | Use different icons per highlight (not all `EmojiEventsIcon`). Consider card-style badges instead of just Chips for more visual impact.         |
+| `GuildSearch`        | Add recent searches (localStorage, follow `lib/localStorage.js`). Move `Alert` outside the flex form row. Verify TWMS server names are correct. |
+| `GuildDetailClient`  | Check DB freshness before calling Nexon API. Polling interval 5s (not 3s). Consider skeleton loading instead of plain spinner.                  |
+| Guild detail page    | `maxWidth="lg"` is OK for the dual-column distribution layout, but wrap other sections in narrower containers if needed.                        |
 
 ### Navigation
 

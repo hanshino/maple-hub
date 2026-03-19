@@ -10,12 +10,13 @@ Add guild browsing and analysis to Maple Hub. Users can search for a guild or cl
 
 Two new endpoints to integrate:
 
-| Endpoint | Params | Returns |
-|----------|--------|---------|
-| `GET /maplestory/v1/guild/id` | `guild_name`, `world_name` | `oguild_id` |
-| `GET /maplestory/v1/guild/basic` | `oguild_id`, `date?` | Full guild info (see below) |
+| Endpoint                         | Params                     | Returns                     |
+| -------------------------------- | -------------------------- | --------------------------- |
+| `GET /maplestory/v1/guild/id`    | `guild_name`, `world_name` | `oguild_id`                 |
+| `GET /maplestory/v1/guild/basic` | `oguild_id`, `date?`       | Full guild info (see below) |
 
 **Guild Basic response fields:**
+
 - `guild_name`, `world_name`, `guild_level`, `guild_fame`, `guild_point`
 - `guild_master_name`, `guild_member_count`
 - `guild_member: string[]` — full member name list (up to 200)
@@ -61,48 +62,48 @@ Key principle: **show what we have, fetch what we don't, never block the user.**
 
 ### `guilds` table
 
-| Column | Type | Notes |
-|--------|------|-------|
-| `oguild_id` | varchar(64) | PK |
-| `guild_name` | varchar(100) | indexed |
-| `world_name` | varchar(20) | |
-| `guild_level` | int | |
-| `guild_fame` | int | |
-| `guild_point` | int | |
-| `guild_master_name` | varchar(50) | |
-| `guild_member_count` | int | |
-| `guild_mark` | text | base64 image |
-| `guild_mark_custom` | text | base64 custom image |
-| `created_at` | timestamp | |
-| `updated_at` | timestamp | |
+| Column               | Type         | Notes               |
+| -------------------- | ------------ | ------------------- |
+| `oguild_id`          | varchar(64)  | PK                  |
+| `guild_name`         | varchar(100) | indexed             |
+| `world_name`         | varchar(20)  |                     |
+| `guild_level`        | int          |                     |
+| `guild_fame`         | int          |                     |
+| `guild_point`        | int          |                     |
+| `guild_master_name`  | varchar(50)  |                     |
+| `guild_member_count` | int          |                     |
+| `guild_mark`         | text         | base64 image        |
+| `guild_mark_custom`  | text         | base64 custom image |
+| `created_at`         | timestamp    |                     |
+| `updated_at`         | timestamp    |                     |
 
 Index: `idx_guild_name_world` on (`guild_name`, `world_name`).
 
 ### `guild_skills` table
 
-| Column | Type | Notes |
-|--------|------|-------|
-| `id` | int | PK, auto-increment |
-| `oguild_id` | varchar(64) | FK → guilds |
-| `skill_type` | varchar(10) | 'regular' or 'noblesse' |
-| `skill_name` | varchar(100) | |
-| `skill_description` | text | |
-| `skill_level` | int | |
-| `skill_effect` | text | |
-| `skill_icon` | text | icon URL |
+| Column              | Type         | Notes                   |
+| ------------------- | ------------ | ----------------------- |
+| `id`                | int          | PK, auto-increment      |
+| `oguild_id`         | varchar(64)  | FK → guilds             |
+| `skill_type`        | varchar(10)  | 'regular' or 'noblesse' |
+| `skill_name`        | varchar(100) |                         |
+| `skill_description` | text         |                         |
+| `skill_level`       | int          |                         |
+| `skill_effect`      | text         |                         |
+| `skill_icon`        | text         | icon URL                |
 
 Unique index: `idx_guild_skill_unique` on (`oguild_id`, `skill_type`, `skill_name`). Sync uses delete-then-insert per guild (same pattern as existing equipment sync).
 
 ### `guild_members` table
 
-| Column | Type | Notes |
-|--------|------|-------|
-| `id` | int | PK, auto-increment |
-| `oguild_id` | varchar(64) | FK → guilds |
-| `character_name` | varchar(50) | denormalized for display before sync |
-| `ocid` | varchar(64) | FK → characters, nullable (null until OCID resolved) |
-| `created_at` | timestamp | |
-| `updated_at` | timestamp | |
+| Column           | Type        | Notes                                                |
+| ---------------- | ----------- | ---------------------------------------------------- |
+| `id`             | int         | PK, auto-increment                                   |
+| `oguild_id`      | varchar(64) | FK → guilds                                          |
+| `character_name` | varchar(50) | denormalized for display before sync                 |
+| `ocid`           | varchar(64) | FK → characters, nullable (null until OCID resolved) |
+| `created_at`     | timestamp   |                                                      |
+| `updated_at`     | timestamp   |                                                      |
 
 Character details are joined from `characters` table via `ocid`. The `character_name` is kept denormalized so we can display the member list immediately from the guild API response before OCID resolution.
 
@@ -192,6 +193,7 @@ Create `lib/rateLimiter.js` — a shared token-bucket rate limiter (in-memory, 5
 ### Guild Member Sync Function
 
 Create `syncCharacterBasicOnly(characterName)` in `lib/guildSyncService.js`:
+
 1. Call `getCharacterOcid(characterName)` → get OCID
 2. Call `getCharacterBasicInfo(ocid)` → get basic info
 3. Upsert into `characters` table (basic fields only: name, level, class, combat power, exp rate, image, guild name)
@@ -225,6 +227,7 @@ This is distinct from the full `syncCharacter()` which makes 13 API calls.
 ## Cron Integration
 
 Extend `lib/cron.js`:
+
 - **Every 6 hours:** refresh guilds that have been viewed in the last 7 days
 - Re-fetch guild basic info (member list may change — handles joins/leaves)
 - Re-sync stale member basic data through the shared rate limiter
@@ -239,14 +242,14 @@ Extend `lib/cron.js`:
 
 ## Error Handling
 
-| Scenario | API Response | UI Behavior |
-|----------|-------------|-------------|
-| Guild not found | 404 from Nexon guild ID API | "找不到此工會" message on search page |
-| Guild with 0 members | Empty `guild_member` array | Show guild info card, empty member section with message |
-| Member character deleted | 404 from OCID or basic API | Skip member, show as "無法取得資料" in member list |
-| Rate limit exceeded | 429 from Nexon | Backoff + retry (see sync worker section) |
-| Nexon API down | 500/503 | Show cached data if available, error banner if not |
-| Unicode URL decode error | — | `decodeURIComponent` on route params, fallback to 404 page |
+| Scenario                 | API Response                | UI Behavior                                                |
+| ------------------------ | --------------------------- | ---------------------------------------------------------- |
+| Guild not found          | 404 from Nexon guild ID API | "找不到此工會" message on search page                      |
+| Guild with 0 members     | Empty `guild_member` array  | Show guild info card, empty member section with message    |
+| Member character deleted | 404 from OCID or basic API  | Skip member, show as "無法取得資料" in member list         |
+| Rate limit exceeded      | 429 from Nexon              | Backoff + retry (see sync worker section)                  |
+| Nexon API down           | 500/503                     | Show cached data if available, error banner if not         |
+| Unicode URL decode error | —                           | `decodeURIComponent` on route params, fallback to 404 page |
 
 ### "My Position" Edge Cases
 
@@ -257,6 +260,7 @@ Extend `lib/cron.js`:
 ## Design
 
 Follow existing Maple Hub conventions:
+
 - Glassmorphism cards with `backdropFilter: blur` and translucent backgrounds
 - Orange primary (`#f7931e`), cream background (`#fff7ec`)
 - MUI 7 components + Tailwind CSS 4 utilities

@@ -109,9 +109,7 @@ describe('syncGuildMembers', () => {
     const mockDb = {
       select: jest.fn(() => ({
         from: jest.fn().mockReturnThis(),
-        where: jest.fn().mockResolvedValue([
-          { id: 1, characterName: 'Alice' },
-        ]),
+        where: jest.fn().mockResolvedValue([{ id: 1, characterName: 'Alice' }]),
       })),
       delete: jest.fn(() => ({
         where: jest.fn().mockResolvedValue(undefined),
