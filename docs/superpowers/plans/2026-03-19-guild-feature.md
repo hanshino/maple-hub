@@ -2233,17 +2233,123 @@ git commit -m "fix: polish guild feature integration"
 
 ---
 
+## UI/UX Implementation Notes
+
+**IMPORTANT:** The code samples in the tasks above are structural references. All frontend components MUST follow the existing design system described below. Do NOT copy the hardcoded light-mode styles from the task code verbatim.
+
+### Dark Mode (P0 — applies to ALL components)
+
+Every component must use the `useColorMode()` hook and apply mode-aware colors. The plan's code uses hardcoded `rgba(255,255,255,0.6)` which only works in light mode.
+
+**Correct glassmorphism pattern** (from `app/about/page.js` `glassCardSx`):
+```javascript
+import { useColorMode } from '../components/MuiThemeProvider';
+
+// Inside component:
+const { mode } = useColorMode();
+
+const glassCardSx = {
+  borderRadius: 3,
+  border: '1px solid',
+  borderColor: mode === 'dark' ? 'rgba(255,255,255,0.08)' : 'rgba(247,147,30,0.15)',
+  bgcolor: mode === 'dark' ? 'rgba(42,31,26,0.6)' : 'rgba(255,255,255,0.7)',
+  backdropFilter: 'blur(8px)',
+  transition: 'transform 0.2s ease, box-shadow 0.2s ease',
+  '&:hover': {
+    transform: 'translateY(-2px)',
+    boxShadow: mode === 'dark'
+      ? '0 8px 24px rgba(0,0,0,0.3)'
+      : '0 8px 24px rgba(247,147,30,0.12)',
+  },
+};
+```
+
+Apply this pattern to: `GuildInfoCard`, `GuildMemberTable`, `GuildDistributions`, `GuildMyPosition`, `GuildHighlights`, `GuildSearch` (form container), and the search page card.
+
+### Theme Colors
+
+| Token | Light | Dark | Usage |
+|-------|-------|------|-------|
+| Primary | `#f7931e` | `#f7931e` | Buttons, active states, accents |
+| Primary light | `#ffb347` | `#ffb347` | Hover backgrounds |
+| Background | `#fff7ec` | `#1a1210` | Page background |
+| Paper | `#fff3e0` | `#2a1f1a` | Card backgrounds |
+| Text primary | `#4e342e` | `#f5e6d3` | Body text |
+| Text secondary | `#6d4c41` | `#c4a882` | Captions, metadata |
+| Border (glass) | `rgba(247,147,30,0.15)` | `rgba(255,255,255,0.08)` | Card borders |
+
+### Recharts Color Palette (P0)
+
+The plan uses cool-tone colors (`#4ecdc4`, `#45b7d1`) that clash with the warm orange theme. Use this warm palette instead:
+
+```javascript
+const COLORS = [
+  '#f7931e', '#cc6e00', '#ffb347', '#8c6239', '#b07d52',
+  '#7cb342', '#e53935', '#ffa726', '#4fc3f7', '#ab47bc',
+];
+```
+
+Also apply these Recharts conventions from `components/ProgressChart.js`:
+- `CartesianGrid` stroke: `mode === 'dark' ? 'rgba(255,255,255,0.15)' : 'rgba(0,0,0,0.1)'`
+- Tooltip: `bgcolor: theme.palette.background.paper`, `borderRadius: 8`, box-shadow
+- XAxis/YAxis tick: `fill: theme.palette.text.secondary`, `fontSize: 11`
+- Pie charts: use donut style with `innerRadius` (existing pattern)
+- `ResponsiveContainer` height: 300-320px (250px is too small)
+
+### Member Table vs Card List (P1)
+
+The existing leaderboard uses card-style rows (`LeaderboardCard.js`), not MUI `Table`. The plan uses `Table` which is acceptable for 200 members (denser layout), but must incorporate these existing leaderboard visual elements:
+
+- **Top 3 ranks:** Gold `#FFD700`, Silver `#C0C0C0`, Bronze `#CD7F32` (border-left accent)
+- **Avatar size:** 48px (not 32px as in plan)
+- **`prefers-reduced-motion`:** Wrap hover transforms in `@media (prefers-reduced-motion: reduce) { transform: none }`
+- **Character link:** Use `color: 'primary.main'` on hover, not plain inherit
+
+### Chip Styling (P1)
+
+Per existing feedback (see CLAUDE.md): Chips must have sufficient padding. Always add:
+```javascript
+sx={{ px: 1.5 }}  // minimum, not px: 1
+```
+Use explicit `height` for alignment when mixing Chips with other elements. Reference: `components/CharacterCard.js` Chip patterns.
+
+### Hover Effects (P1)
+
+All interactive cards must have hover feedback. Use `translateY(-2px)` + box-shadow, **never `scale`** (causes layout shift). This is a project convention from CLAUDE.md.
+
+### Component-Specific Notes
+
+| Component | Key Fix |
+|-----------|---------|
+| `GuildInfoCard` | Add guild skills section (expandable). Add hover effect. Avatar should be default (round), not `variant="rounded"`. |
+| `GuildMemberTable` | Top-3 rank colors. Avatar 48px. Add empty state for 0 members. Distinguish "syncing" vs "failed" members (show different icon/text). |
+| `GuildDistributions` | Warm color palette. Donut chart (add `innerRadius`). Custom Tooltip matching theme. 300px+ height. |
+| `GuildMyPosition` | Persist selected character to localStorage. Show character image when selected. Outlined Chips need explicit `borderColor` for dark mode. |
+| `GuildHighlights` | Use different icons per highlight (not all `EmojiEventsIcon`). Consider card-style badges instead of just Chips for more visual impact. |
+| `GuildSearch` | Add recent searches (localStorage, follow `lib/localStorage.js`). Move `Alert` outside the flex form row. Verify TWMS server names are correct. |
+| `GuildDetailClient` | Check DB freshness before calling Nexon API. Polling interval 5s (not 3s). Consider skeleton loading instead of plain spinner. |
+| Guild detail page | `maxWidth="lg"` is OK for the dual-column distribution layout, but wrap other sections in narrower containers if needed. |
+
+### Navigation
+
+Add "工會" link to `components/Navigation.js` between "排行榜" and "關於". Follow the existing nav item pattern (icon + label, active state highlighting by pathname).
+
+### Accessibility Checklist
+
+- [ ] All cards have proper heading hierarchy (h5/h6 inside h4 sections)
+- [ ] Tables have proper `<thead>` and scope attributes
+- [ ] Charts have `role="img"` and `aria-label` descriptions
+- [ ] Pie chart click-to-filter has keyboard support
+- [ ] Focus states visible on all interactive elements
+- [ ] `prefers-reduced-motion` respected on all hover animations
+
+---
+
 ## Known Issues & Deferred Items
 
 Items identified in review, to be addressed during implementation:
 
-1. **Nav link:** Add `/guild` to the main navbar/layout so users can discover the feature.
-2. **Recent searches (localStorage):** `GuildSearch.js` should persist recent searches like the character search does. Follow pattern from `lib/localStorage.js`.
-3. **Pie chart click-to-filter:** `GuildDistributions` should pass an `onClassFilter` callback to filter the member table when a pie slice is clicked.
-4. **Empty states:** Handle guild with 0 members (show message), distinguish "syncing" vs "permanently failed" members in the table.
-5. **Guild skills display:** `GuildInfoCard` should render regular + noblesse skills from the guild data.
-6. **Dark mode:** All glassmorphism cards use hardcoded light colors. Add dark mode variants using `mode === 'dark'` ternary (existing pattern).
-7. **Paginated members endpoint:** Spec defines `GET /api/guild/[oguildId]/members` with pagination. Deferred because 200 members is small enough for client-side handling. Add if performance becomes an issue.
-8. **Rate limiter retrofit:** The existing `characterSyncService.js` does not use the rate limiter. Should be retrofitted to avoid concurrent API key abuse when guild sync and character sync run simultaneously.
-9. **Stale guild check:** The `GuildDetailClient` always calls search API on page visit. Should check DB freshness first and skip Nexon API if data is recent (<10 min).
-10. **Retry with backoff:** The sync service should retry on 429 errors with exponential backoff (1s, 2s, 4s, max 3 retries) per spec.
+1. **Pie chart click-to-filter:** `GuildDistributions` should pass an `onClassFilter` callback to filter the member table when a pie slice is clicked.
+2. **Paginated members endpoint:** Spec defines `GET /api/guild/[oguildId]/members` with pagination. Deferred because 200 members is small enough for client-side handling. Add if performance becomes an issue.
+3. **Rate limiter retrofit:** The existing `characterSyncService.js` does not use the rate limiter. Should be retrofitted to avoid concurrent API key abuse when guild sync and character sync run simultaneously.
+4. **Retry with backoff:** The sync service should retry on 429 errors with exponential backoff (1s, 2s, 4s, max 3 retries) per spec.
