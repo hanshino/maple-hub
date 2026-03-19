@@ -1,9 +1,6 @@
 import { NextResponse } from 'next/server';
-import {
-  searchAndSyncGuild,
-  startGuildSync,
-} from '../../../../lib/guildSyncService.js';
-import { getCached, setCache } from '../../../../lib/redis.js';
+import { searchAndSyncGuild, startGuildSync } from '@/lib/guildSyncService.js';
+import { getCached, setCache } from '@/lib/redis.js';
 
 export async function GET(request) {
   const { searchParams } = new URL(request.url);
@@ -53,9 +50,6 @@ export async function GET(request) {
       return NextResponse.json({ error: '找不到此工會' }, { status: 404 });
     }
 
-    return NextResponse.json(
-      { error: '搜尋工會時發生錯誤' },
-      { status: 500 }
-    );
+    return NextResponse.json({ error: '搜尋工會時發生錯誤' }, { status: 500 });
   }
 }

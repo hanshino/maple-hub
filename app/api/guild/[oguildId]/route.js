@@ -1,6 +1,6 @@
 import { NextResponse } from 'next/server';
-import { getGuildWithMembers } from '../../../../lib/db/guildQueries.js';
-import { getSyncStatus } from '../../../../lib/guildSyncService.js';
+import { getGuildWithMembers } from '@/lib/db/guildQueries.js';
+import { getSyncStatus, DEFAULT_SYNC_STATUS } from '@/lib/guildSyncService.js';
 
 export async function GET(request, { params }) {
   const { oguildId } = await params;
@@ -15,12 +15,7 @@ export async function GET(request, { params }) {
 
     return NextResponse.json({
       ...guild,
-      syncStatus: syncStatus || {
-        total: 0,
-        synced: 0,
-        failed: 0,
-        inProgress: false,
-      },
+      syncStatus: syncStatus || DEFAULT_SYNC_STATUS,
     });
   } catch (error) {
     console.error('Guild detail error:', error);

@@ -12,6 +12,7 @@ import {
 import EmojiEventsIcon from '@mui/icons-material/EmojiEvents';
 import TrendingUpIcon from '@mui/icons-material/TrendingUp';
 import { useColorMode } from './MuiThemeProvider';
+import { getGlassCardSx } from '@/lib/theme';
 
 const LS_KEY = 'maple:guild:myCharacter';
 
@@ -24,7 +25,10 @@ export default function GuildMyPosition({ members }) {
       return '';
     }
   });
-  const syncedMembers = members.filter(m => m.characterLevel);
+  const syncedMembers = useMemo(
+    () => members.filter(m => m.characterLevel),
+    [members]
+  );
 
   const handleChange = (_, val) => {
     const name = val || '';
@@ -75,16 +79,7 @@ export default function GuildMyPosition({ members }) {
     };
   }, [myName, selectedMember, syncedMembers]);
 
-  const glassCardSx = {
-    p: 3,
-    borderRadius: 3,
-    border: '1px solid',
-    borderColor:
-      mode === 'dark' ? 'rgba(255,255,255,0.08)' : 'rgba(247,147,30,0.15)',
-    bgcolor: mode === 'dark' ? 'rgba(42,31,26,0.6)' : 'rgba(255,255,255,0.7)',
-    backdropFilter: 'blur(8px)',
-    mb: 3,
-  };
+  const glassCardSx = { ...getGlassCardSx(mode), p: 3, mb: 3 };
 
   const outlinedChipBorder =
     mode === 'dark' ? 'rgba(255,255,255,0.15)' : 'rgba(247,147,30,0.3)';

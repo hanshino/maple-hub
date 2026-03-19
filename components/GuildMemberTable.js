@@ -18,6 +18,7 @@ import {
 import SyncIcon from '@mui/icons-material/Sync';
 import Link from 'next/link';
 import { useColorMode } from './MuiThemeProvider';
+import { getGlassCardSx } from '@/lib/theme';
 
 const RANK_COLORS = {
   1: '#FFD700',
@@ -52,27 +53,11 @@ export default function GuildMemberTable({ members }) {
     }
   };
 
-  const glassCardSx = {
-    p: 3,
-    borderRadius: 3,
-    border: '1px solid',
-    borderColor:
-      mode === 'dark'
-        ? 'rgba(255,255,255,0.08)'
-        : 'rgba(247,147,30,0.15)',
-    bgcolor:
-      mode === 'dark' ? 'rgba(42,31,26,0.6)' : 'rgba(255,255,255,0.7)',
-    backdropFilter: 'blur(8px)',
-    mb: 3,
-  };
+  const glassCardSx = { ...getGlassCardSx(mode), p: 3, mb: 3 };
 
   return (
     <Box sx={glassCardSx}>
-      <Typography
-        variant="h6"
-        component="h3"
-        sx={{ mb: 2, fontWeight: 700 }}
-      >
+      <Typography variant="h6" component="h3" sx={{ mb: 2, fontWeight: 700 }}>
         成員排行
       </Typography>
 
@@ -90,9 +75,7 @@ export default function GuildMemberTable({ members }) {
           color="text.secondary"
           sx={{ py: 4, textAlign: 'center' }}
         >
-          {search
-            ? '找不到符合的成員'
-            : '尚無成員資料，請等待同步完成'}
+          {search ? '找不到符合的成員' : '尚無成員資料，請等待同步完成'}
         </Typography>
       ) : (
         <TableContainer>
@@ -105,9 +88,7 @@ export default function GuildMemberTable({ members }) {
                 <TableCell>
                   <TableSortLabel
                     active={orderBy === 'characterLevel'}
-                    direction={
-                      orderBy === 'characterLevel' ? order : 'desc'
-                    }
+                    direction={orderBy === 'characterLevel' ? order : 'desc'}
                     onClick={() => handleSort('characterLevel')}
                   >
                     等級
@@ -116,9 +97,7 @@ export default function GuildMemberTable({ members }) {
                 <TableCell>
                   <TableSortLabel
                     active={orderBy === 'combatPower'}
-                    direction={
-                      orderBy === 'combatPower' ? order : 'desc'
-                    }
+                    direction={orderBy === 'combatPower' ? order : 'desc'}
                     onClick={() => handleSort('combatPower')}
                   >
                     戰力
@@ -136,8 +115,7 @@ export default function GuildMemberTable({ members }) {
                   <TableRow
                     key={member.id || member.characterName}
                     sx={{
-                      transition:
-                        'background-color 0.15s ease',
+                      transition: 'background-color 0.15s ease',
                       '@media (prefers-reduced-motion: reduce)': {
                         transition: 'none',
                       },
@@ -230,10 +208,7 @@ export default function GuildMemberTable({ members }) {
                     </TableCell>
                     <TableCell>
                       {member.characterLevel ?? (
-                        <Typography
-                          variant="body2"
-                          color="text.disabled"
-                        >
+                        <Typography variant="body2" color="text.disabled">
                           —
                         </Typography>
                       )}
@@ -244,18 +219,13 @@ export default function GuildMemberTable({ members }) {
                           variant="body2"
                           sx={{
                             fontWeight: isTopThree ? 700 : 400,
-                            color: isTopThree
-                              ? rankColor
-                              : 'text.primary',
+                            color: isTopThree ? rankColor : 'text.primary',
                           }}
                         >
                           {Number(member.combatPower).toLocaleString()}
                         </Typography>
                       ) : (
-                        <Typography
-                          variant="body2"
-                          color="text.disabled"
-                        >
+                        <Typography variant="body2" color="text.disabled">
                           —
                         </Typography>
                       )}

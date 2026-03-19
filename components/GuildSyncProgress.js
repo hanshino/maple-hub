@@ -2,6 +2,7 @@
 
 import { Box, LinearProgress, Typography } from '@mui/material';
 import { useColorMode } from './MuiThemeProvider';
+import { getGlassCardSx } from '@/lib/theme';
 
 export default function GuildSyncProgress({ syncStatus }) {
   const { mode } = useColorMode();
@@ -14,26 +15,8 @@ export default function GuildSyncProgress({ syncStatus }) {
       : 0;
 
   return (
-    <Box
-      sx={{
-        mb: 3,
-        p: 2,
-        borderRadius: 3,
-        border: '1px solid',
-        borderColor:
-          mode === 'dark'
-            ? 'rgba(255,255,255,0.08)'
-            : 'rgba(247,147,30,0.15)',
-        bgcolor:
-          mode === 'dark'
-            ? 'rgba(42,31,26,0.6)'
-            : 'rgba(255,255,255,0.7)',
-        backdropFilter: 'blur(8px)',
-      }}
-    >
-      <Box
-        sx={{ display: 'flex', justifyContent: 'space-between', mb: 0.5 }}
-      >
+    <Box sx={{ ...getGlassCardSx(mode), mb: 3, p: 2 }}>
+      <Box sx={{ display: 'flex', justifyContent: 'space-between', mb: 0.5 }}>
         <Typography variant="body2" color="text.secondary">
           同步成員資料中...
         </Typography>

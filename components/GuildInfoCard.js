@@ -15,42 +15,16 @@ import EmojiEventsIcon from '@mui/icons-material/EmojiEvents';
 import ExpandMoreIcon from '@mui/icons-material/ExpandMore';
 import AutoFixHighIcon from '@mui/icons-material/AutoFixHigh';
 import { useColorMode } from './MuiThemeProvider';
+import { getGlassCardSx } from '@/lib/theme';
 
 export default function GuildInfoCard({ guild }) {
   const { mode } = useColorMode();
   const [skillsOpen, setSkillsOpen] = useState(false);
 
   const hasSkills =
-    (guild.skills?.regular?.length > 0) ||
-    (guild.skills?.noblesse?.length > 0);
+    guild.skills?.regular?.length > 0 || guild.skills?.noblesse?.length > 0;
 
-  const glassCardSx = {
-    p: 3,
-    borderRadius: 3,
-    border: '1px solid',
-    borderColor:
-      mode === 'dark'
-        ? 'rgba(255,255,255,0.08)'
-        : 'rgba(247,147,30,0.15)',
-    bgcolor:
-      mode === 'dark' ? 'rgba(42,31,26,0.6)' : 'rgba(255,255,255,0.7)',
-    backdropFilter: 'blur(8px)',
-    transition: 'transform 0.2s ease, box-shadow 0.2s ease',
-    '@media (prefers-reduced-motion: reduce)': {
-      transition: 'none',
-    },
-    '&:hover': {
-      transform: 'translateY(-2px)',
-      boxShadow:
-        mode === 'dark'
-          ? '0 8px 24px rgba(0,0,0,0.3)'
-          : '0 8px 24px rgba(247,147,30,0.12)',
-      '@media (prefers-reduced-motion: reduce)': {
-        transform: 'none',
-      },
-    },
-    mb: 3,
-  };
+  const glassCardSx = { ...getGlassCardSx(mode, { hover: true }), p: 3, mb: 3 };
 
   return (
     <Box sx={glassCardSx}>
@@ -99,10 +73,7 @@ export default function GuildInfoCard({ guild }) {
           label={`名聲 ${guild.guildFame}`}
           sx={{ px: 1.5 }}
         />
-        <Chip
-          label={`會長: ${guild.guildMasterName}`}
-          sx={{ px: 1.5 }}
-        />
+        <Chip label={`會長: ${guild.guildMasterName}`} sx={{ px: 1.5 }} />
       </Box>
 
       {hasSkills && (
@@ -137,9 +108,7 @@ export default function GuildInfoCard({ guild }) {
             <IconButton size="small" tabIndex={-1}>
               <ExpandMoreIcon
                 sx={{
-                  transform: skillsOpen
-                    ? 'rotate(180deg)'
-                    : 'rotate(0deg)',
+                  transform: skillsOpen ? 'rotate(180deg)' : 'rotate(0deg)',
                   transition: 'transform 0.2s',
                 }}
               />
@@ -160,9 +129,7 @@ export default function GuildInfoCard({ guild }) {
                   >
                     一般技能
                   </Typography>
-                  <Box
-                    sx={{ display: 'flex', flexWrap: 'wrap', gap: 0.5 }}
-                  >
+                  <Box sx={{ display: 'flex', flexWrap: 'wrap', gap: 0.5 }}>
                     {guild.skills.regular.map(skill => (
                       <Chip
                         key={skill.skillName}
@@ -194,9 +161,7 @@ export default function GuildInfoCard({ guild }) {
                   >
                     貴族技能
                   </Typography>
-                  <Box
-                    sx={{ display: 'flex', flexWrap: 'wrap', gap: 0.5 }}
-                  >
+                  <Box sx={{ display: 'flex', flexWrap: 'wrap', gap: 0.5 }}>
                     {guild.skills.noblesse.map(skill => (
                       <Chip
                         key={skill.skillName}

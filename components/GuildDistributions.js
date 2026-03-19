@@ -16,6 +16,7 @@ import {
   CartesianGrid,
 } from 'recharts';
 import { useColorMode } from './MuiThemeProvider';
+import { getGlassCardSx } from '@/lib/theme';
 
 const COLORS = [
   '#f7931e',
@@ -33,7 +34,10 @@ const COLORS = [
 export default function GuildDistributions({ members }) {
   const { mode } = useColorMode();
   const theme = useTheme();
-  const syncedMembers = members.filter(m => m.characterClass);
+  const syncedMembers = useMemo(
+    () => members.filter(m => m.characterClass),
+    [members]
+  );
 
   const classData = useMemo(() => {
     const counts = {};
@@ -69,16 +73,7 @@ export default function GuildDistributions({ members }) {
 
   if (syncedMembers.length === 0) return null;
 
-  const glassCardSx = {
-    p: 3,
-    borderRadius: 3,
-    border: '1px solid',
-    borderColor:
-      mode === 'dark' ? 'rgba(255,255,255,0.08)' : 'rgba(247,147,30,0.15)',
-    bgcolor: mode === 'dark' ? 'rgba(42,31,26,0.6)' : 'rgba(255,255,255,0.7)',
-    backdropFilter: 'blur(8px)',
-    height: '100%',
-  };
+  const glassCardSx = { ...getGlassCardSx(mode), p: 3, height: '100%' };
 
   const tooltipStyle = {
     backgroundColor: theme.palette.background.paper,

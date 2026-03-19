@@ -15,6 +15,7 @@ import {
 } from '@mui/material';
 import SearchIcon from '@mui/icons-material/Search';
 import { useColorMode } from './MuiThemeProvider';
+import { getGlassCardSx } from '@/lib/theme';
 
 const WORLDS = [
   '殺人鯨',
@@ -36,15 +37,7 @@ export default function GuildSearch() {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
 
-  const glassCardSx = {
-    p: 3,
-    borderRadius: 3,
-    border: '1px solid',
-    borderColor:
-      mode === 'dark' ? 'rgba(255,255,255,0.08)' : 'rgba(247,147,30,0.15)',
-    bgcolor: mode === 'dark' ? 'rgba(42,31,26,0.6)' : 'rgba(255,255,255,0.7)',
-    backdropFilter: 'blur(8px)',
-  };
+  const glassCardSx = { ...getGlassCardSx(mode), p: 3 };
 
   const handleSearch = useCallback(
     async e => {

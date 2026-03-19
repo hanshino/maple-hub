@@ -1,14 +1,12 @@
 import { NextResponse } from 'next/server';
-import { getSyncStatus } from '../../../../../lib/guildSyncService.js';
+import { getSyncStatus, DEFAULT_SYNC_STATUS } from '@/lib/guildSyncService.js';
 
 export async function GET(request, { params }) {
   const { oguildId } = await params;
 
   try {
     const status = await getSyncStatus(oguildId);
-    return NextResponse.json(
-      status || { total: 0, synced: 0, failed: 0, inProgress: false }
-    );
+    return NextResponse.json(status || DEFAULT_SYNC_STATUS);
   } catch (error) {
     console.error('Sync status error:', error);
     return NextResponse.json(

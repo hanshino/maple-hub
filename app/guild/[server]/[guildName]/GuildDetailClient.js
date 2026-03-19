@@ -49,13 +49,20 @@ export default function GuildDetailClient({ server, guildName }) {
 
     const interval = setInterval(async () => {
       try {
-        const res = await fetch(`/api/guild/${oguildId}`);
-        if (res.ok) {
-          const data = await res.json();
-          setGuild(data);
+        const statusRes = await fetch(`/api/guild/${oguildId}/sync-status`);
+        if (!statusRes.ok) return;
+        const statusData = await statusRes.json();
 
-          if (!data.syncStatus?.inProgress) {
-            clearInterval(interval);
+        // Update syncStatus without triggering a full re-fetch
+        setGuild(prev => ({ ...prev, syncStatus: statusData }));
+
+        if (!statusData.inProgress) {
+          clearInterval(interval);
+          // Sync finished — fetch full guild data once
+          const detailRes = await fetch(`/api/guild/${oguildId}`);
+          if (detailRes.ok) {
+            const detailData = await detailRes.json();
+            setGuild(detailData);
           }
         }
       } catch {
