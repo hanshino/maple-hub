@@ -19,6 +19,7 @@ import SyncIcon from '@mui/icons-material/Sync';
 import Link from 'next/link';
 import { useColorMode } from './MuiThemeProvider';
 import { getGlassCardSx } from '@/lib/theme';
+import { track } from '@/lib/analytics';
 
 const RANK_COLORS = {
   1: '#FFD700',
@@ -45,12 +46,16 @@ export default function GuildMemberTable({ members }) {
   }, [members, orderBy, order, search]);
 
   const handleSort = field => {
+    let newOrder;
     if (orderBy === field) {
-      setOrder(order === 'desc' ? 'asc' : 'desc');
+      newOrder = order === 'desc' ? 'asc' : 'desc';
+      setOrder(newOrder);
     } else {
+      newOrder = 'desc';
       setOrderBy(field);
-      setOrder('desc');
+      setOrder(newOrder);
     }
+    track('guild_sort', { sortBy: field, order: newOrder });
   };
 
   const glassCardSx = { ...getGlassCardSx(mode), p: 3, mb: 3 };
@@ -172,6 +177,11 @@ export default function GuildMemberTable({ members }) {
                             color: 'inherit',
                             textDecoration: 'none',
                           }}
+                          onClick={() =>
+                            track('guild_member_click', {
+                              memberName: member.characterName,
+                            })
+                          }
                         >
                           <Typography
                             variant="body2"

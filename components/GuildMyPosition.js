@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useMemo } from 'react';
+import { useState, useMemo, useEffect } from 'react';
 import {
   Box,
   Typography,
@@ -15,6 +15,7 @@ import SpeedIcon from '@mui/icons-material/Speed';
 import PeopleAltIcon from '@mui/icons-material/PeopleAlt';
 import { useColorMode } from './MuiThemeProvider';
 import { getGlassCardSx } from '@/lib/theme';
+import { track } from '@/lib/analytics';
 
 const LS_KEY = 'maple:guild:myCharacter';
 
@@ -80,6 +81,17 @@ export default function GuildMyPosition({ members }) {
       behind: total - combatRank,
     };
   }, [myName, selectedMember, syncedMembers]);
+
+  useEffect(() => {
+    if (myName && position) {
+      track('guild_my_position', {
+        characterName: myName,
+        combatRank: position.combatRank,
+        levelRank: position.levelRank,
+        total: position.total,
+      });
+    }
+  }, [myName, position]);
 
   const glassCardSx = { ...getGlassCardSx(mode), p: 3, mb: 3 };
 

@@ -18,6 +18,7 @@ import ExpandMoreIcon from '@mui/icons-material/ExpandMore';
 import AutoFixHighIcon from '@mui/icons-material/AutoFixHigh';
 import { useColorMode } from './MuiThemeProvider';
 import { getGlassCardSx } from '@/lib/theme';
+import { track } from '@/lib/analytics';
 
 export default function GuildInfoCard({ guild }) {
   const { mode } = useColorMode();
@@ -90,7 +91,11 @@ export default function GuildInfoCard({ guild }) {
               alignItems: 'center',
               cursor: 'pointer',
             }}
-            onClick={() => setSkillsOpen(!skillsOpen)}
+            onClick={() => {
+              if (!skillsOpen)
+                track('guild_skill_expand', { guildName: guild.guildName });
+              setSkillsOpen(!skillsOpen);
+            }}
             role="button"
             tabIndex={0}
             onKeyDown={e => {

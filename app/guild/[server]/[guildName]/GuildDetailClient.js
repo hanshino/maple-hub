@@ -2,6 +2,7 @@
 
 import { useState, useEffect, useCallback } from 'react';
 import { CircularProgress, Alert, Box } from '@mui/material';
+import { track } from '@/lib/analytics';
 import GuildInfoCard from '../../../../components/GuildInfoCard';
 import GuildMemberTable from '../../../../components/GuildMemberTable';
 import GuildSyncProgress from '../../../../components/GuildSyncProgress';
@@ -33,6 +34,11 @@ export default function GuildDetailClient({ server, guildName }) {
       if (!detailRes.ok) throw new Error('取得工會資料失敗');
       const detailData = await detailRes.json();
       setGuild(detailData);
+      track('guild_view', {
+        world: server,
+        guildName,
+        memberCount: detailData.members?.length || 0,
+      });
     } catch (err) {
       setError(err.message);
     } finally {
@@ -58,6 +64,11 @@ export default function GuildDetailClient({ server, guildName }) {
 
         if (!statusData.inProgress) {
           clearInterval(interval);
+          track('guild_sync_complete', {
+            total: statusData.total,
+            synced: statusData.synced,
+            failed: statusData.failed,
+          });
           // Sync finished — fetch full guild data once
           const detailRes = await fetch(`/api/guild/${oguildId}`);
           if (detailRes.ok) {

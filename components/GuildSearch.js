@@ -16,6 +16,7 @@ import {
 import SearchIcon from '@mui/icons-material/Search';
 import { useColorMode } from './MuiThemeProvider';
 import { getGlassCardSx } from '@/lib/theme';
+import { track } from '@/lib/analytics';
 
 const WORLDS = [
   '殺人鯨',
@@ -46,6 +47,7 @@ export default function GuildSearch() {
 
       setLoading(true);
       setError('');
+      track('guild_search', { world, guildName: guildName.trim() });
 
       try {
         const res = await fetch(
