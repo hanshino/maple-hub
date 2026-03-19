@@ -11,6 +11,8 @@ import {
 } from '@mui/material';
 import EmojiEventsIcon from '@mui/icons-material/EmojiEvents';
 import TrendingUpIcon from '@mui/icons-material/TrendingUp';
+import SpeedIcon from '@mui/icons-material/Speed';
+import PeopleAltIcon from '@mui/icons-material/PeopleAlt';
 import { useColorMode } from './MuiThemeProvider';
 import { getGlassCardSx } from '@/lib/theme';
 
@@ -135,11 +137,13 @@ export default function GuildMyPosition({ members }) {
             sx={{ px: 1.5 }}
           />
           <Chip
+            icon={<SpeedIcon />}
             label={`戰力 PR ${position.combatPR}`}
             variant="outlined"
             sx={{ px: 1.5, borderColor: outlinedChipBorder }}
           />
           <Chip
+            icon={<PeopleAltIcon />}
             label={`前方 ${position.ahead} 人 · 後方 ${position.behind} 人`}
             variant="outlined"
             sx={{ px: 1.5, borderColor: outlinedChipBorder }}
