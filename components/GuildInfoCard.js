@@ -13,6 +13,7 @@ import {
 import GroupsIcon from '@mui/icons-material/Groups';
 import StarIcon from '@mui/icons-material/Star';
 import EmojiEventsIcon from '@mui/icons-material/EmojiEvents';
+import PersonIcon from '@mui/icons-material/Person';
 import ExpandMoreIcon from '@mui/icons-material/ExpandMore';
 import AutoFixHighIcon from '@mui/icons-material/AutoFixHigh';
 import { useColorMode } from './MuiThemeProvider';
@@ -74,7 +75,11 @@ export default function GuildInfoCard({ guild }) {
           label={`名聲 ${guild.guildFame}`}
           sx={{ px: 1.5 }}
         />
-        <Chip label={`會長: ${guild.guildMasterName}`} sx={{ px: 1.5 }} />
+        <Chip
+          icon={<PersonIcon />}
+          label={`會長: ${guild.guildMasterName}`}
+          sx={{ px: 1.5 }}
+        />
       </Box>
 
       {hasSkills && (
