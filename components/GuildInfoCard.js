@@ -8,6 +8,7 @@ import {
   Avatar,
   Collapse,
   IconButton,
+  Tooltip,
 } from '@mui/material';
 import GroupsIcon from '@mui/icons-material/Groups';
 import StarIcon from '@mui/icons-material/Star';
@@ -117,7 +118,7 @@ export default function GuildInfoCard({ guild }) {
           <Collapse in={skillsOpen}>
             <Box sx={{ mt: 1 }}>
               {guild.skills?.regular?.length > 0 && (
-                <Box sx={{ mb: 1 }}>
+                <Box sx={{ mb: 1.5 }}>
                   <Typography
                     variant="caption"
                     sx={{
@@ -129,30 +130,74 @@ export default function GuildInfoCard({ guild }) {
                   >
                     一般技能
                   </Typography>
-                  <Box sx={{ display: 'flex', flexWrap: 'wrap', gap: 0.5 }}>
+                  <Box sx={{ display: 'flex', flexWrap: 'wrap', gap: 0.75 }}>
                     {guild.skills.regular.map(skill => (
-                      <Chip
+                      <Tooltip
                         key={skill.skillName}
-                        avatar={
-                          skill.skillIcon ? (
+                        title={
+                          <Box sx={{ textAlign: 'center', p: 0.5 }}>
+                            <Typography
+                              variant="body2"
+                              sx={{ fontWeight: 700 }}
+                            >
+                              {skill.skillName} Lv.{skill.skillLevel}
+                            </Typography>
+                            {skill.skillEffect && (
+                              <Typography
+                                variant="caption"
+                                sx={{ display: 'block', mt: 0.5, opacity: 0.9 }}
+                              >
+                                {skill.skillEffect}
+                              </Typography>
+                            )}
+                          </Box>
+                        }
+                        arrow
+                        placement="top"
+                      >
+                        <Box
+                          sx={{
+                            width: 40,
+                            height: 40,
+                            borderRadius: 1.5,
+                            border: '1px solid',
+                            borderColor:
+                              mode === 'dark'
+                                ? 'rgba(255,255,255,0.12)'
+                                : 'rgba(247,147,30,0.25)',
+                            bgcolor:
+                              mode === 'dark'
+                                ? 'rgba(255,255,255,0.05)'
+                                : 'rgba(247,147,30,0.06)',
+                            display: 'flex',
+                            alignItems: 'center',
+                            justifyContent: 'center',
+                            cursor: 'pointer',
+                            transition:
+                              'transform 0.15s ease, box-shadow 0.15s ease',
+                            '&:hover': {
+                              transform: 'translateY(-2px)',
+                              boxShadow:
+                                mode === 'dark'
+                                  ? '0 4px 12px rgba(0,0,0,0.3)'
+                                  : '0 4px 12px rgba(247,147,30,0.15)',
+                            },
+                          }}
+                        >
+                          {skill.skillIcon ? (
                             <Avatar
                               src={skill.skillIcon}
                               alt={skill.skillName}
-                              sx={{ width: 20, height: 20 }}
+                              variant="square"
+                              sx={{ width: 32, height: 32 }}
                             />
-                          ) : undefined
-                        }
-                        label={`${skill.skillName} Lv.${skill.skillLevel}`}
-                        size="small"
-                        variant="outlined"
-                        sx={{
-                          px: 1.5,
-                          borderColor:
-                            mode === 'dark'
-                              ? 'rgba(255,255,255,0.15)'
-                              : 'rgba(247,147,30,0.3)',
-                        }}
-                      />
+                          ) : (
+                            <AutoFixHighIcon
+                              sx={{ fontSize: 20, color: 'text.secondary' }}
+                            />
+                          )}
+                        </Box>
+                      </Tooltip>
                     ))}
                   </Box>
                 </Box>
@@ -170,30 +215,74 @@ export default function GuildInfoCard({ guild }) {
                   >
                     貴族技能
                   </Typography>
-                  <Box sx={{ display: 'flex', flexWrap: 'wrap', gap: 0.5 }}>
+                  <Box sx={{ display: 'flex', flexWrap: 'wrap', gap: 0.75 }}>
                     {guild.skills.noblesse.map(skill => (
-                      <Chip
+                      <Tooltip
                         key={skill.skillName}
-                        avatar={
-                          skill.skillIcon ? (
+                        title={
+                          <Box sx={{ textAlign: 'center', p: 0.5 }}>
+                            <Typography
+                              variant="body2"
+                              sx={{ fontWeight: 700 }}
+                            >
+                              {skill.skillName} Lv.{skill.skillLevel}
+                            </Typography>
+                            {skill.skillEffect && (
+                              <Typography
+                                variant="caption"
+                                sx={{ display: 'block', mt: 0.5, opacity: 0.9 }}
+                              >
+                                {skill.skillEffect}
+                              </Typography>
+                            )}
+                          </Box>
+                        }
+                        arrow
+                        placement="top"
+                      >
+                        <Box
+                          sx={{
+                            width: 40,
+                            height: 40,
+                            borderRadius: 1.5,
+                            border: '1px solid',
+                            borderColor:
+                              mode === 'dark'
+                                ? 'rgba(255,255,255,0.12)'
+                                : 'rgba(247,147,30,0.25)',
+                            bgcolor:
+                              mode === 'dark'
+                                ? 'rgba(255,255,255,0.05)'
+                                : 'rgba(247,147,30,0.06)',
+                            display: 'flex',
+                            alignItems: 'center',
+                            justifyContent: 'center',
+                            cursor: 'pointer',
+                            transition:
+                              'transform 0.15s ease, box-shadow 0.15s ease',
+                            '&:hover': {
+                              transform: 'translateY(-2px)',
+                              boxShadow:
+                                mode === 'dark'
+                                  ? '0 4px 12px rgba(0,0,0,0.3)'
+                                  : '0 4px 12px rgba(247,147,30,0.15)',
+                            },
+                          }}
+                        >
+                          {skill.skillIcon ? (
                             <Avatar
                               src={skill.skillIcon}
                               alt={skill.skillName}
-                              sx={{ width: 20, height: 20 }}
+                              variant="square"
+                              sx={{ width: 32, height: 32 }}
                             />
-                          ) : undefined
-                        }
-                        label={`${skill.skillName} Lv.${skill.skillLevel}`}
-                        size="small"
-                        variant="outlined"
-                        sx={{
-                          px: 1.5,
-                          borderColor:
-                            mode === 'dark'
-                              ? 'rgba(255,255,255,0.15)'
-                              : 'rgba(247,147,30,0.3)',
-                        }}
-                      />
+                          ) : (
+                            <AutoFixHighIcon
+                              sx={{ fontSize: 20, color: 'text.secondary' }}
+                            />
+                          )}
+                        </Box>
+                      </Tooltip>
                     ))}
                   </Box>
                 </Box>
