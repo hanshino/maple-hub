@@ -133,6 +133,15 @@ export default function GuildInfoCard({ guild }) {
                     {guild.skills.regular.map(skill => (
                       <Chip
                         key={skill.skillName}
+                        avatar={
+                          skill.skillIcon ? (
+                            <Avatar
+                              src={skill.skillIcon}
+                              alt={skill.skillName}
+                              sx={{ width: 20, height: 20 }}
+                            />
+                          ) : undefined
+                        }
                         label={`${skill.skillName} Lv.${skill.skillLevel}`}
                         size="small"
                         variant="outlined"
@@ -165,6 +174,15 @@ export default function GuildInfoCard({ guild }) {
                     {guild.skills.noblesse.map(skill => (
                       <Chip
                         key={skill.skillName}
+                        avatar={
+                          skill.skillIcon ? (
+                            <Avatar
+                              src={skill.skillIcon}
+                              alt={skill.skillName}
+                              sx={{ width: 20, height: 20 }}
+                            />
+                          ) : undefined
+                        }
                         label={`${skill.skillName} Lv.${skill.skillLevel}`}
                         size="small"
                         variant="outlined"
