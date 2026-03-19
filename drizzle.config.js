@@ -1,7 +1,7 @@
 import 'dotenv/config';
 
 const config = {
-  schema: './lib/db/schema.js',
+  schema: ['./lib/db/schema.js', './lib/db/guildSchema.js'],
   out: './drizzle',
   dialect: 'mysql',
   dbCredentials: {

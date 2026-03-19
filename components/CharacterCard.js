@@ -1,4 +1,5 @@
 import { memo, useState, useCallback } from 'react';
+import Link from 'next/link';
 import {
   Box,
   Typography,
@@ -423,13 +424,18 @@ const CharacterCard = memo(function CharacterCard({
           sx={{ px: 1 }}
         />
         {character.character_guild_name && (
-          <Chip
-            icon={<GroupsIcon sx={{ fontSize: ICON_SIZE }} />}
-            label={character.character_guild_name}
-            size="small"
-            variant="outlined"
-            sx={{ px: 1 }}
-          />
+          <Link
+            href={`/guild/${encodeURIComponent(character.world_name)}/${encodeURIComponent(character.character_guild_name)}`}
+            style={{ color: 'inherit', textDecoration: 'none' }}
+          >
+            <Chip
+              icon={<GroupsIcon sx={{ fontSize: ICON_SIZE }} />}
+              label={character.character_guild_name}
+              size="small"
+              variant="outlined"
+              sx={{ px: 1, cursor: 'pointer' }}
+            />
+          </Link>
         )}
         {unionData && (
           <>

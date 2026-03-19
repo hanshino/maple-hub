@@ -20,6 +20,7 @@ import { useTheme } from '@mui/material/styles';
 import LeaderboardIcon from '@mui/icons-material/Leaderboard';
 import HomeIcon from '@mui/icons-material/Home';
 import InfoOutlinedIcon from '@mui/icons-material/InfoOutlined';
+import GroupsIcon from '@mui/icons-material/Groups';
 import LightModeIcon from '@mui/icons-material/LightMode';
 import DarkModeIcon from '@mui/icons-material/DarkMode';
 import MenuIcon from '@mui/icons-material/Menu';
@@ -30,6 +31,7 @@ import { useColorMode } from './MuiThemeProvider';
 const NAV_ITEMS = [
   { href: '/', label: '首頁', icon: HomeIcon, exact: true },
   { href: '/leaderboard', label: '排行榜', icon: LeaderboardIcon },
+  { href: '/guild', label: '工會', icon: GroupsIcon },
   { href: '/about', label: '關於', icon: InfoOutlinedIcon },
 ];
 
