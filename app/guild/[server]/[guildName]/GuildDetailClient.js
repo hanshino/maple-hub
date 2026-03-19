@@ -91,9 +91,9 @@ export default function GuildDetailClient({ server, guildName }) {
     <>
       <GuildInfoCard guild={guild} />
       <GuildSyncProgress syncStatus={guild.syncStatus} />
+      <GuildMyPosition members={guild.members || []} />
       <GuildHighlights members={guild.members || []} />
       <GuildDistributions members={guild.members || []} />
-      <GuildMyPosition members={guild.members || []} />
       <GuildMemberTable members={guild.members || []} />
     </>
   );

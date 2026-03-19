@@ -45,7 +45,7 @@ export default function GuildInfoCard({ guild }) {
               color: '#fff',
             }}
           >
-            {guild.guildName?.[0] || '?'}
+            <GroupsIcon sx={{ fontSize: 28 }} />
           </Avatar>
         )}
         <Box>
