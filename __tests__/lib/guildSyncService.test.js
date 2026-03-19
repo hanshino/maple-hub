@@ -8,6 +8,7 @@ import {
 jest.mock('../../lib/nexonApi.js', () => ({
   getCharacterOcid: jest.fn(),
   getCharacterBasicInfo: jest.fn(),
+  getCharacterStats: jest.fn(),
   getGuildId: jest.fn(),
   getGuildBasic: jest.fn(),
 }));
@@ -92,18 +93,19 @@ describe('guildSyncService', () => {
 
   describe('syncGuildMemberBasic', () => {
     it('should call rate limiter for both OCID and basic info', async () => {
-      const { getCharacterOcid, getCharacterBasicInfo } = await import(
-        '../../lib/nexonApi.js'
-      );
-      const { upsertCharacterBasicOnly, updateGuildMemberOcid } = await import(
-        '../../lib/db/guildQueries.js'
-      );
+      const { getCharacterOcid, getCharacterBasicInfo, getCharacterStats } =
+        await import('../../lib/nexonApi.js');
+      const { upsertCharacterBasicOnly, updateGuildMemberOcid } =
+        await import('../../lib/db/guildQueries.js');
       const { getGlobalRateLimiter } = await import('../../lib/rateLimiter.js');
 
       const mockExecute = jest.fn(fn => fn());
       getGlobalRateLimiter.mockReturnValue({ execute: mockExecute });
 
       getCharacterOcid.mockResolvedValue('ocid-abc');
+      getCharacterStats.mockResolvedValue({
+        final_stat: [{ stat_name: '戰鬥力', stat_value: '12345678' }],
+      });
       getCharacterBasicInfo.mockResolvedValue({
         character_name: 'TestChar',
         character_level: 260,
@@ -120,12 +122,17 @@ describe('guildSyncService', () => {
 
       const result = await syncGuildMemberBasic('guild123', 'TestChar');
 
-      expect(mockExecute).toHaveBeenCalledTimes(2);
+      // 3 rate-limited calls: OCID + basic + stats
+      expect(mockExecute).toHaveBeenCalledTimes(3);
       expect(result.success).toBe(true);
       expect(result.characterName).toBe('TestChar');
       expect(result.ocid).toBe('ocid-abc');
       expect(upsertCharacterBasicOnly).toHaveBeenCalledWith(
-        expect.objectContaining({ ocid: 'ocid-abc', characterName: 'TestChar' })
+        expect.objectContaining({
+          ocid: 'ocid-abc',
+          characterName: 'TestChar',
+          combatPower: '12345678',
+        })
       );
       expect(updateGuildMemberOcid).toHaveBeenCalledWith(
         'guild123',
@@ -172,9 +179,8 @@ describe('guildSyncService', () => {
 
     it('should return zero status when no unsynced members', async () => {
       const { getRedis } = await import('../../lib/redis.js');
-      const { getUnsyncedGuildMembers } = await import(
-        '../../lib/db/guildQueries.js'
-      );
+      const { getUnsyncedGuildMembers } =
+        await import('../../lib/db/guildQueries.js');
 
       getRedis.mockReturnValue({
         hgetall: jest.fn().mockResolvedValue(null),
@@ -195,12 +201,10 @@ describe('guildSyncService', () => {
 
   describe('searchAndSyncGuild', () => {
     it('should call guild API and upsert all guild data', async () => {
-      const { getGuildId, getGuildBasic } = await import('../../lib/nexonApi.js');
-      const {
-        upsertGuild,
-        upsertGuildSkills,
-        syncGuildMembers,
-      } = await import('../../lib/db/guildQueries.js');
+      const { getGuildId, getGuildBasic } =
+        await import('../../lib/nexonApi.js');
+      const { upsertGuild, upsertGuildSkills, syncGuildMembers } =
+        await import('../../lib/db/guildQueries.js');
       const { getGlobalRateLimiter } = await import('../../lib/rateLimiter.js');
 
       getGlobalRateLimiter.mockReturnValue({
@@ -231,9 +235,16 @@ describe('guildSyncService', () => {
       expect(getGuildId).toHaveBeenCalledWith('TestGuild', '艾麗亞');
       expect(getGuildBasic).toHaveBeenCalledWith('oguild-xyz');
       expect(upsertGuild).toHaveBeenCalledWith(
-        expect.objectContaining({ oguildId: 'oguild-xyz', guildName: 'TestGuild' })
+        expect.objectContaining({
+          oguildId: 'oguild-xyz',
+          guildName: 'TestGuild',
+        })
       );
-      expect(upsertGuildSkills).toHaveBeenCalledWith('oguild-xyz', [], 'regular');
+      expect(upsertGuildSkills).toHaveBeenCalledWith(
+        'oguild-xyz',
+        [],
+        'regular'
+      );
       expect(upsertGuildSkills).toHaveBeenCalledWith(
         'oguild-xyz',
         [],
