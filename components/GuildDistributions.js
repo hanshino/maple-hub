@@ -34,14 +34,19 @@ export default function GuildDistributions({ members }) {
       .map(([name, count]) => ({ name, count }))
       .sort((a, b) => b.count - a.count);
 
-    if (sorted.length <= MAX_CLASS_DISPLAY) return sorted;
-
-    const top = sorted.slice(0, MAX_CLASS_DISPLAY);
-    const otherCount = sorted
-      .slice(MAX_CLASS_DISPLAY)
-      .reduce((sum, item) => sum + item.count, 0);
-    return [...top, { name: '其他', count: otherCount }];
+    return sorted;
   }, [syncedMembers]);
+
+  const topClassData = classData.slice(0, MAX_CLASS_DISPLAY);
+  const otherClasses =
+    classData.length > MAX_CLASS_DISPLAY
+      ? {
+          count: classData
+            .slice(MAX_CLASS_DISPLAY)
+            .reduce((s, i) => s + i.count, 0),
+          types: classData.length - MAX_CLASS_DISPLAY,
+        }
+      : null;
 
   const levelData = useMemo(() => {
     const buckets = {};
@@ -94,12 +99,12 @@ export default function GuildDistributions({ members }) {
           </Typography>
           <ResponsiveContainer
             width="100%"
-            height={Math.max(300, classData.length * 32)}
+            height={Math.max(300, topClassData.length * 32)}
             role="img"
             aria-label="工會成員職業分布長條圖"
           >
             <BarChart
-              data={classData}
+              data={topClassData}
               layout="vertical"
               margin={{ top: 0, right: 20, left: 0, bottom: 0 }}
             >
@@ -138,6 +143,15 @@ export default function GuildDistributions({ members }) {
               />
             </BarChart>
           </ResponsiveContainer>
+          {otherClasses && (
+            <Typography
+              variant="caption"
+              color="text.secondary"
+              sx={{ mt: 1, display: 'block', textAlign: 'center' }}
+            >
+              另有 {otherClasses.types} 種職業，共 {otherClasses.count} 人
+            </Typography>
+          )}
         </Box>
       </Grid>
 
