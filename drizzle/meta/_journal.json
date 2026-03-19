@@ -43,6 +43,13 @@
       "when": 1773580800000,
       "tag": "0005_cash_equip_date_expire_datetime",
       "breakpoints": true
+    },
+    {
+      "idx": 6,
+      "version": "5",
+      "when": 1742342400000,
+      "tag": "0006_add_guild_tables",
+      "breakpoints": true
     }
   ]
 }

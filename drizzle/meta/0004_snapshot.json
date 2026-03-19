@@ -1,8 +1,8 @@
 {
   "version": "5",
   "dialect": "mysql",
-  "id": "0004_set_effect_info",
-  "prevId": "0003_union_artifact_effects",
+  "id": "191ed8e0-2d0a-496e-84fa-5e372e8d3add",
+  "prevId": "356ac112-c9ef-410e-8698-e43d1acae40b",
   "tables": {
     "character_cash_equipment": {
       "name": "character_cash_equipment",

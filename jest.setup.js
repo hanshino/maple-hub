@@ -4,6 +4,16 @@ import '@testing-library/jest-dom';
 import { jest } from '@jest/globals';
 global.fetch = jest.fn();
 
+// Mock Request for Next.js API routes
+global.Request = class {
+  constructor(url, options = {}) {
+    this.url = url;
+    this.method = options.method || 'GET';
+    this.headers = options.headers || {};
+    this.body = options.body || null;
+  }
+};
+
 // Mock Response for Next.js API routes
 global.Response = class {
   constructor(body, options = {}) {
