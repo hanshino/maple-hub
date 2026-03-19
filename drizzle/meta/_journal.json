@@ -47,7 +47,7 @@
     {
       "idx": 6,
       "version": "5",
-      "when": 1742342400000,
+      "when": 1773667200000,
       "tag": "0006_add_guild_tables",
       "breakpoints": true
     }
