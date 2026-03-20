@@ -21,7 +21,10 @@ export async function GET(request, { params }) {
       !data.syncedAt ||
       Date.now() - new Date(data.syncedAt).getTime() > STALE_THRESHOLD_MS;
 
-    if (isStale) {
+    // Force sync if critical data is missing (e.g. guild basic-only write)
+    const isIncomplete = data && (!data.stats || data.stats.length === 0);
+
+    if (isStale || isIncomplete) {
       // Sync from Nexon API then re-read
       const result = await syncCharacter(ocid);
       if (!result.success && result.status === 'not_found') {

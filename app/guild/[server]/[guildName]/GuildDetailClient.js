@@ -11,12 +11,14 @@ import GuildMyPosition from '../../../../components/GuildMyPosition';
 import GuildHighlights from '../../../../components/GuildHighlights';
 
 const POLL_INTERVAL = 5000;
+const EXP_POLL_INTERVAL = 8000;
 
 export default function GuildDetailClient({ server, guildName }) {
   const [guild, setGuild] = useState(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
   const [oguildId, setOguildId] = useState(null);
+  const [expGrowth, setExpGrowth] = useState(null);
 
   const fetchGuild = useCallback(async () => {
     try {
@@ -50,6 +52,33 @@ export default function GuildDetailClient({ server, guildName }) {
     fetchGuild();
   }, [fetchGuild]);
 
+  // Fetch exp growth data once we have oguildId
+  const fetchExpGrowth = useCallback(async id => {
+    try {
+      const res = await fetch(`/api/guild/${id}/exp-growth`);
+      if (!res.ok) return;
+      const data = await res.json();
+      setExpGrowth(data);
+    } catch {
+      // ignore
+    }
+  }, []);
+
+  useEffect(() => {
+    if (!oguildId) return;
+    fetchExpGrowth(oguildId);
+  }, [oguildId, fetchExpGrowth]);
+
+  // Poll while exp backfill is in progress
+  useEffect(() => {
+    if (!oguildId || !expGrowth?.backfillStatus?.inProgress) return;
+    const interval = setInterval(
+      () => fetchExpGrowth(oguildId),
+      EXP_POLL_INTERVAL
+    );
+    return () => clearInterval(interval);
+  }, [oguildId, expGrowth?.backfillStatus?.inProgress, fetchExpGrowth]);
+
   useEffect(() => {
     if (!oguildId || !guild?.syncStatus?.inProgress) return;
 
@@ -69,12 +98,13 @@ export default function GuildDetailClient({ server, guildName }) {
             synced: statusData.synced,
             failed: statusData.failed,
           });
-          // Sync finished — fetch full guild data once
+          // Sync finished — fetch full guild data + exp growth
           const detailRes = await fetch(`/api/guild/${oguildId}`);
           if (detailRes.ok) {
             const detailData = await detailRes.json();
             setGuild(detailData);
           }
+          fetchExpGrowth(oguildId);
         }
       } catch {
         // Ignore polling errors
@@ -98,14 +128,36 @@ export default function GuildDetailClient({ server, guildName }) {
 
   if (!guild) return null;
 
+  // Merge exp growth data into members
+  const members = guild.members || [];
+  const membersWithGrowth = expGrowth
+    ? members.map(m => {
+        const growth = expGrowth.members?.find(
+          g => g.characterName === m.characterName
+        );
+        return growth
+          ? {
+              ...m,
+              growth7: growth.growth7,
+              growth30: growth.growth30,
+              effortRank7: growth.effortRank7,
+              effortRank30: growth.effortRank30,
+            }
+          : m;
+      })
+    : members;
+
   return (
     <>
       <GuildInfoCard guild={guild} />
-      <GuildSyncProgress syncStatus={guild.syncStatus} />
-      <GuildMyPosition members={guild.members || []} />
-      <GuildHighlights members={guild.members || []} />
-      <GuildDistributions members={guild.members || []} />
-      <GuildMemberTable members={guild.members || []} />
+      <GuildSyncProgress
+        syncStatus={guild.syncStatus}
+        backfillStatus={expGrowth?.backfillStatus}
+      />
+      <GuildMyPosition members={membersWithGrowth} />
+      <GuildHighlights members={membersWithGrowth} />
+      <GuildDistributions members={membersWithGrowth} />
+      <GuildMemberTable members={membersWithGrowth} />
     </>
   );
 }

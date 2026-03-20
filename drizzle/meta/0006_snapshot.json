@@ -1585,7 +1585,7 @@
           "notNull": false,
           "autoincrement": false,
           "default": "(now())",
-          "onUpdate": "CURRENT_TIMESTAMP"
+          "onUpdate": true
         }
       },
       "indexes": {
@@ -1612,7 +1612,6 @@
     },
     "guilds": {
       "name": "guilds",
-      "schema": "",
       "columns": {
         "oguild_id": {
           "name": "oguild_id",
@@ -1711,11 +1710,11 @@
       },
       "foreignKeys": {},
       "compositePrimaryKeys": {},
-      "uniqueConstraints": {}
+      "uniqueConstraints": {},
+      "checkConstraint": {}
     },
     "guild_skills": {
       "name": "guild_skills",
-      "schema": "",
       "columns": {
         "id": {
           "name": "id",
@@ -1793,11 +1792,11 @@
         }
       },
       "compositePrimaryKeys": {},
-      "uniqueConstraints": {}
+      "uniqueConstraints": {},
+      "checkConstraint": {}
     },
     "guild_members": {
       "name": "guild_members",
-      "schema": "",
       "columns": {
         "id": {
           "name": "id",
@@ -1878,12 +1877,12 @@
         }
       },
       "compositePrimaryKeys": {},
-      "uniqueConstraints": {}
+      "uniqueConstraints": {},
+      "checkConstraint": {}
     }
   },
   "views": {},
   "_meta": {
-    "schemas": {},
     "tables": {},
     "columns": {}
   },

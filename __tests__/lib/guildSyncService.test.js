@@ -20,6 +20,7 @@ jest.mock('../../lib/db/guildQueries.js', () => ({
   updateGuildMemberOcid: jest.fn(),
   getUnsyncedGuildMembers: jest.fn(),
   upsertCharacterBasicOnly: jest.fn(),
+  upsertExpSnapshot: jest.fn().mockResolvedValue(),
 }));
 
 jest.mock('../../lib/redis.js', () => ({
