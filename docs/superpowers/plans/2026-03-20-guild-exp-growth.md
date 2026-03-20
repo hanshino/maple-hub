@@ -12,23 +12,24 @@
 
 ### File Structure
 
-| Action | File | Responsibility |
-|--------|------|----------------|
-| Create | `lib/db/guildExpSnapshotSchema.js` | Drizzle schema for `guild_exp_snapshots` table |
-| Modify | `lib/db/guildQueries.js` | Add snapshot CRUD queries |
-| Modify | `lib/guildSyncService.js` | Write today's snapshot during member sync |
-| Modify | `lib/nexonApi.js` | Add `date` param to `getCharacterBasicInfo` |
-| Create | `lib/guildExpBackfillService.js` | Background backfill service for historical snapshots |
-| Create | `app/api/guild/[oguildId]/exp-growth/route.js` | API endpoint returning exp growth data + triggering backfill |
-| Create | `components/GuildExpGrowth.js` | Frontend component: exp growth leaderboard |
-| Modify | `app/guild/[server]/[guildName]/GuildDetailClient.js` | Add GuildExpGrowth to guild page |
-| Modify | `lib/cron.js` | Add daily cleanup of snapshots older than 30 days |
+| Action | File                                                  | Responsibility                                               |
+| ------ | ----------------------------------------------------- | ------------------------------------------------------------ |
+| Create | `lib/db/guildExpSnapshotSchema.js`                    | Drizzle schema for `guild_exp_snapshots` table               |
+| Modify | `lib/db/guildQueries.js`                              | Add snapshot CRUD queries                                    |
+| Modify | `lib/guildSyncService.js`                             | Write today's snapshot during member sync                    |
+| Modify | `lib/nexonApi.js`                                     | Add `date` param to `getCharacterBasicInfo`                  |
+| Create | `lib/guildExpBackfillService.js`                      | Background backfill service for historical snapshots         |
+| Create | `app/api/guild/[oguildId]/exp-growth/route.js`        | API endpoint returning exp growth data + triggering backfill |
+| Create | `components/GuildExpGrowth.js`                        | Frontend component: exp growth leaderboard                   |
+| Modify | `app/guild/[server]/[guildName]/GuildDetailClient.js` | Add GuildExpGrowth to guild page                             |
+| Modify | `lib/cron.js`                                         | Add daily cleanup of snapshots older than 30 days            |
 
 ---
 
 ### Task 1: DB Schema — guild_exp_snapshots table
 
 **Files:**
+
 - Create: `lib/db/guildExpSnapshotSchema.js`
 
 - [ ] **Step 1: Create the Drizzle schema file**
@@ -92,6 +93,7 @@ git commit -m "feat: add guild_exp_snapshots schema and migration"
 ### Task 2: Snapshot query functions
 
 **Files:**
+
 - Modify: `lib/db/guildQueries.js`
 
 - [ ] **Step 1: Add snapshot query functions to guildQueries.js**
@@ -108,7 +110,13 @@ Add these functions at the end of the file:
 /**
  * Upsert a single exp snapshot (INSERT IGNORE style via ON DUPLICATE KEY).
  */
-export async function upsertExpSnapshot({ oguildId, ocid, snapshotDate, characterLevel, characterExpRate }) {
+export async function upsertExpSnapshot({
+  oguildId,
+  ocid,
+  snapshotDate,
+  characterLevel,
+  characterExpRate,
+}) {
   const db = getDb();
   await db
     .insert(guildExpSnapshots)
@@ -203,7 +211,9 @@ export async function deleteOldExpSnapshots(days = 30) {
   const db = getDb();
   const result = await db
     .delete(guildExpSnapshots)
-    .where(sql`${guildExpSnapshots.snapshotDate} < DATE_SUB(CURDATE(), INTERVAL ${days} DAY)`);
+    .where(
+      sql`${guildExpSnapshots.snapshotDate} < DATE_SUB(CURDATE(), INTERVAL ${days} DAY)`
+    );
   return result[0]?.affectedRows || 0;
 }
 ```
@@ -220,6 +230,7 @@ git commit -m "feat: add exp snapshot query functions"
 ### Task 3: Add date param to Nexon API client
 
 **Files:**
+
 - Modify: `lib/nexonApi.js`
 
 - [ ] **Step 1: Add optional `date` parameter to `getCharacterBasicInfo`**
@@ -253,6 +264,7 @@ git commit -m "feat: add date param to getCharacterBasicInfo"
 ### Task 4: Write today's snapshot during guild sync
 
 **Files:**
+
 - Modify: `lib/guildSyncService.js`
 
 - [ ] **Step 1: Add snapshot write to `syncGuildMemberBasic`**
@@ -268,17 +280,17 @@ import { upsertExpSnapshot } from './db/guildQueries.js';
 In `syncGuildMemberBasic`, after the `await updateGuildMemberOcid(...)` line and before the `return { success: true, ... }` line, add:
 
 ```js
-    // Write today's exp snapshot (zero extra API cost)
-    const today = new Date().toISOString().slice(0, 10);
-    await upsertExpSnapshot({
-      oguildId,
-      ocid,
-      snapshotDate: today,
-      characterLevel: basicInfo.character_level,
-      characterExpRate: basicInfo.character_exp_rate,
-    }).catch(err =>
-      console.error(`Exp snapshot failed for "${characterName}":`, err.message)
-    );
+// Write today's exp snapshot (zero extra API cost)
+const today = new Date().toISOString().slice(0, 10);
+await upsertExpSnapshot({
+  oguildId,
+  ocid,
+  snapshotDate: today,
+  characterLevel: basicInfo.character_level,
+  characterExpRate: basicInfo.character_exp_rate,
+}).catch(err =>
+  console.error(`Exp snapshot failed for "${characterName}":`, err.message)
+);
 ```
 
 - [ ] **Step 2: Commit**
@@ -293,6 +305,7 @@ git commit -m "feat: write today's exp snapshot during guild member sync"
 ### Task 5: Background backfill service
 
 **Files:**
+
 - Create: `lib/guildExpBackfillService.js`
 
 - [ ] **Step 1: Create the backfill service**
@@ -438,10 +451,7 @@ async function backfillInBackground(oguildId, tasks) {
     await batchUpsertExpSnapshots(batch);
   }
 
-  const total = [...tasks.values()].reduce(
-    (sum, t) => sum + t.dates.length,
-    0
-  );
+  const total = [...tasks.values()].reduce((sum, t) => sum + t.dates.length, 0);
   await setBackfillStatus(oguildId, {
     total,
     done,
@@ -467,6 +477,7 @@ git commit -m "feat: add background exp backfill service"
 ### Task 6: API endpoint — exp-growth
 
 **Files:**
+
 - Create: `app/api/guild/[oguildId]/exp-growth/route.js`
 
 - [ ] **Step 1: Create the API route**
@@ -559,6 +570,7 @@ git commit -m "feat: add guild exp-growth API endpoint"
 ### Task 7: Frontend component — GuildExpGrowth
 
 **Files:**
+
 - Create: `components/GuildExpGrowth.js`
 
 - [ ] **Step 1: Create the GuildExpGrowth component**
@@ -566,6 +578,7 @@ git commit -m "feat: add guild exp-growth API endpoint"
 A sortable table showing 7-day and 30-day exp growth per member. Follows existing glassmorphism style and ranking visual language (gold/silver/bronze for top 3) from `GuildMemberTable`.
 
 **UX best practices applied:**
+
 - Skeleton table (5 rows) when data is loading instead of blank screen
 - `TableContainer` with `overflowX: 'auto'` for mobile horizontal scroll
 - Top 3 ranking with gold/silver/bronze colors + left border (consistent with GuildMemberTable)
@@ -643,15 +656,11 @@ function GrowthChip({ value, mode }) {
           ...(noData && {
             borderStyle: 'dashed',
             borderColor:
-              mode === 'dark'
-                ? 'rgba(255,255,255,0.15)'
-                : 'rgba(0,0,0,0.12)',
+              mode === 'dark' ? 'rgba(255,255,255,0.15)' : 'rgba(0,0,0,0.12)',
           }),
           ...(isZero && {
             bgcolor:
-              mode === 'dark'
-                ? 'rgba(255,255,255,0.08)'
-                : 'rgba(0,0,0,0.06)',
+              mode === 'dark' ? 'rgba(255,255,255,0.08)' : 'rgba(0,0,0,0.06)',
           }),
         }}
       />
@@ -779,11 +788,7 @@ export default function GuildExpGrowth({ oguildId }) {
 
       {data?.backfillStatus?.inProgress && (
         <Box sx={{ mb: 2 }}>
-          <Alert
-            severity="info"
-            icon={<HourglassEmptyIcon />}
-            sx={{ mb: 1 }}
-          >
+          <Alert severity="info" icon={<HourglassEmptyIcon />} sx={{ mb: 1 }}>
             正在收集歷史資料 ({data.backfillStatus.done}/
             {data.backfillStatus.total})，數據會逐漸完整
           </Alert>
@@ -896,16 +901,10 @@ export default function GuildExpGrowth({ oguildId }) {
                             (member.characterName?.[0] || '?')}
                         </Avatar>
                         <Box>
-                          <Typography
-                            variant="body2"
-                            sx={{ fontWeight: 600 }}
-                          >
+                          <Typography variant="body2" sx={{ fontWeight: 600 }}>
                             {member.characterName}
                           </Typography>
-                          <Typography
-                            variant="caption"
-                            color="text.secondary"
-                          >
+                          <Typography variant="caption" color="text.secondary">
                             {member.characterClass}
                           </Typography>
                         </Box>
@@ -942,6 +941,7 @@ git commit -m "feat: add GuildExpGrowth component"
 ### Task 8: Integrate into guild detail page
 
 **Files:**
+
 - Modify: `app/guild/[server]/[guildName]/GuildDetailClient.js`
 
 - [ ] **Step 1: Add GuildExpGrowth to GuildDetailClient**
@@ -972,6 +972,7 @@ git commit -m "feat: integrate GuildExpGrowth into guild detail page"
 ### Task 9: Cron job — cleanup old snapshots
 
 **Files:**
+
 - Modify: `lib/cron.js`
 
 - [ ] **Step 1: Add cleanup job for expired snapshots**
@@ -979,16 +980,16 @@ git commit -m "feat: integrate GuildExpGrowth into guild detail page"
 Add a new cron schedule in `initCronJobs()`, after the existing cleanup job:
 
 ```js
-  // Cleanup old exp snapshots daily at 00:30
-  cron.schedule('30 0 * * *', async () => {
-    try {
-      const { deleteOldExpSnapshots } = await import('./db/guildQueries.js');
-      const deleted = await deleteOldExpSnapshots(30);
-      console.log(`[Cron] Exp snapshot cleanup: removed ${deleted} old records`);
-    } catch (error) {
-      console.error('[Cron] Exp snapshot cleanup error:', error);
-    }
-  });
+// Cleanup old exp snapshots daily at 00:30
+cron.schedule('30 0 * * *', async () => {
+  try {
+    const { deleteOldExpSnapshots } = await import('./db/guildQueries.js');
+    const deleted = await deleteOldExpSnapshots(30);
+    console.log(`[Cron] Exp snapshot cleanup: removed ${deleted} old records`);
+  } catch (error) {
+    console.error('[Cron] Exp snapshot cleanup error:', error);
+  }
+});
 ```
 
 - [ ] **Step 2: Commit**
