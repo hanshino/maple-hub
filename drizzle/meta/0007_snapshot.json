@@ -1,8 +1,8 @@
 {
   "version": "5",
   "dialect": "mysql",
-  "id": "191ed8e0-2d0a-496e-84fa-5e372e8d3add",
-  "prevId": "356ac112-c9ef-410e-8698-e43d1acae40b",
+  "id": "0a89dcaf-a911-4fed-be2c-54120f4528b9",
+  "prevId": "ef2c4534-cee5-4ecb-b952-4647704aa270",
   "tables": {
     "character_cash_equipment": {
       "name": "character_cash_equipment",
@@ -51,7 +51,7 @@
         },
         "date_expire": {
           "name": "date_expire",
-          "type": "timestamp",
+          "type": "datetime",
           "primaryKey": false,
           "notNull": false,
           "autoincrement": false
@@ -1003,6 +1003,13 @@
           "autoincrement": false,
           "default": 0
         },
+        "set_effect_info": {
+          "name": "set_effect_info",
+          "type": "json",
+          "primaryKey": false,
+          "notNull": false,
+          "autoincrement": false
+        },
         "updated_at": {
           "name": "updated_at",
           "type": "timestamp",
@@ -1011,13 +1018,6 @@
           "autoincrement": false,
           "onUpdate": true,
           "default": "(now())"
-        },
-        "set_effect_info": {
-          "name": "set_effect_info",
-          "type": "json",
-          "primaryKey": false,
-          "notNull": false,
-          "autoincrement": false
         }
       },
       "indexes": {
@@ -1378,6 +1378,82 @@
       "uniqueConstraints": {},
       "checkConstraint": {}
     },
+    "character_union_artifact_effects": {
+      "name": "character_union_artifact_effects",
+      "columns": {
+        "id": {
+          "name": "id",
+          "type": "bigint",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": true
+        },
+        "ocid": {
+          "name": "ocid",
+          "type": "varchar(64)",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false
+        },
+        "effect_name": {
+          "name": "effect_name",
+          "type": "varchar(100)",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false
+        },
+        "effect_level": {
+          "name": "effect_level",
+          "type": "int",
+          "primaryKey": false,
+          "notNull": false,
+          "autoincrement": false
+        },
+        "updated_at": {
+          "name": "updated_at",
+          "type": "timestamp",
+          "primaryKey": false,
+          "notNull": false,
+          "autoincrement": false,
+          "onUpdate": true,
+          "default": "(now())"
+        }
+      },
+      "indexes": {
+        "idx_ocid": {
+          "name": "idx_ocid",
+          "columns": [
+            "ocid"
+          ],
+          "isUnique": false
+        }
+      },
+      "foreignKeys": {
+        "character_union_artifact_effects_ocid_characters_ocid_fk": {
+          "name": "character_union_artifact_effects_ocid_characters_ocid_fk",
+          "tableFrom": "character_union_artifact_effects",
+          "tableTo": "characters",
+          "columnsFrom": [
+            "ocid"
+          ],
+          "columnsTo": [
+            "ocid"
+          ],
+          "onDelete": "cascade",
+          "onUpdate": "no action"
+        }
+      },
+      "compositePrimaryKeys": {
+        "character_union_artifact_effects_id": {
+          "name": "character_union_artifact_effects_id",
+          "columns": [
+            "id"
+          ]
+        }
+      },
+      "uniqueConstraints": {},
+      "checkConstraint": {}
+    },
     "character_union_artifacts": {
       "name": "character_union_artifacts",
       "columns": {
@@ -1409,15 +1485,6 @@
           "notNull": false,
           "autoincrement": false
         },
-        "updated_at": {
-          "name": "updated_at",
-          "type": "timestamp",
-          "primaryKey": false,
-          "notNull": false,
-          "autoincrement": false,
-          "onUpdate": true,
-          "default": "(now())"
-        },
         "crystal_option_name_1": {
           "name": "crystal_option_name_1",
           "type": "varchar(100)",
@@ -1438,6 +1505,15 @@
           "primaryKey": false,
           "notNull": false,
           "autoincrement": false
+        },
+        "updated_at": {
+          "name": "updated_at",
+          "type": "timestamp",
+          "primaryKey": false,
+          "notNull": false,
+          "autoincrement": false,
+          "onUpdate": true,
+          "default": "(now())"
         }
       },
       "indexes": {
@@ -1694,15 +1770,336 @@
       "uniqueConstraints": {},
       "checkConstraint": {}
     },
-    "character_union_artifact_effects": {
-      "name": "character_union_artifact_effects",
+    "guild_members": {
+      "name": "guild_members",
       "columns": {
         "id": {
           "name": "id",
           "type": "bigint",
-          "primaryKey": true,
+          "primaryKey": false,
           "notNull": true,
           "autoincrement": true
+        },
+        "oguild_id": {
+          "name": "oguild_id",
+          "type": "varchar(64)",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false
+        },
+        "character_name": {
+          "name": "character_name",
+          "type": "varchar(50)",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false
+        },
+        "ocid": {
+          "name": "ocid",
+          "type": "varchar(64)",
+          "primaryKey": false,
+          "notNull": false,
+          "autoincrement": false
+        },
+        "created_at": {
+          "name": "created_at",
+          "type": "timestamp",
+          "primaryKey": false,
+          "notNull": false,
+          "autoincrement": false,
+          "default": "(now())"
+        },
+        "updated_at": {
+          "name": "updated_at",
+          "type": "timestamp",
+          "primaryKey": false,
+          "notNull": false,
+          "autoincrement": false,
+          "onUpdate": true,
+          "default": "(now())"
+        }
+      },
+      "indexes": {
+        "idx_guild_member_oguild": {
+          "name": "idx_guild_member_oguild",
+          "columns": [
+            "oguild_id"
+          ],
+          "isUnique": false
+        },
+        "idx_guild_member_ocid": {
+          "name": "idx_guild_member_ocid",
+          "columns": [
+            "ocid"
+          ],
+          "isUnique": false
+        }
+      },
+      "foreignKeys": {
+        "guild_members_oguild_id_guilds_oguild_id_fk": {
+          "name": "guild_members_oguild_id_guilds_oguild_id_fk",
+          "tableFrom": "guild_members",
+          "tableTo": "guilds",
+          "columnsFrom": [
+            "oguild_id"
+          ],
+          "columnsTo": [
+            "oguild_id"
+          ],
+          "onDelete": "cascade",
+          "onUpdate": "no action"
+        },
+        "guild_members_ocid_characters_ocid_fk": {
+          "name": "guild_members_ocid_characters_ocid_fk",
+          "tableFrom": "guild_members",
+          "tableTo": "characters",
+          "columnsFrom": [
+            "ocid"
+          ],
+          "columnsTo": [
+            "ocid"
+          ],
+          "onDelete": "set null",
+          "onUpdate": "no action"
+        }
+      },
+      "compositePrimaryKeys": {
+        "guild_members_id": {
+          "name": "guild_members_id",
+          "columns": [
+            "id"
+          ]
+        }
+      },
+      "uniqueConstraints": {},
+      "checkConstraint": {}
+    },
+    "guild_skills": {
+      "name": "guild_skills",
+      "columns": {
+        "id": {
+          "name": "id",
+          "type": "bigint",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": true
+        },
+        "oguild_id": {
+          "name": "oguild_id",
+          "type": "varchar(64)",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false
+        },
+        "skill_type": {
+          "name": "skill_type",
+          "type": "varchar(10)",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false
+        },
+        "skill_name": {
+          "name": "skill_name",
+          "type": "varchar(100)",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false
+        },
+        "skill_description": {
+          "name": "skill_description",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false,
+          "autoincrement": false
+        },
+        "skill_level": {
+          "name": "skill_level",
+          "type": "int",
+          "primaryKey": false,
+          "notNull": false,
+          "autoincrement": false
+        },
+        "skill_effect": {
+          "name": "skill_effect",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false,
+          "autoincrement": false
+        },
+        "skill_icon": {
+          "name": "skill_icon",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false,
+          "autoincrement": false
+        }
+      },
+      "indexes": {
+        "idx_guild_skill_unique": {
+          "name": "idx_guild_skill_unique",
+          "columns": [
+            "oguild_id",
+            "skill_type",
+            "skill_name"
+          ],
+          "isUnique": true
+        }
+      },
+      "foreignKeys": {
+        "guild_skills_oguild_id_guilds_oguild_id_fk": {
+          "name": "guild_skills_oguild_id_guilds_oguild_id_fk",
+          "tableFrom": "guild_skills",
+          "tableTo": "guilds",
+          "columnsFrom": [
+            "oguild_id"
+          ],
+          "columnsTo": [
+            "oguild_id"
+          ],
+          "onDelete": "cascade",
+          "onUpdate": "no action"
+        }
+      },
+      "compositePrimaryKeys": {
+        "guild_skills_id": {
+          "name": "guild_skills_id",
+          "columns": [
+            "id"
+          ]
+        }
+      },
+      "uniqueConstraints": {},
+      "checkConstraint": {}
+    },
+    "guilds": {
+      "name": "guilds",
+      "columns": {
+        "oguild_id": {
+          "name": "oguild_id",
+          "type": "varchar(64)",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false
+        },
+        "guild_name": {
+          "name": "guild_name",
+          "type": "varchar(100)",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false
+        },
+        "world_name": {
+          "name": "world_name",
+          "type": "varchar(20)",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false
+        },
+        "guild_level": {
+          "name": "guild_level",
+          "type": "int",
+          "primaryKey": false,
+          "notNull": false,
+          "autoincrement": false
+        },
+        "guild_fame": {
+          "name": "guild_fame",
+          "type": "int",
+          "primaryKey": false,
+          "notNull": false,
+          "autoincrement": false
+        },
+        "guild_point": {
+          "name": "guild_point",
+          "type": "int",
+          "primaryKey": false,
+          "notNull": false,
+          "autoincrement": false
+        },
+        "guild_master_name": {
+          "name": "guild_master_name",
+          "type": "varchar(50)",
+          "primaryKey": false,
+          "notNull": false,
+          "autoincrement": false
+        },
+        "guild_member_count": {
+          "name": "guild_member_count",
+          "type": "int",
+          "primaryKey": false,
+          "notNull": false,
+          "autoincrement": false
+        },
+        "guild_mark": {
+          "name": "guild_mark",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false,
+          "autoincrement": false
+        },
+        "guild_mark_custom": {
+          "name": "guild_mark_custom",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false,
+          "autoincrement": false
+        },
+        "created_at": {
+          "name": "created_at",
+          "type": "timestamp",
+          "primaryKey": false,
+          "notNull": false,
+          "autoincrement": false,
+          "default": "(now())"
+        },
+        "updated_at": {
+          "name": "updated_at",
+          "type": "timestamp",
+          "primaryKey": false,
+          "notNull": false,
+          "autoincrement": false,
+          "onUpdate": true,
+          "default": "(now())"
+        }
+      },
+      "indexes": {
+        "idx_guild_name_world": {
+          "name": "idx_guild_name_world",
+          "columns": [
+            "guild_name",
+            "world_name"
+          ],
+          "isUnique": false
+        }
+      },
+      "foreignKeys": {},
+      "compositePrimaryKeys": {
+        "guilds_oguild_id": {
+          "name": "guilds_oguild_id",
+          "columns": [
+            "oguild_id"
+          ]
+        }
+      },
+      "uniqueConstraints": {},
+      "checkConstraint": {}
+    },
+    "guild_exp_snapshots": {
+      "name": "guild_exp_snapshots",
+      "columns": {
+        "id": {
+          "name": "id",
+          "type": "bigint",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": true
+        },
+        "oguild_id": {
+          "name": "oguild_id",
+          "type": "varchar(64)",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false
         },
         "ocid": {
           "name": "ocid",
@@ -1711,43 +2108,72 @@
           "notNull": true,
           "autoincrement": false
         },
-        "effect_name": {
-          "name": "effect_name",
-          "type": "varchar(100)",
+        "snapshot_date": {
+          "name": "snapshot_date",
+          "type": "date",
           "primaryKey": false,
           "notNull": true,
           "autoincrement": false
         },
-        "effect_level": {
-          "name": "effect_level",
+        "character_level": {
+          "name": "character_level",
           "type": "int",
           "primaryKey": false,
           "notNull": false,
           "autoincrement": false
         },
-        "updated_at": {
-          "name": "updated_at",
+        "character_exp_rate": {
+          "name": "character_exp_rate",
+          "type": "varchar(20)",
+          "primaryKey": false,
+          "notNull": false,
+          "autoincrement": false
+        },
+        "created_at": {
+          "name": "created_at",
           "type": "timestamp",
           "primaryKey": false,
           "notNull": false,
           "autoincrement": false,
-          "default": "(now())",
-          "onUpdate": "CURRENT_TIMESTAMP"
+          "default": "(now())"
         }
       },
       "indexes": {
-        "idx_ocid": {
-          "name": "idx_ocid",
+        "idx_snapshot_unique": {
+          "name": "idx_snapshot_unique",
           "columns": [
-            "ocid"
+            "oguild_id",
+            "ocid",
+            "snapshot_date"
+          ],
+          "isUnique": true
+        },
+        "idx_snapshot_oguild_date": {
+          "name": "idx_snapshot_oguild_date",
+          "columns": [
+            "oguild_id",
+            "snapshot_date"
           ],
           "isUnique": false
         }
       },
       "foreignKeys": {
-        "character_union_artifact_effects_ocid_characters_ocid_fk": {
-          "name": "character_union_artifact_effects_ocid_characters_ocid_fk",
-          "tableFrom": "character_union_artifact_effects",
+        "guild_exp_snapshots_oguild_id_guilds_oguild_id_fk": {
+          "name": "guild_exp_snapshots_oguild_id_guilds_oguild_id_fk",
+          "tableFrom": "guild_exp_snapshots",
+          "tableTo": "guilds",
+          "columnsFrom": [
+            "oguild_id"
+          ],
+          "columnsTo": [
+            "oguild_id"
+          ],
+          "onDelete": "cascade",
+          "onUpdate": "no action"
+        },
+        "guild_exp_snapshots_ocid_characters_ocid_fk": {
+          "name": "guild_exp_snapshots_ocid_characters_ocid_fk",
+          "tableFrom": "guild_exp_snapshots",
           "tableTo": "characters",
           "columnsFrom": [
             "ocid"
@@ -1759,13 +2185,21 @@
           "onUpdate": "no action"
         }
       },
-      "compositePrimaryKeys": {},
+      "compositePrimaryKeys": {
+        "guild_exp_snapshots_id": {
+          "name": "guild_exp_snapshots_id",
+          "columns": [
+            "id"
+          ]
+        }
+      },
       "uniqueConstraints": {},
       "checkConstraint": {}
     }
   },
   "views": {},
   "_meta": {
+    "schemas": {},
     "tables": {},
     "columns": {}
   },

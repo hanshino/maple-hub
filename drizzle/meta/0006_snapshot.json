@@ -69,7 +69,9 @@
       "indexes": {
         "idx_ocid": {
           "name": "idx_ocid",
-          "columns": ["ocid"],
+          "columns": [
+            "ocid"
+          ],
           "isUnique": false
         }
       },
@@ -78,8 +80,12 @@
           "name": "character_cash_equipment_ocid_characters_ocid_fk",
           "tableFrom": "character_cash_equipment",
           "tableTo": "characters",
-          "columnsFrom": ["ocid"],
-          "columnsTo": ["ocid"],
+          "columnsFrom": [
+            "ocid"
+          ],
+          "columnsTo": [
+            "ocid"
+          ],
           "onDelete": "cascade",
           "onUpdate": "no action"
         }
@@ -87,7 +93,9 @@
       "compositePrimaryKeys": {
         "character_cash_equipment_id": {
           "name": "character_cash_equipment_id",
-          "columns": ["id"]
+          "columns": [
+            "id"
+          ]
         }
       },
       "uniqueConstraints": {},
@@ -272,17 +280,25 @@
       "indexes": {
         "uk_ocid_preset_slot": {
           "name": "uk_ocid_preset_slot",
-          "columns": ["ocid", "preset_no", "item_equipment_slot"],
+          "columns": [
+            "ocid",
+            "preset_no",
+            "item_equipment_slot"
+          ],
           "isUnique": true
         },
         "idx_ocid": {
           "name": "idx_ocid",
-          "columns": ["ocid"],
+          "columns": [
+            "ocid"
+          ],
           "isUnique": false
         },
         "idx_potential_grade": {
           "name": "idx_potential_grade",
-          "columns": ["potential_option_grade"],
+          "columns": [
+            "potential_option_grade"
+          ],
           "isUnique": false
         }
       },
@@ -291,8 +307,12 @@
           "name": "character_equipment_ocid_characters_ocid_fk",
           "tableFrom": "character_equipment",
           "tableTo": "characters",
-          "columnsFrom": ["ocid"],
-          "columnsTo": ["ocid"],
+          "columnsFrom": [
+            "ocid"
+          ],
+          "columnsTo": [
+            "ocid"
+          ],
           "onDelete": "cascade",
           "onUpdate": "no action"
         }
@@ -300,7 +320,9 @@
       "compositePrimaryKeys": {
         "character_equipment_id": {
           "name": "character_equipment_id",
-          "columns": ["id"]
+          "columns": [
+            "id"
+          ]
         }
       },
       "uniqueConstraints": {},
@@ -358,12 +380,17 @@
       "indexes": {
         "uk_ocid_core": {
           "name": "uk_ocid_core",
-          "columns": ["ocid", "hexa_core_name"],
+          "columns": [
+            "ocid",
+            "hexa_core_name"
+          ],
           "isUnique": true
         },
         "idx_ocid": {
           "name": "idx_ocid",
-          "columns": ["ocid"],
+          "columns": [
+            "ocid"
+          ],
           "isUnique": false
         }
       },
@@ -372,8 +399,12 @@
           "name": "character_hexa_cores_ocid_characters_ocid_fk",
           "tableFrom": "character_hexa_cores",
           "tableTo": "characters",
-          "columnsFrom": ["ocid"],
-          "columnsTo": ["ocid"],
+          "columnsFrom": [
+            "ocid"
+          ],
+          "columnsTo": [
+            "ocid"
+          ],
           "onDelete": "cascade",
           "onUpdate": "no action"
         }
@@ -381,7 +412,9 @@
       "compositePrimaryKeys": {
         "character_hexa_cores_id": {
           "name": "character_hexa_cores_id",
-          "columns": ["id"]
+          "columns": [
+            "id"
+          ]
         }
       },
       "uniqueConstraints": {},
@@ -477,12 +510,17 @@
       "indexes": {
         "uk_ocid_slot": {
           "name": "uk_ocid_slot",
-          "columns": ["ocid", "slot_id"],
+          "columns": [
+            "ocid",
+            "slot_id"
+          ],
           "isUnique": true
         },
         "idx_ocid": {
           "name": "idx_ocid",
-          "columns": ["ocid"],
+          "columns": [
+            "ocid"
+          ],
           "isUnique": false
         }
       },
@@ -491,8 +529,12 @@
           "name": "character_hexa_stats_ocid_characters_ocid_fk",
           "tableFrom": "character_hexa_stats",
           "tableTo": "characters",
-          "columnsFrom": ["ocid"],
-          "columnsTo": ["ocid"],
+          "columnsFrom": [
+            "ocid"
+          ],
+          "columnsTo": [
+            "ocid"
+          ],
           "onDelete": "cascade",
           "onUpdate": "no action"
         }
@@ -500,7 +542,9 @@
       "compositePrimaryKeys": {
         "character_hexa_stats_id": {
           "name": "character_hexa_stats_id",
-          "columns": ["id"]
+          "columns": [
+            "id"
+          ]
         }
       },
       "uniqueConstraints": {},
@@ -540,8 +584,12 @@
           "name": "character_hyper_stat_presets_ocid_characters_ocid_fk",
           "tableFrom": "character_hyper_stat_presets",
           "tableTo": "characters",
-          "columnsFrom": ["ocid"],
-          "columnsTo": ["ocid"],
+          "columnsFrom": [
+            "ocid"
+          ],
+          "columnsTo": [
+            "ocid"
+          ],
           "onDelete": "cascade",
           "onUpdate": "no action"
         }
@@ -549,7 +597,9 @@
       "compositePrimaryKeys": {
         "character_hyper_stat_presets_ocid": {
           "name": "character_hyper_stat_presets_ocid",
-          "columns": ["ocid"]
+          "columns": [
+            "ocid"
+          ]
         }
       },
       "uniqueConstraints": {},
@@ -614,12 +664,18 @@
       "indexes": {
         "uk_ocid_preset_type": {
           "name": "uk_ocid_preset_type",
-          "columns": ["ocid", "preset_no", "stat_type"],
+          "columns": [
+            "ocid",
+            "preset_no",
+            "stat_type"
+          ],
           "isUnique": true
         },
         "idx_ocid": {
           "name": "idx_ocid",
-          "columns": ["ocid"],
+          "columns": [
+            "ocid"
+          ],
           "isUnique": false
         }
       },
@@ -628,8 +684,12 @@
           "name": "character_hyper_stats_ocid_characters_ocid_fk",
           "tableFrom": "character_hyper_stats",
           "tableTo": "characters",
-          "columnsFrom": ["ocid"],
-          "columnsTo": ["ocid"],
+          "columnsFrom": [
+            "ocid"
+          ],
+          "columnsTo": [
+            "ocid"
+          ],
           "onDelete": "cascade",
           "onUpdate": "no action"
         }
@@ -637,7 +697,9 @@
       "compositePrimaryKeys": {
         "character_hyper_stats_id": {
           "name": "character_hyper_stats_id",
-          "columns": ["id"]
+          "columns": [
+            "id"
+          ]
         }
       },
       "uniqueConstraints": {},
@@ -677,8 +739,12 @@
           "name": "character_link_skill_presets_ocid_characters_ocid_fk",
           "tableFrom": "character_link_skill_presets",
           "tableTo": "characters",
-          "columnsFrom": ["ocid"],
-          "columnsTo": ["ocid"],
+          "columnsFrom": [
+            "ocid"
+          ],
+          "columnsTo": [
+            "ocid"
+          ],
           "onDelete": "cascade",
           "onUpdate": "no action"
         }
@@ -686,7 +752,9 @@
       "compositePrimaryKeys": {
         "character_link_skill_presets_ocid": {
           "name": "character_link_skill_presets_ocid",
-          "columns": ["ocid"]
+          "columns": [
+            "ocid"
+          ]
         }
       },
       "uniqueConstraints": {},
@@ -764,12 +832,18 @@
       "indexes": {
         "uk_ocid_preset_skill": {
           "name": "uk_ocid_preset_skill",
-          "columns": ["ocid", "preset_no", "skill_name"],
+          "columns": [
+            "ocid",
+            "preset_no",
+            "skill_name"
+          ],
           "isUnique": true
         },
         "idx_ocid": {
           "name": "idx_ocid",
-          "columns": ["ocid"],
+          "columns": [
+            "ocid"
+          ],
           "isUnique": false
         }
       },
@@ -778,8 +852,12 @@
           "name": "character_link_skills_ocid_characters_ocid_fk",
           "tableFrom": "character_link_skills",
           "tableTo": "characters",
-          "columnsFrom": ["ocid"],
-          "columnsTo": ["ocid"],
+          "columnsFrom": [
+            "ocid"
+          ],
+          "columnsTo": [
+            "ocid"
+          ],
           "onDelete": "cascade",
           "onUpdate": "no action"
         }
@@ -787,7 +865,9 @@
       "compositePrimaryKeys": {
         "character_link_skills_id": {
           "name": "character_link_skills_id",
-          "columns": ["id"]
+          "columns": [
+            "id"
+          ]
         }
       },
       "uniqueConstraints": {},
@@ -851,7 +931,9 @@
       "indexes": {
         "idx_ocid": {
           "name": "idx_ocid",
-          "columns": ["ocid"],
+          "columns": [
+            "ocid"
+          ],
           "isUnique": false
         }
       },
@@ -860,8 +942,12 @@
           "name": "character_pet_equipment_ocid_characters_ocid_fk",
           "tableFrom": "character_pet_equipment",
           "tableTo": "characters",
-          "columnsFrom": ["ocid"],
-          "columnsTo": ["ocid"],
+          "columnsFrom": [
+            "ocid"
+          ],
+          "columnsTo": [
+            "ocid"
+          ],
           "onDelete": "cascade",
           "onUpdate": "no action"
         }
@@ -869,7 +955,9 @@
       "compositePrimaryKeys": {
         "character_pet_equipment_id": {
           "name": "character_pet_equipment_id",
-          "columns": ["id"]
+          "columns": [
+            "id"
+          ]
         }
       },
       "uniqueConstraints": {},
@@ -935,12 +1023,17 @@
       "indexes": {
         "uk_ocid_set": {
           "name": "uk_ocid_set",
-          "columns": ["ocid", "set_name"],
+          "columns": [
+            "ocid",
+            "set_name"
+          ],
           "isUnique": true
         },
         "idx_ocid": {
           "name": "idx_ocid",
-          "columns": ["ocid"],
+          "columns": [
+            "ocid"
+          ],
           "isUnique": false
         }
       },
@@ -949,8 +1042,12 @@
           "name": "character_set_effects_ocid_characters_ocid_fk",
           "tableFrom": "character_set_effects",
           "tableTo": "characters",
-          "columnsFrom": ["ocid"],
-          "columnsTo": ["ocid"],
+          "columnsFrom": [
+            "ocid"
+          ],
+          "columnsTo": [
+            "ocid"
+          ],
           "onDelete": "cascade",
           "onUpdate": "no action"
         }
@@ -958,7 +1055,9 @@
       "compositePrimaryKeys": {
         "character_set_effects_id": {
           "name": "character_set_effects_id",
-          "columns": ["id"]
+          "columns": [
+            "id"
+          ]
         }
       },
       "uniqueConstraints": {},
@@ -1074,8 +1173,12 @@
           "name": "character_stats_ocid_characters_ocid_fk",
           "tableFrom": "character_stats",
           "tableTo": "characters",
-          "columnsFrom": ["ocid"],
-          "columnsTo": ["ocid"],
+          "columnsFrom": [
+            "ocid"
+          ],
+          "columnsTo": [
+            "ocid"
+          ],
           "onDelete": "cascade",
           "onUpdate": "no action"
         }
@@ -1083,7 +1186,9 @@
       "compositePrimaryKeys": {
         "character_stats_ocid": {
           "name": "character_stats_ocid",
-          "columns": ["ocid"]
+          "columns": [
+            "ocid"
+          ]
         }
       },
       "uniqueConstraints": {},
@@ -1165,12 +1270,17 @@
       "indexes": {
         "uk_ocid_symbol": {
           "name": "uk_ocid_symbol",
-          "columns": ["ocid", "symbol_name"],
+          "columns": [
+            "ocid",
+            "symbol_name"
+          ],
           "isUnique": true
         },
         "idx_ocid": {
           "name": "idx_ocid",
-          "columns": ["ocid"],
+          "columns": [
+            "ocid"
+          ],
           "isUnique": false
         }
       },
@@ -1179,8 +1289,12 @@
           "name": "character_symbols_ocid_characters_ocid_fk",
           "tableFrom": "character_symbols",
           "tableTo": "characters",
-          "columnsFrom": ["ocid"],
-          "columnsTo": ["ocid"],
+          "columnsFrom": [
+            "ocid"
+          ],
+          "columnsTo": [
+            "ocid"
+          ],
           "onDelete": "cascade",
           "onUpdate": "no action"
         }
@@ -1188,7 +1302,9 @@
       "compositePrimaryKeys": {
         "character_symbols_id": {
           "name": "character_symbols_id",
-          "columns": ["id"]
+          "columns": [
+            "id"
+          ]
         }
       },
       "uniqueConstraints": {},
@@ -1241,8 +1357,12 @@
           "name": "character_union_ocid_characters_ocid_fk",
           "tableFrom": "character_union",
           "tableTo": "characters",
-          "columnsFrom": ["ocid"],
-          "columnsTo": ["ocid"],
+          "columnsFrom": [
+            "ocid"
+          ],
+          "columnsTo": [
+            "ocid"
+          ],
           "onDelete": "cascade",
           "onUpdate": "no action"
         }
@@ -1250,7 +1370,9 @@
       "compositePrimaryKeys": {
         "character_union_ocid": {
           "name": "character_union_ocid",
-          "columns": ["ocid"]
+          "columns": [
+            "ocid"
+          ]
         }
       },
       "uniqueConstraints": {},
@@ -1321,7 +1443,9 @@
       "indexes": {
         "idx_ocid": {
           "name": "idx_ocid",
-          "columns": ["ocid"],
+          "columns": [
+            "ocid"
+          ],
           "isUnique": false
         }
       },
@@ -1330,8 +1454,12 @@
           "name": "character_union_artifacts_ocid_characters_ocid_fk",
           "tableFrom": "character_union_artifacts",
           "tableTo": "characters",
-          "columnsFrom": ["ocid"],
-          "columnsTo": ["ocid"],
+          "columnsFrom": [
+            "ocid"
+          ],
+          "columnsTo": [
+            "ocid"
+          ],
           "onDelete": "cascade",
           "onUpdate": "no action"
         }
@@ -1339,7 +1467,9 @@
       "compositePrimaryKeys": {
         "character_union_artifacts_id": {
           "name": "character_union_artifacts_id",
-          "columns": ["id"]
+          "columns": [
+            "id"
+          ]
         }
       },
       "uniqueConstraints": {},
@@ -1382,7 +1512,9 @@
       "indexes": {
         "idx_ocid": {
           "name": "idx_ocid",
-          "columns": ["ocid"],
+          "columns": [
+            "ocid"
+          ],
           "isUnique": false
         }
       },
@@ -1391,8 +1523,12 @@
           "name": "character_union_raider_stats_ocid_characters_ocid_fk",
           "tableFrom": "character_union_raider_stats",
           "tableTo": "characters",
-          "columnsFrom": ["ocid"],
-          "columnsTo": ["ocid"],
+          "columnsFrom": [
+            "ocid"
+          ],
+          "columnsTo": [
+            "ocid"
+          ],
           "onDelete": "cascade",
           "onUpdate": "no action"
         }
@@ -1400,7 +1536,9 @@
       "compositePrimaryKeys": {
         "character_union_raider_stats_id": {
           "name": "character_union_raider_stats_id",
-          "columns": ["id"]
+          "columns": [
+            "id"
+          ]
         }
       },
       "uniqueConstraints": {},
@@ -1523,17 +1661,24 @@
       "indexes": {
         "idx_world_class": {
           "name": "idx_world_class",
-          "columns": ["world_name", "character_class"],
+          "columns": [
+            "world_name",
+            "character_class"
+          ],
           "isUnique": false
         },
         "idx_combat_power": {
           "name": "idx_combat_power",
-          "columns": ["combat_power"],
+          "columns": [
+            "combat_power"
+          ],
           "isUnique": false
         },
         "idx_name": {
           "name": "idx_name",
-          "columns": ["character_name"],
+          "columns": [
+            "character_name"
+          ],
           "isUnique": false
         }
       },
@@ -1541,7 +1686,9 @@
       "compositePrimaryKeys": {
         "characters_ocid": {
           "name": "characters_ocid",
-          "columns": ["ocid"]
+          "columns": [
+            "ocid"
+          ]
         }
       },
       "uniqueConstraints": {},
@@ -1585,13 +1732,15 @@
           "notNull": false,
           "autoincrement": false,
           "default": "(now())",
-          "onUpdate": "CURRENT_TIMESTAMP"
+          "onUpdate": true
         }
       },
       "indexes": {
         "idx_ocid": {
           "name": "idx_ocid",
-          "columns": ["ocid"],
+          "columns": [
+            "ocid"
+          ],
           "isUnique": false
         }
       },
@@ -1600,8 +1749,12 @@
           "name": "character_union_artifact_effects_ocid_characters_ocid_fk",
           "tableFrom": "character_union_artifact_effects",
           "tableTo": "characters",
-          "columnsFrom": ["ocid"],
-          "columnsTo": ["ocid"],
+          "columnsFrom": [
+            "ocid"
+          ],
+          "columnsTo": [
+            "ocid"
+          ],
           "onDelete": "cascade",
           "onUpdate": "no action"
         }
@@ -1612,7 +1765,6 @@
     },
     "guilds": {
       "name": "guilds",
-      "schema": "",
       "columns": {
         "oguild_id": {
           "name": "oguild_id",
@@ -1705,17 +1857,20 @@
       "indexes": {
         "idx_guild_name_world": {
           "name": "idx_guild_name_world",
-          "columns": ["guild_name", "world_name"],
+          "columns": [
+            "guild_name",
+            "world_name"
+          ],
           "isUnique": false
         }
       },
       "foreignKeys": {},
       "compositePrimaryKeys": {},
-      "uniqueConstraints": {}
+      "uniqueConstraints": {},
+      "checkConstraint": {}
     },
     "guild_skills": {
       "name": "guild_skills",
-      "schema": "",
       "columns": {
         "id": {
           "name": "id",
@@ -1777,7 +1932,11 @@
       "indexes": {
         "idx_guild_skill_unique": {
           "name": "idx_guild_skill_unique",
-          "columns": ["oguild_id", "skill_type", "skill_name"],
+          "columns": [
+            "oguild_id",
+            "skill_type",
+            "skill_name"
+          ],
           "isUnique": true
         }
       },
@@ -1786,18 +1945,22 @@
           "name": "guild_skills_oguild_id_guilds_oguild_id_fk",
           "tableFrom": "guild_skills",
           "tableTo": "guilds",
-          "columnsFrom": ["oguild_id"],
-          "columnsTo": ["oguild_id"],
+          "columnsFrom": [
+            "oguild_id"
+          ],
+          "columnsTo": [
+            "oguild_id"
+          ],
           "onDelete": "cascade",
           "onUpdate": "no action"
         }
       },
       "compositePrimaryKeys": {},
-      "uniqueConstraints": {}
+      "uniqueConstraints": {},
+      "checkConstraint": {}
     },
     "guild_members": {
       "name": "guild_members",
-      "schema": "",
       "columns": {
         "id": {
           "name": "id",
@@ -1848,12 +2011,16 @@
       "indexes": {
         "idx_guild_member_oguild": {
           "name": "idx_guild_member_oguild",
-          "columns": ["oguild_id"],
+          "columns": [
+            "oguild_id"
+          ],
           "isUnique": false
         },
         "idx_guild_member_ocid": {
           "name": "idx_guild_member_ocid",
-          "columns": ["ocid"],
+          "columns": [
+            "ocid"
+          ],
           "isUnique": false
         }
       },
@@ -1862,8 +2029,12 @@
           "name": "guild_members_oguild_id_guilds_oguild_id_fk",
           "tableFrom": "guild_members",
           "tableTo": "guilds",
-          "columnsFrom": ["oguild_id"],
-          "columnsTo": ["oguild_id"],
+          "columnsFrom": [
+            "oguild_id"
+          ],
+          "columnsTo": [
+            "oguild_id"
+          ],
           "onDelete": "cascade",
           "onUpdate": "no action"
         },
@@ -1871,19 +2042,23 @@
           "name": "guild_members_ocid_characters_ocid_fk",
           "tableFrom": "guild_members",
           "tableTo": "characters",
-          "columnsFrom": ["ocid"],
-          "columnsTo": ["ocid"],
+          "columnsFrom": [
+            "ocid"
+          ],
+          "columnsTo": [
+            "ocid"
+          ],
           "onDelete": "set null",
           "onUpdate": "no action"
         }
       },
       "compositePrimaryKeys": {},
-      "uniqueConstraints": {}
+      "uniqueConstraints": {},
+      "checkConstraint": {}
     }
   },
   "views": {},
   "_meta": {
-    "schemas": {},
     "tables": {},
     "columns": {}
   },
