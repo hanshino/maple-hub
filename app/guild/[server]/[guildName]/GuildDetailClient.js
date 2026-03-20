@@ -98,12 +98,13 @@ export default function GuildDetailClient({ server, guildName }) {
             synced: statusData.synced,
             failed: statusData.failed,
           });
-          // Sync finished — fetch full guild data once
+          // Sync finished — fetch full guild data + exp growth
           const detailRes = await fetch(`/api/guild/${oguildId}`);
           if (detailRes.ok) {
             const detailData = await detailRes.json();
             setGuild(detailData);
           }
+          fetchExpGrowth(oguildId);
         }
       } catch {
         // Ignore polling errors

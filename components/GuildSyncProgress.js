@@ -23,7 +23,7 @@ export default function GuildSyncProgress({ syncStatus, backfillStatus }) {
       : 0;
 
   return (
-    <Box sx={{ ...getGlassCardSx(mode), mb: 3, p: 2 }}>
+    <Box sx={{ ...getGlassCardSx(mode), mb: 3, p: 3 }}>
       {memberSyncing && (
         <Box sx={{ mb: expBackfilling ? 2 : 0 }}>
           <Box
