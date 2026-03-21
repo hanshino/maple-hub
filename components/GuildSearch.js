@@ -18,7 +18,7 @@ import { useColorMode } from './MuiThemeProvider';
 import { getGlassCardSx } from '@/lib/theme';
 import { track } from '@/lib/analytics';
 
-const WORLDS = ['殺人鯨', '琉德', '普力特', '優伊娜', '艾麗亞', '艾莉西亞'];
+const WORLDS = ['殺人鯨', '琉德', '普力特', '優伊娜', '艾麗亞', '愛麗西亞'];
 
 export default function GuildSearch() {
   const router = useRouter();
