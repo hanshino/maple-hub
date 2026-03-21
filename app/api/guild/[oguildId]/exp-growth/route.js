@@ -21,15 +21,22 @@ function calcExpGrowth(current, past) {
 
 /**
  * Level-weighted effort reflecting the exponential difficulty curve.
- * - Lv200-280: every 10 levels doubles the weight
- * - Lv280+: every 5 levels doubles (much steeper, matches real game curve)
+ * Based on actual MapleStory exp tables:
+ * - Lv200-260: gentle curve, but penalized (too easy to gain exp)
+ * - Lv260-280: every 10 levels doubles the weight
+ * - Lv280+: every 5 levels triples (matches real ×3 exp jumps)
  */
 function calcEffortScore(rawGrowth, level) {
   if (rawGrowth == null || rawGrowth <= 0 || !level) return 0;
+  let penalty = 1;
+  if (level < 260) {
+    // Lv260 以下經驗太容易取得，大幅降低權重
+    penalty = Math.pow(0.1, (260 - Math.max(level, 200)) / 20);
+  }
   const base = Math.max(0, Math.min(level, 280) - 200) / 10;
   const high = level > 280 ? (level - 280) / 5 : 0;
-  const weight = Math.pow(2, base + high);
-  return rawGrowth * weight;
+  const weight = Math.pow(2, base) * Math.pow(3, high);
+  return rawGrowth * weight * penalty;
 }
 
 /**
@@ -67,21 +74,30 @@ export async function GET(request, { params }) {
     const date7 = formatDate(new Date(now - 7 * 86400000));
     const date30 = formatDate(new Date(now - 30 * 86400000));
 
-    // Fetch snapshots for the 3 dates we need
-    const snapshots = await getExpSnapshots(oguildId, [today, date7, date30]);
+    // Fetch historical snapshots (today's data comes from the characters table)
+    const snapshots = await getExpSnapshots(oguildId, [date7, date30]);
 
     // Build growth data per member
     const members = guild.members
       .filter(m => m.ocid)
       .map(m => {
         const s = snapshots[m.ocid] || {};
+        // Use current character data as "today" instead of requiring a
+        // today snapshot — avoids null when members weren't re-synced.
+        const current =
+          m.characterLevel != null
+            ? {
+                characterLevel: m.characterLevel,
+                characterExpRate: m.characterExpRate,
+              }
+            : null;
         return {
           characterName: m.characterName,
           characterClass: m.characterClass,
           characterLevel: m.characterLevel,
           characterImage: m.characterImage,
-          growth7: calcExpGrowth(s[today], s[date7]),
-          growth30: calcExpGrowth(s[today], s[date30]),
+          growth7: calcExpGrowth(current, s[date7]),
+          growth30: calcExpGrowth(current, s[date30]),
         };
       });
 
