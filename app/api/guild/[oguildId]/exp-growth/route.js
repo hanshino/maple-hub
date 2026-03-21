@@ -26,10 +26,15 @@ function calcExpGrowth(current, past) {
  */
 function calcEffortScore(rawGrowth, level) {
   if (rawGrowth == null || rawGrowth <= 0 || !level) return 0;
+  let penalty = 1;
+  if (level < 260) {
+    // Lv260 以下經驗太容易取得，大幅降低權重
+    penalty = Math.pow(0.1, (260 - Math.max(level, 200)) / 20);
+  }
   const base = Math.max(0, Math.min(level, 280) - 200) / 10;
   const high = level > 280 ? (level - 280) / 5 : 0;
   const weight = Math.pow(2, base + high);
-  return rawGrowth * weight;
+  return rawGrowth * weight * penalty;
 }
 
 /**
