@@ -84,10 +84,13 @@ export async function GET(request, { params }) {
         const s = snapshots[m.ocid] || {};
         // Use current character data as "today" instead of requiring a
         // today snapshot — avoids null when members weren't re-synced.
-        const current = {
-          characterLevel: m.characterLevel,
-          characterExpRate: m.characterExpRate,
-        };
+        const current =
+          m.characterLevel != null
+            ? {
+                characterLevel: m.characterLevel,
+                characterExpRate: m.characterExpRate,
+              }
+            : null;
         return {
           characterName: m.characterName,
           characterClass: m.characterClass,
