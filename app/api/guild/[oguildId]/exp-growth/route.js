@@ -21,8 +21,10 @@ function calcExpGrowth(current, past) {
 
 /**
  * Level-weighted effort reflecting the exponential difficulty curve.
- * - Lv200-280: every 10 levels doubles the weight
- * - Lv280+: every 5 levels doubles (much steeper, matches real game curve)
+ * Based on actual MapleStory exp tables:
+ * - Lv200-260: gentle curve, but penalized (too easy to gain exp)
+ * - Lv260-280: every 10 levels doubles the weight
+ * - Lv280+: every 5 levels triples (matches real ×3 exp jumps)
  */
 function calcEffortScore(rawGrowth, level) {
   if (rawGrowth == null || rawGrowth <= 0 || !level) return 0;
@@ -33,7 +35,7 @@ function calcEffortScore(rawGrowth, level) {
   }
   const base = Math.max(0, Math.min(level, 280) - 200) / 10;
   const high = level > 280 ? (level - 280) / 5 : 0;
-  const weight = Math.pow(2, base + high);
+  const weight = Math.pow(2, base) * Math.pow(3, high);
   return rawGrowth * weight * penalty;
 }
 
