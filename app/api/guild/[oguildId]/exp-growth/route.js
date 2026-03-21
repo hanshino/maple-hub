@@ -67,21 +67,27 @@ export async function GET(request, { params }) {
     const date7 = formatDate(new Date(now - 7 * 86400000));
     const date30 = formatDate(new Date(now - 30 * 86400000));
 
-    // Fetch snapshots for the 3 dates we need
-    const snapshots = await getExpSnapshots(oguildId, [today, date7, date30]);
+    // Fetch historical snapshots (today's data comes from the characters table)
+    const snapshots = await getExpSnapshots(oguildId, [date7, date30]);
 
     // Build growth data per member
     const members = guild.members
       .filter(m => m.ocid)
       .map(m => {
         const s = snapshots[m.ocid] || {};
+        // Use current character data as "today" instead of requiring a
+        // today snapshot — avoids null when members weren't re-synced.
+        const current = {
+          characterLevel: m.characterLevel,
+          characterExpRate: m.characterExpRate,
+        };
         return {
           characterName: m.characterName,
           characterClass: m.characterClass,
           characterLevel: m.characterLevel,
           characterImage: m.characterImage,
-          growth7: calcExpGrowth(s[today], s[date7]),
-          growth30: calcExpGrowth(s[today], s[date30]),
+          growth7: calcExpGrowth(current, s[date7]),
+          growth30: calcExpGrowth(current, s[date30]),
         };
       });
 
