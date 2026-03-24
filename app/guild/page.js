@@ -2,8 +2,12 @@ import { Container, Typography, Box } from '@mui/material';
 import GuildSearch from '../../components/GuildSearch';
 
 export const metadata = {
-  title: '工會搜尋 | Maple Hub',
-  description: '搜尋 MapleStory 工會，查看成員排行、職業分布、等級分析',
+  title: '工會搜尋',
+  description:
+    '搜尋 MapleStory TW 工會，查看成員戰力排行、職業分布、等級分析與工會數據。',
+  alternates: {
+    canonical: '/guild',
+  },
 };
 
 export default function GuildPage() {

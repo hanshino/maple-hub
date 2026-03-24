@@ -2,8 +2,12 @@ import { Container, Typography, Box } from '@mui/material';
 import LeaderboardList from '../../components/LeaderboardList';
 
 export const metadata = {
-  title: '戰力排行榜 | Maple Hub',
-  description: '查看 MapleStory 角色戰力排行榜',
+  title: '戰力排行榜',
+  description:
+    'MapleStory TW 戰鬥力排行榜，依戰力由高到低排序，支援伺服器、職業篩選與角色搜尋。',
+  alternates: {
+    canonical: '/leaderboard',
+  },
 };
 
 /**
