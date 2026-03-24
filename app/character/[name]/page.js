@@ -12,8 +12,8 @@ export async function generateMetadata({ params }) {
 
   if (!char) {
     return {
-      title: `${characterName} — Maple Hub`,
-      description: '角色未找到',
+      title: `${characterName} — 角色未找到`,
+      description: `在 Maple Hub 上查詢 ${characterName} 的角色資訊、戰鬥力、裝備與成長紀錄。`,
     };
   }
 
@@ -29,8 +29,11 @@ export async function generateMetadata({ params }) {
   const ogImageUrl = `${SITE_URL}/character/${encodeURIComponent(char.characterName)}/opengraph-image`;
 
   return {
-    title: `${char.characterName} | Maple Hub`,
+    title: `${char.characterName} — Lv.${char.characterLevel} ${char.characterClass}`,
     description,
+    alternates: {
+      canonical: `/character/${encodeURIComponent(char.characterName)}`,
+    },
     openGraph: {
       title,
       description,

@@ -24,12 +24,39 @@ export const metadata = {
   metadataBase: new URL(
     process.env.NEXT_PUBLIC_SITE_URL || 'https://maple-hub.hanshino.dev'
   ),
-  title: 'Maple Hub',
-  description: 'MapleStory 角色資訊儀表板',
+  title: {
+    default: 'Maple Hub — MapleStory 角色查詢・戰力排行・成長追蹤',
+    template: '%s | Maple Hub',
+  },
+  description:
+    '免費的 MapleStory TW 角色查詢工具，即時查看戰鬥力、裝備、六轉核心、聯盟資訊，追蹤角色成長歷程，瀏覽戰力排行榜。',
+  keywords: [
+    'MapleStory',
+    '新楓之谷',
+    '角色查詢',
+    '戰鬥力',
+    '戰力排行',
+    '裝備',
+    '六轉',
+    'HEXA',
+    '聯盟',
+    '成長追蹤',
+  ],
   icons: {
     icon: '/favicon.ico',
     shortcut: '/favicon.ico',
     apple: '/apple-touch-icon.png',
+  },
+  openGraph: {
+    type: 'website',
+    siteName: 'Maple Hub',
+    locale: 'zh_TW',
+    title: 'Maple Hub — MapleStory 角色查詢・戰力排行・成長追蹤',
+    description:
+      '免費的 MapleStory TW 角色查詢工具，即時查看戰鬥力、裝備、六轉核心、聯盟資訊，追蹤角色成長歷程，瀏覽戰力排行榜。',
+  },
+  alternates: {
+    canonical: '/',
   },
 };
 

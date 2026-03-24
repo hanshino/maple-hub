@@ -14,7 +14,7 @@ export async function generateMetadata({ params }) {
 
   if (!guild) {
     return {
-      title: `${decodedGuild} - ${decodedServer} | Maple Hub`,
+      title: `${decodedGuild} — ${decodedServer}`,
       description: `查看 ${decodedServer} 伺服器 ${decodedGuild} 工會的成員排行、職業分布與數據分析`,
     };
   }
@@ -29,8 +29,11 @@ export async function generateMetadata({ params }) {
     .join(' · ');
 
   return {
-    title: `${guild.guildName} | Maple Hub`,
+    title: `${guild.guildName} — Lv.${guild.guildLevel} 工會 · ${decodedServer}`,
     description,
+    alternates: {
+      canonical: `/guild/${encodeURIComponent(decodedServer)}/${encodeURIComponent(decodedGuild)}`,
+    },
     openGraph: {
       title,
       description,
