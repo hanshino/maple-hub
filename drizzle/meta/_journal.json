@@ -57,6 +57,13 @@
       "when": 1774000601218,
       "tag": "0007_massive_thunderball",
       "breakpoints": true
+    },
+    {
+      "idx": 8,
+      "version": "5",
+      "when": 1774600000000,
+      "tag": "0008_union_champion",
+      "breakpoints": true
     }
   ]
 }
