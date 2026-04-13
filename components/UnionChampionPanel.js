@@ -1,6 +1,7 @@
 'use client';
 
 import { Box, Typography, Chip, Grid, Paper, Tooltip } from '@mui/material';
+import SectionTitle from './panel/SectionTitle';
 import LockIcon from '@mui/icons-material/Lock';
 import PanelSkeleton from './panel/PanelSkeleton';
 import PanelError from './panel/PanelError';
@@ -23,25 +24,6 @@ const GRADE_COLORS = {
 };
 
 const getGradeStyle = (grade) => GRADE_COLORS[grade] || GRADE_COLORS.C;
-
-const SectionTitle = ({ children }) => (
-  <Box
-    sx={{ display: 'flex', alignItems: 'center', gap: 1, mb: 1.5, mt: 2 }}
-  >
-    <Box
-      sx={{
-        width: 3,
-        height: 16,
-        bgcolor: 'primary.main',
-        borderRadius: 1,
-        flexShrink: 0,
-      }}
-    />
-    <Typography variant="subtitle2" sx={{ fontWeight: 700 }}>
-      {children}
-    </Typography>
-  </Box>
-);
 
 const ChampionCard = ({ champion }) => {
   const gradeStyle = getGradeStyle(champion.champion_grade);
@@ -107,6 +89,7 @@ const ChampionCard = ({ champion }) => {
           {champion.champion_name}
         </Typography>
         <Box
+          aria-hidden="true"
           sx={{
             display: 'flex',
             gap: 0.5,
@@ -186,7 +169,7 @@ const UnionChampionPanel = ({ loading, error, data, onRetry }) => {
 
       {totalInfo.length > 0 && (
         <>
-          <SectionTitle>總效果</SectionTitle>
+          <SectionTitle sx={{ mt: 2 }}>總效果</SectionTitle>
           <Box sx={{ display: 'flex', flexWrap: 'wrap', gap: 1 }}>
             {totalInfo.map((badge, i) => (
               <Chip

@@ -108,4 +108,5 @@ Desktop.ini
 # Import script data
 .import-progress.json
 .import-failed.json
-ocids.csv.superpowers/
+ocids.csv
+.superpowers/

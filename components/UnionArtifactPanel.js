@@ -6,22 +6,7 @@ import PanelError from './panel/PanelError';
 import PanelEmpty from './panel/PanelEmpty';
 import SectionHeader from './panel/SectionHeader';
 
-const SectionTitle = ({ children }) => (
-  <Box sx={{ display: 'flex', alignItems: 'center', gap: 1, mb: 1.5, mt: 1 }}>
-    <Box
-      sx={{
-        width: 3,
-        height: 16,
-        bgcolor: 'primary.main',
-        borderRadius: 1,
-        flexShrink: 0,
-      }}
-    />
-    <Typography variant="subtitle2" sx={{ fontWeight: 700 }}>
-      {children}
-    </Typography>
-  </Box>
-);
+import SectionTitle from './panel/SectionTitle';
 
 const UnionArtifactPanel = ({ loading, error, data, onRetry }) => {
   if (loading) return <PanelSkeleton rows={4} />;
