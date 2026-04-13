@@ -179,6 +179,7 @@ function HomeContent() {
   const hyperStatData = charData?.hyperStats || null;
   const linkSkillData = charData?.linkSkills || null;
   const unionArtifactData = charData?.unionArtifacts || null;
+  const unionChampionData = charData?.unionChampion || null;
   const cashEquipmentData = charData?.cashEquipment || null;
   const petEquipmentData = charData?.petEquipment || null;
 
@@ -462,6 +463,7 @@ function HomeContent() {
               linkSkillData={linkSkillData}
               unionRaiderData={unionRaiderData}
               unionArtifactData={unionArtifactData}
+              unionChampionData={unionChampionData}
             />
           </Box>
         </Box>
