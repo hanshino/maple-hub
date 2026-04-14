@@ -77,13 +77,10 @@ const sharedComponents = {
 };
 
 export default function AppThemeProvider({ children }) {
-  // Always start with 'light' to match SSR and avoid hydration mismatch.
-  // The blocking script in layout.js sets data-color-mode + background
-  // so users won't see a light flash. useEffect syncs React state after mount.
+  // Start with 'light' to match SSR; blocking script in layout.js
+  // prevents visual flash. useLayoutEffect syncs before paint.
   const [mode, setMode] = useState('light');
 
-  // useLayoutEffect fires synchronously before browser paint,
-  // so the mode switch completes before the user sees anything.
   useLayoutEffect(() => {
     const stored = localStorage.getItem('color-mode');
     if (stored === 'dark' || stored === 'light') {
@@ -100,6 +97,8 @@ export default function AppThemeProvider({ children }) {
         setMode(prev => {
           const next = prev === 'light' ? 'dark' : 'light';
           localStorage.setItem('color-mode', next);
+          document.documentElement.setAttribute('data-color-mode', next);
+          document.documentElement.style.colorScheme = next;
           track('theme-toggle', { mode: next });
           return next;
         });

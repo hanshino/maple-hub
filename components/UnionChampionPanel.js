@@ -189,7 +189,7 @@ const UnionChampionPanel = ({ loading, error, data, onRetry }) => {
     return <PanelEmpty message="尚無聯盟冠軍資料" />;
   }
 
-  const emptySlotCount = TOTAL_SLOTS - champions.length;
+  const emptySlotCount = Math.max(0, TOTAL_SLOTS - champions.length);
 
   return (
     <Box sx={{ mt: 1 }}>
