@@ -58,13 +58,41 @@ jobs:
     needs: build-and-push
     runs-on: ubuntu-latest
     steps:
-      - name: Deploy to VPS
-        uses: appleboy/ssh-action@v1
+      - name: Redeploy stack via Portainer
+        run: |
+          # Get current stack file content
+          STACK_FILE=$(curl -sf \
+            -H "X-API-Key: ${{ secrets.PORTAINER_API_KEY }}" \
+            "${{ secrets.PORTAINER_URL }}/api/stacks/${{ secrets.PORTAINER_STACK_ID }}/file" \
+            | jq -r '.StackFileContent')
+
+          # Get current env vars
+          STACK_ENV=$(curl -sf \
+            -H "X-API-Key: ${{ secrets.PORTAINER_API_KEY }}" \
+            "${{ secrets.PORTAINER_URL }}/api/stacks/${{ secrets.PORTAINER_STACK_ID }}" \
+            | jq '.Env')
+
+          # Redeploy stack with pullImage to get latest images
+          HTTP_STATUS=$(curl -sf -o /dev/null -w "%{http_code}" \
+            -X PUT \
+            -H "X-API-Key: ${{ secrets.PORTAINER_API_KEY }}" \
+            -H "Content-Type: application/json" \
+            "${{ secrets.PORTAINER_URL }}/api/stacks/${{ secrets.PORTAINER_STACK_ID }}?endpointId=${{ secrets.PORTAINER_ENDPOINT_ID }}" \
+            -d "$(jq -n \
+              --arg stackFile "$STACK_FILE" \
+              --argjson env "$STACK_ENV" \
+              '{stackFileContent: $stackFile, env: $env, prune: true, pullImage: true}')")
+
+          if [ "$HTTP_STATUS" != "200" ]; then
+            echo "::error::Stack redeploy failed with HTTP $HTTP_STATUS"
+            exit 1
+          fi
+
+          echo "Stack redeployed successfully"
+
+      - name: Discord notification
+        env:
+          DISCORD_WEBHOOK: ${{ secrets.DISCORD_WEBHOOK }}
+        uses: Ilshidur/action-discord@master
         with:
-          host: ${{ secrets.VPS_HOST }}
-          username: ${{ secrets.VPS_USER }}
-          key: ${{ secrets.VPS_SSH_KEY }}
-          script: |
-            cd ${{ secrets.VPS_DEPLOY_PATH }}
-            docker compose pull
-            docker compose up -d
+          args: '{{ EVENT_PAYLOAD.repository.full_name }} 已完成部署'
