@@ -1,6 +1,12 @@
 'use client';
 
-import { createContext, useContext, useMemo, useState } from 'react';
+import {
+  createContext,
+  useContext,
+  useLayoutEffect,
+  useMemo,
+  useState,
+} from 'react';
 import { createTheme, ThemeProvider } from '@mui/material/styles';
 import CssBaseline from '@mui/material/CssBaseline';
 import { track } from '../lib/analytics';
@@ -70,16 +76,22 @@ const sharedComponents = {
   },
 };
 
-function getInitialMode() {
-  if (typeof window === 'undefined') return 'light';
-  const stored = localStorage.getItem('color-mode');
-  if (stored === 'dark' || stored === 'light') return stored;
-  if (window.matchMedia('(prefers-color-scheme: dark)').matches) return 'dark';
-  return 'light';
-}
-
 export default function AppThemeProvider({ children }) {
-  const [mode, setMode] = useState(getInitialMode);
+  // Always start with 'light' to match SSR and avoid hydration mismatch.
+  // The blocking script in layout.js sets data-color-mode + background
+  // so users won't see a light flash. useEffect syncs React state after mount.
+  const [mode, setMode] = useState('light');
+
+  // useLayoutEffect fires synchronously before browser paint,
+  // so the mode switch completes before the user sees anything.
+  useLayoutEffect(() => {
+    const stored = localStorage.getItem('color-mode');
+    if (stored === 'dark' || stored === 'light') {
+      setMode(stored);
+    } else if (window.matchMedia('(prefers-color-scheme: dark)').matches) {
+      setMode('dark');
+    }
+  }, []);
 
   const colorMode = useMemo(
     () => ({

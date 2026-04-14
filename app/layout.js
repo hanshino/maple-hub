@@ -72,6 +72,7 @@ export default function RootLayout({ children }) {
       mode = window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light';
     }
     document.documentElement.setAttribute('data-color-mode', mode);
+    document.documentElement.style.colorScheme = mode;
     if (mode === 'dark') {
       document.documentElement.style.backgroundColor = '#1a1210';
     }

@@ -1,1 +1,23 @@
 @import 'tailwindcss';
+
+/*
+ * Dark-mode flash prevention.
+ * The blocking script in layout.js sets data-color-mode before React hydrates.
+ * These rules keep the navbar & body styled correctly during the brief window
+ * before useEffect syncs React state to dark mode.
+ */
+html[data-color-mode='dark'] {
+  background-color: #1a1210;
+  color-scheme: dark;
+}
+
+html[data-color-mode='dark'] body {
+  background-color: #1a1210;
+  color: #f5e6d3;
+}
+
+html[data-color-mode='dark'] nav {
+  background-color: rgba(42, 31, 26, 0.82) !important;
+  border-color: rgba(255, 255, 255, 0.08) !important;
+  box-shadow: 0 4px 24px rgba(0, 0, 0, 0.3) !important;
+}
