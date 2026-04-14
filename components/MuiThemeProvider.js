@@ -71,14 +71,18 @@ const sharedComponents = {
 };
 
 export default function AppThemeProvider({ children }) {
-  // Read data-color-mode set by the blocking script in layout.js.
-  // SSR returns 'light'; client reads the pre-set attribute.
+  // Read data-color-mode (set by blocking script in layout.js), then
+  // fall back to localStorage / matchMedia. SSR returns 'light';
   // globals.css handles visual flash during hydration mismatch.
   const [mode, setMode] = useState(() => {
     if (typeof window === 'undefined') return 'light';
-    return (
-      document.documentElement.getAttribute('data-color-mode') || 'light'
-    );
+    const attr = document.documentElement.getAttribute('data-color-mode');
+    if (attr === 'dark' || attr === 'light') return attr;
+    const stored = localStorage.getItem('color-mode');
+    if (stored === 'dark' || stored === 'light') return stored;
+    if (window.matchMedia('(prefers-color-scheme: dark)').matches)
+      return 'dark';
+    return 'light';
   });
 
   const colorMode = useMemo(

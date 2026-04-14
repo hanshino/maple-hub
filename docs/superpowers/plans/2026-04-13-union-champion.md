@@ -12,24 +12,25 @@
 
 ## File Structure
 
-| Action | File | Responsibility |
-|--------|------|----------------|
-| Modify | `lib/nexonApi.js` | Add `getUnionChampion(ocid)` |
-| Modify | `lib/db/schema.js` | Add 2 new tables |
-| Create | `drizzle/0008_union_champion.sql` | Migration SQL |
-| Modify | `lib/db/queries.js` | Add upsert/read, extend `getFullCharacterData()` |
-| Modify | `lib/characterSyncService.js` | Add API call + upsert to sync flow |
-| Create | `components/UnionChampionPanel.js` | New panel component |
-| Modify | `components/CharacterDataTabs.js` | Add tab, reorder tabs |
-| Modify | `app/page.js` | Pass `unionChampionData` prop |
-| Create | `__tests__/lib/nexonApi-champion.test.js` | API client test |
-| Create | `__tests__/components/UnionChampionPanel.test.js` | Component tests |
+| Action | File                                              | Responsibility                                   |
+| ------ | ------------------------------------------------- | ------------------------------------------------ |
+| Modify | `lib/nexonApi.js`                                 | Add `getUnionChampion(ocid)`                     |
+| Modify | `lib/db/schema.js`                                | Add 2 new tables                                 |
+| Create | `drizzle/0008_union_champion.sql`                 | Migration SQL                                    |
+| Modify | `lib/db/queries.js`                               | Add upsert/read, extend `getFullCharacterData()` |
+| Modify | `lib/characterSyncService.js`                     | Add API call + upsert to sync flow               |
+| Create | `components/UnionChampionPanel.js`                | New panel component                              |
+| Modify | `components/CharacterDataTabs.js`                 | Add tab, reorder tabs                            |
+| Modify | `app/page.js`                                     | Pass `unionChampionData` prop                    |
+| Create | `__tests__/lib/nexonApi-champion.test.js`         | API client test                                  |
+| Create | `__tests__/components/UnionChampionPanel.test.js` | Component tests                                  |
 
 ---
 
 ### Task 1: Nexon API Client — `getUnionChampion`
 
 **Files:**
+
 - Modify: `lib/nexonApi.js:166-173`
 - Create: `__tests__/lib/nexonApi-champion.test.js`
 
@@ -77,9 +78,7 @@ describe('getUnionChampion', () => {
 
     const result = await getUnionChampion('test-ocid');
 
-    expect(mockGet).toHaveBeenCalledWith(
-      '/user/union-champion?ocid=test-ocid'
-    );
+    expect(mockGet).toHaveBeenCalledWith('/user/union-champion?ocid=test-ocid');
     expect(result).toEqual(mockData);
   });
 
@@ -105,9 +104,7 @@ Add to `lib/nexonApi.js` after `getCharacterUnion` (line ~173):
 ```js
 export const getUnionChampion = async ocid => {
   try {
-    const response = await apiClient.get(
-      `/user/union-champion?ocid=${ocid}`
-    );
+    const response = await apiClient.get(`/user/union-champion?ocid=${ocid}`);
     return response.data;
   } catch (error) {
     throw new Error(`Failed to fetch union champion: ${error.message}`);
@@ -132,6 +129,7 @@ git commit -m "feat: add getUnionChampion API client"
 ### Task 2: Database Schema — 2 new tables
 
 **Files:**
+
 - Modify: `lib/db/schema.js:335`
 - Create: `drizzle/0008_union_champion.sql`
 
@@ -220,6 +218,7 @@ git commit -m "feat: add union champion database schema and migration"
 ### Task 3: Database Queries — upsert + read
 
 **Files:**
+
 - Modify: `lib/db/queries.js:1-21` (imports)
 - Modify: `lib/db/queries.js:136-200` (getFullCharacterData — Promise.all + mapping)
 - Modify: `lib/db/queries.js:763` (after upsertUnionArtifactEffects — add new functions)
@@ -364,21 +363,21 @@ Add corresponding destructured names:
 Add before the `return` statement in `getFullCharacterData` (before line ~385):
 
 ```js
-  // Map union champion to Nexon format
-  const unionChampionData = {
-    union_champion: unionChampionRows.map(row => ({
-      champion_name: row.championName,
-      champion_slot: row.championSlot,
-      champion_grade: row.championGrade,
-      champion_class: row.championClass,
-      champion_badge_info: unionChampionBadgeRows
-        .filter(b => b.championSlot === row.championSlot)
-        .map(b => ({ stat: b.stat })),
-    })),
-    champion_badge_total_info: unionChampionBadgeRows
-      .filter(b => b.championSlot === null)
+// Map union champion to Nexon format
+const unionChampionData = {
+  union_champion: unionChampionRows.map(row => ({
+    champion_name: row.championName,
+    champion_slot: row.championSlot,
+    champion_grade: row.championGrade,
+    champion_class: row.championClass,
+    champion_badge_info: unionChampionBadgeRows
+      .filter(b => b.championSlot === row.championSlot)
       .map(b => ({ stat: b.stat })),
-  };
+  })),
+  champion_badge_total_info: unionChampionBadgeRows
+    .filter(b => b.championSlot === null)
+    .map(b => ({ stat: b.stat })),
+};
 ```
 
 Add to the return object (after `unionArtifacts: unionArtifactData,`):
@@ -399,6 +398,7 @@ git commit -m "feat: add union champion DB queries and extend getFullCharacterDa
 ### Task 4: Sync Service — integrate API call
 
 **Files:**
+
 - Modify: `lib/characterSyncService.js:1-16` (imports)
 - Modify: `lib/characterSyncService.js:60-89` (Promise.allSettled)
 - Modify: `lib/characterSyncService.js:260` (after artifact upsert)
@@ -458,37 +458,37 @@ import {
 Add `getUnionChampion(ocid)` to the Promise.allSettled array (line ~88, before the closing `]`):
 
 ```js
-    const [
-      statData,
-      equipData,
-      cashData,
-      petData,
-      hyperData,
-      linkData,
-      hexaData,
-      hexaStatData,
-      setData,
-      symbolData,
-      _unionRaiderData,
-      artifactData,
-      unionBasicData,
-      unionChampionData,
-    ] = await Promise.allSettled([
-      getCharacterStats(ocid),
-      getCharacterEquipment(ocid),
-      getCharacterCashItemEquipment(ocid),
-      getCharacterPetEquipment(ocid),
-      getCharacterHyperStat(ocid),
-      getCharacterLinkSkill(ocid),
-      getCharacterHexaMatrix(ocid),
-      getCharacterHexaMatrixStat(ocid),
-      getCharacterSetEffect(ocid),
-      getCharacterSymbolEquipment(ocid),
-      getUnionRaider(ocid),
-      getUnionArtifact(ocid),
-      getCharacterUnion(ocid),
-      getUnionChampion(ocid),
-    ]);
+const [
+  statData,
+  equipData,
+  cashData,
+  petData,
+  hyperData,
+  linkData,
+  hexaData,
+  hexaStatData,
+  setData,
+  symbolData,
+  _unionRaiderData,
+  artifactData,
+  unionBasicData,
+  unionChampionData,
+] = await Promise.allSettled([
+  getCharacterStats(ocid),
+  getCharacterEquipment(ocid),
+  getCharacterCashItemEquipment(ocid),
+  getCharacterPetEquipment(ocid),
+  getCharacterHyperStat(ocid),
+  getCharacterLinkSkill(ocid),
+  getCharacterHexaMatrix(ocid),
+  getCharacterHexaMatrixStat(ocid),
+  getCharacterSetEffect(ocid),
+  getCharacterSymbolEquipment(ocid),
+  getUnionRaider(ocid),
+  getUnionArtifact(ocid),
+  getCharacterUnion(ocid),
+  getUnionChampion(ocid),
+]);
 ```
 
 - [ ] **Step 3: Add upsert call**
@@ -496,15 +496,15 @@ Add `getUnionChampion(ocid)` to the Promise.allSettled array (line ~88, before t
 Add after the union artifact effects upsert (after line ~261):
 
 ```js
-    // 12. Upsert Union Champion
-    const champion = val(unionChampionData);
-    if (champion && champion.union_champion) {
-      await upsertUnionChampion(
-        ocid,
-        champion.union_champion,
-        champion.champion_badge_total_info
-      );
-    }
+// 12. Upsert Union Champion
+const champion = val(unionChampionData);
+if (champion && champion.union_champion) {
+  await upsertUnionChampion(
+    ocid,
+    champion.union_champion,
+    champion.champion_badge_total_info
+  );
+}
 ```
 
 - [ ] **Step 4: Commit**
@@ -519,6 +519,7 @@ git commit -m "feat: integrate union champion into character sync flow"
 ### Task 5: UnionChampionPanel Component
 
 **Files:**
+
 - Create: `components/UnionChampionPanel.js`
 - Create: `__tests__/components/UnionChampionPanel.test.js`
 
@@ -588,9 +589,7 @@ describe('UnionChampionPanel', () => {
   });
 
   it('renders champion cards with grade and name', () => {
-    render(
-      <UnionChampionPanel loading={false} error={null} data={mockData} />
-    );
+    render(<UnionChampionPanel loading={false} error={null} data={mockData} />);
     expect(screen.getByText('影之愛衣')).toBeInTheDocument();
     expect(screen.getByText('暗夜行者')).toBeInTheDocument();
     expect(screen.getByText('SSS')).toBeInTheDocument();
@@ -600,9 +599,7 @@ describe('UnionChampionPanel', () => {
   });
 
   it('renders total badge effects', () => {
-    render(
-      <UnionChampionPanel loading={false} error={null} data={mockData} />
-    );
+    render(<UnionChampionPanel loading={false} error={null} data={mockData} />);
     expect(
       screen.getByText('增加全屬性 40、最大HP/MP 2000')
     ).toBeInTheDocument();
@@ -610,9 +607,7 @@ describe('UnionChampionPanel', () => {
   });
 
   it('renders empty slots up to 6', () => {
-    render(
-      <UnionChampionPanel loading={false} error={null} data={mockData} />
-    );
+    render(<UnionChampionPanel loading={false} error={null} data={mockData} />);
     // 2 filled + 4 empty = 6 total grid items
     const lockIcons = screen.getAllByTestId('LockIcon');
     expect(lockIcons).toHaveLength(4);
@@ -862,6 +857,7 @@ git commit -m "feat: add UnionChampionPanel component with tests"
 ### Task 6: Wire into CharacterDataTabs + page
 
 **Files:**
+
 - Modify: `components/CharacterDataTabs.js`
 - Modify: `app/page.js:174,456-465`
 
@@ -1035,7 +1031,7 @@ export default CharacterDataTabs;
 In `app/page.js`, around line 174, add after `unionArtifactData`:
 
 ```js
-  const unionChampionData = charData?.unionChampion || null;
+const unionChampionData = charData?.unionChampion || null;
 ```
 
 - [ ] **Step 3: Update app/page.js — pass prop**
@@ -1043,17 +1039,17 @@ In `app/page.js`, around line 174, add after `unionArtifactData`:
 In `app/page.js`, around line 456-465, add `unionChampionData` prop to `CharacterDataTabs`:
 
 ```jsx
-            <CharacterDataTabs
-              ocid={character.ocid}
-              runes={runes}
-              setEffectData={setEffectData}
-              statsData={statsData}
-              hyperStatData={hyperStatData}
-              linkSkillData={linkSkillData}
-              unionRaiderData={unionRaiderData}
-              unionArtifactData={unionArtifactData}
-              unionChampionData={unionChampionData}
-            />
+<CharacterDataTabs
+  ocid={character.ocid}
+  runes={runes}
+  setEffectData={setEffectData}
+  statsData={statsData}
+  hyperStatData={hyperStatData}
+  linkSkillData={linkSkillData}
+  unionRaiderData={unionRaiderData}
+  unionArtifactData={unionArtifactData}
+  unionChampionData={unionChampionData}
+/>
 ```
 
 - [ ] **Step 4: Run all tests**
@@ -1073,6 +1069,7 @@ git commit -m "feat: wire union champion into tabs and page data flow"
 ### Task 7: Clean up test script + verify build
 
 **Files:**
+
 - Delete: `test-union-champion.mjs`
 
 - [ ] **Step 1: Delete test script**

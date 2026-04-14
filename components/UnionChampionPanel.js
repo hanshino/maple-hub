@@ -25,7 +25,7 @@ const GRADE_COLORS = {
   C: { bg: '#616161', border: '#616161', text: '#fff' },
 };
 
-const getGradeStyle = (grade) => GRADE_COLORS[grade] || GRADE_COLORS.C;
+const getGradeStyle = grade => GRADE_COLORS[grade] || GRADE_COLORS.C;
 
 const ChampionCard = ({ champion, onClick }) => {
   const gradeStyle = getGradeStyle(champion.champion_grade);
@@ -54,7 +54,7 @@ const ChampionCard = ({ champion, onClick }) => {
         onClick={isClickable ? () => onClick(champion) : undefined}
         onKeyDown={
           isClickable
-            ? (e) => {
+            ? e => {
                 if (e.key === 'Enter' || e.key === ' ') onClick(champion);
               }
             : undefined
@@ -167,7 +167,7 @@ const EmptySlot = () => (
 const UnionChampionPanel = ({ loading, error, data, onRetry }) => {
   const router = useRouter();
 
-  const handleChampionClick = (champion) => {
+  const handleChampionClick = champion => {
     track('union-champion-click', {
       name: champion.champion_name,
       class: champion.champion_class,
@@ -196,7 +196,7 @@ const UnionChampionPanel = ({ loading, error, data, onRetry }) => {
       <SectionHeader description="聯盟冠軍角色與徽章加成" />
 
       <Grid container spacing={1.5} sx={{ mt: 0.5 }}>
-        {champions.map((champion) => (
+        {champions.map(champion => (
           <Grid key={champion.champion_slot} size={{ xs: 6, md: 4 }}>
             <ChampionCard champion={champion} onClick={handleChampionClick} />
           </Grid>

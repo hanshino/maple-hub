@@ -37,9 +37,7 @@ describe('getUnionChampion', () => {
 
     const result = await getUnionChampion('test-ocid');
 
-    expect(mockGet).toHaveBeenCalledWith(
-      '/user/union-champion?ocid=test-ocid'
-    );
+    expect(mockGet).toHaveBeenCalledWith('/user/union-champion?ocid=test-ocid');
     expect(result).toEqual(mockData);
   });
 

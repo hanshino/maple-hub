@@ -15,14 +15,10 @@
       "champion_slot": "number (1-based)",
       "champion_grade": "string (SSS / SS / S / A / B / C)",
       "champion_class": "string",
-      "champion_badge_info": [
-        { "stat": "string" }
-      ]
+      "champion_badge_info": [{ "stat": "string" }]
     }
   ],
-  "champion_badge_total_info": [
-    { "stat": "string" }
-  ]
+  "champion_badge_total_info": [{ "stat": "string" }]
 }
 ```
 
@@ -38,25 +34,25 @@
 
 **`character_union_champion`** — 冠軍角色
 
-| Column | Type | Description |
-|--------|------|-------------|
-| id | int (PK, auto) | |
-| ocid | varchar(64) | 角色 OCID |
-| championSlot | int | 欄位編號 (1-6) |
-| championName | varchar(100) | 冠軍角色名稱 |
-| championGrade | varchar(10) | 等級 (SSS/SS/S/A/B/C) |
-| championClass | varchar(50) | 職業名稱 |
-| updatedAt | timestamp | |
+| Column        | Type           | Description           |
+| ------------- | -------------- | --------------------- |
+| id            | int (PK, auto) |                       |
+| ocid          | varchar(64)    | 角色 OCID             |
+| championSlot  | int            | 欄位編號 (1-6)        |
+| championName  | varchar(100)   | 冠軍角色名稱          |
+| championGrade | varchar(10)    | 等級 (SSS/SS/S/A/B/C) |
+| championClass | varchar(50)    | 職業名稱              |
+| updatedAt     | timestamp      |                       |
 
 **`character_union_champion_badges`** — 冠軍徽章效果
 
-| Column | Type | Description |
-|--------|------|-------------|
-| id | int (PK, auto) | |
-| ocid | varchar(64) | 角色 OCID |
-| championSlot | int | 對應哪個冠軍 slot（nullable，null 表示合計效果） |
-| stat | varchar(255) | 效果描述文字 |
-| updatedAt | timestamp | |
+| Column       | Type           | Description                                      |
+| ------------ | -------------- | ------------------------------------------------ |
+| id           | int (PK, auto) |                                                  |
+| ocid         | varchar(64)    | 角色 OCID                                        |
+| championSlot | int            | 對應哪個冠軍 slot（nullable，null 表示合計效果） |
+| stat         | varchar(255)   | 效果描述文字                                     |
+| updatedAt    | timestamp      |                                                  |
 
 - `championSlot = null` 的 rows 代表 `champion_badge_total_info`（合計效果）
 - `championSlot = 1~6` 的 rows 代表各冠軍的 `champion_badge_info`
@@ -64,6 +60,7 @@
 ### 3. Database Queries (`lib/db/queries.js`)
 
 新增：
+
 - `upsertUnionChampion(ocid, champions)` — 先刪除舊資料再插入（跟 union raider stats 同模式）
 - `upsertUnionChampionBadges(ocid, champions, totalInfo)` — 同上
 - 在 `getFullCharacterData()` 中加入讀取 champion + badges 資料，回傳格式：
@@ -99,6 +96,7 @@ unionChampion: {
 ```
 
 常數定義：
+
 ```js
 const TAB_STATS = 0;
 const TAB_HYPER_STAT = 1;
@@ -141,6 +139,7 @@ const TAB_LINK_SKILL = 7;
 **卡片設計：**
 
 每張 champion card 使用 MUI `Paper variant="outlined"`：
+
 - 左上：Grade 徽章（Chip，根據等級配色）
 - 中間：職業名（body2, fontWeight 700）+ 角色名（caption, color text.secondary）
 - 底部：徽章數量色塊（小方塊 row，數量 = badge_info.length）
@@ -148,25 +147,28 @@ const TAB_LINK_SKILL = 7;
 
 **Grade 配色：**
 
-| Grade | 背景色 | 邊框色 | 文字色 |
-|-------|--------|--------|--------|
-| SSS | linear-gradient(#ffd700, #ff8c00) | #ffd700 | #000 |
-| SS | #9c27b0 | #9c27b0 | #fff |
-| S | #2196f3 | #2196f3 | #fff |
-| A | #4caf50 | #4caf50 | #000 |
-| B | #9e9e9e | #9e9e9e | #000 |
-| C | #616161 | #616161 | #fff |
+| Grade | 背景色                            | 邊框色  | 文字色 |
+| ----- | --------------------------------- | ------- | ------ |
+| SSS   | linear-gradient(#ffd700, #ff8c00) | #ffd700 | #000   |
+| SS    | #9c27b0                           | #9c27b0 | #fff   |
+| S     | #2196f3                           | #2196f3 | #fff   |
+| A     | #4caf50                           | #4caf50 | #000   |
+| B     | #9e9e9e                           | #9e9e9e | #000   |
+| C     | #616161                           | #616161 | #fff   |
 
 **空 Slot：**
+
 - Paper variant="outlined" + dashed border
 - 中間放 MUI `LockIcon`，color text.disabled
 - 填滿 6 個 slot（`champion_slot` 最多 6 個）
 
 **響應式：**
+
 - 桌面：`Grid size={{ xs: 6, md: 4 }}`（3 欄）
 - 手機：2 欄
 
 **總效果區：**
+
 - SectionTitle「總效果」
 - Chip flex wrap 排列，使用 `variant="outlined"` + `borderColor: primary.light`
 - 跟 UnionRaiderPanel 的 Chip 風格一致

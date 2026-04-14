@@ -85,9 +85,7 @@ describe('UnionChampionPanel', () => {
   });
 
   it('renders champion cards with grade and name', () => {
-    render(
-      <UnionChampionPanel loading={false} error={null} data={mockData} />
-    );
+    render(<UnionChampionPanel loading={false} error={null} data={mockData} />);
     expect(screen.getByText('影之愛衣')).toBeInTheDocument();
     expect(screen.getByText('暗夜行者')).toBeInTheDocument();
     expect(screen.getByText('SSS')).toBeInTheDocument();
@@ -97,9 +95,7 @@ describe('UnionChampionPanel', () => {
   });
 
   it('renders total badge effects', () => {
-    render(
-      <UnionChampionPanel loading={false} error={null} data={mockData} />
-    );
+    render(<UnionChampionPanel loading={false} error={null} data={mockData} />);
     expect(
       screen.getByText('增加全屬性 40、最大HP/MP 2000')
     ).toBeInTheDocument();
@@ -107,9 +103,7 @@ describe('UnionChampionPanel', () => {
   });
 
   it('renders empty slots up to 6', () => {
-    render(
-      <UnionChampionPanel loading={false} error={null} data={mockData} />
-    );
+    render(<UnionChampionPanel loading={false} error={null} data={mockData} />);
     // 2 filled + 4 empty = 6 total grid items
     // Empty slots render with data-testid="empty-slot"
     const emptySlots = screen.getAllByTestId('empty-slot');
