@@ -1,12 +1,6 @@
 'use client';
 
-import {
-  createContext,
-  useContext,
-  useLayoutEffect,
-  useMemo,
-  useState,
-} from 'react';
+import { createContext, useContext, useMemo, useState } from 'react';
 import { createTheme, ThemeProvider } from '@mui/material/styles';
 import CssBaseline from '@mui/material/CssBaseline';
 import { track } from '../lib/analytics';
@@ -77,18 +71,15 @@ const sharedComponents = {
 };
 
 export default function AppThemeProvider({ children }) {
-  // Start with 'light' to match SSR; blocking script in layout.js
-  // prevents visual flash. useLayoutEffect syncs before paint.
-  const [mode, setMode] = useState('light');
-
-  useLayoutEffect(() => {
-    const stored = localStorage.getItem('color-mode');
-    if (stored === 'dark' || stored === 'light') {
-      setMode(stored);
-    } else if (window.matchMedia('(prefers-color-scheme: dark)').matches) {
-      setMode('dark');
-    }
-  }, []);
+  // Read data-color-mode set by the blocking script in layout.js.
+  // SSR returns 'light'; client reads the pre-set attribute.
+  // globals.css handles visual flash during hydration mismatch.
+  const [mode, setMode] = useState(() => {
+    if (typeof window === 'undefined') return 'light';
+    return (
+      document.documentElement.getAttribute('data-color-mode') || 'light'
+    );
+  });
 
   const colorMode = useMemo(
     () => ({

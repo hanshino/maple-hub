@@ -1,6 +1,13 @@
 import { render, screen } from '@testing-library/react';
 import UnionChampionPanel from '../../components/UnionChampionPanel';
 
+jest.mock('next/navigation', () => ({
+  useRouter: () => ({ push: jest.fn() }),
+}));
+jest.mock('../../lib/analytics', () => ({
+  track: jest.fn(),
+}));
+
 jest.mock('../../components/panel/PanelSkeleton', () => {
   return function Mock() {
     return <div aria-busy="true" data-testid="panel-skeleton" />;
