@@ -57,6 +57,27 @@
       "when": 1774000601218,
       "tag": "0007_massive_thunderball",
       "breakpoints": true
+    },
+    {
+      "idx": 8,
+      "version": "5",
+      "when": 1774600000000,
+      "tag": "0008_union_champion",
+      "breakpoints": true
+    },
+    {
+      "idx": 9,
+      "version": "5",
+      "when": 1776150206098,
+      "tag": "0009_confused_overlord",
+      "breakpoints": true
+    },
+    {
+      "idx": 10,
+      "version": "5",
+      "when": 1776150686725,
+      "tag": "0010_ambiguous_marvel_apes",
+      "breakpoints": true
     }
   ]
 }

@@ -70,16 +70,20 @@ const sharedComponents = {
   },
 };
 
-function getInitialMode() {
-  if (typeof window === 'undefined') return 'light';
-  const stored = localStorage.getItem('color-mode');
-  if (stored === 'dark' || stored === 'light') return stored;
-  if (window.matchMedia('(prefers-color-scheme: dark)').matches) return 'dark';
-  return 'light';
-}
-
 export default function AppThemeProvider({ children }) {
-  const [mode, setMode] = useState(getInitialMode);
+  // Read data-color-mode (set by blocking script in layout.js), then
+  // fall back to localStorage / matchMedia. SSR returns 'light';
+  // globals.css handles visual flash during hydration mismatch.
+  const [mode, setMode] = useState(() => {
+    if (typeof window === 'undefined') return 'light';
+    const attr = document.documentElement.getAttribute('data-color-mode');
+    if (attr === 'dark' || attr === 'light') return attr;
+    const stored = localStorage.getItem('color-mode');
+    if (stored === 'dark' || stored === 'light') return stored;
+    if (window.matchMedia('(prefers-color-scheme: dark)').matches)
+      return 'dark';
+    return 'light';
+  });
 
   const colorMode = useMemo(
     () => ({
@@ -88,6 +92,8 @@ export default function AppThemeProvider({ children }) {
         setMode(prev => {
           const next = prev === 'light' ? 'dark' : 'light';
           localStorage.setItem('color-mode', next);
+          document.documentElement.setAttribute('data-color-mode', next);
+          document.documentElement.style.colorScheme = next;
           track('theme-toggle', { mode: next });
           return next;
         });

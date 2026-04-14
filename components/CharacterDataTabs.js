@@ -9,16 +9,18 @@ import UnionRaiderPanel from './UnionRaiderPanel';
 import HyperStatPanel from './HyperStatPanel';
 import SetEffectPanel from './SetEffectPanel';
 import UnionArtifactPanel from './UnionArtifactPanel';
+import UnionChampionPanel from './UnionChampionPanel';
 import LinkSkillPanel from './LinkSkillPanel';
 import { track } from '../lib/analytics';
 
 const TAB_STATS = 0;
-const TAB_UNION_RAIDER = 1;
-const TAB_HYPER_STAT = 2;
-const TAB_SET_EFFECT = 3;
+const TAB_HYPER_STAT = 1;
+const TAB_SET_EFFECT = 2;
+const TAB_UNION_RAIDER = 3;
 const TAB_UNION_ARTIFACT = 4;
-const TAB_RUNES = 5;
-const TAB_LINK_SKILL = 6;
+const TAB_UNION_CHAMPION = 5;
+const TAB_RUNES = 6;
+const TAB_LINK_SKILL = 7;
 
 const CharacterDataTabs = ({
   ocid,
@@ -29,15 +31,17 @@ const CharacterDataTabs = ({
   linkSkillData,
   unionRaiderData,
   unionArtifactData,
+  unionChampionData,
 }) => {
   const [activeTab, setActiveTab] = useState(TAB_STATS);
 
   const tabNames = [
     '能力值',
-    '聯盟戰地',
     '極限屬性',
     '套裝效果',
+    '聯盟戰地',
     '聯盟神器',
+    '聯盟冠軍',
     '符文系統',
     '傳授技能',
   ];
@@ -51,14 +55,6 @@ const CharacterDataTabs = ({
     switch (activeTab) {
       case TAB_STATS:
         return <CharacterStats statsData={statsData} />;
-      case TAB_UNION_RAIDER:
-        return (
-          <UnionRaiderPanel
-            data={unionRaiderData}
-            loading={false}
-            error={null}
-          />
-        );
       case TAB_HYPER_STAT:
         return (
           <HyperStatPanel data={hyperStatData} loading={false} error={null} />
@@ -67,10 +63,26 @@ const CharacterDataTabs = ({
         return (
           <SetEffectPanel data={setEffectData} loading={false} error={null} />
         );
+      case TAB_UNION_RAIDER:
+        return (
+          <UnionRaiderPanel
+            data={unionRaiderData}
+            loading={false}
+            error={null}
+          />
+        );
       case TAB_UNION_ARTIFACT:
         return (
           <UnionArtifactPanel
             data={unionArtifactData}
+            loading={false}
+            error={null}
+          />
+        );
+      case TAB_UNION_CHAMPION:
+        return (
+          <UnionChampionPanel
+            data={unionChampionData}
             loading={false}
             error={null}
           />
@@ -119,41 +131,14 @@ const CharacterDataTabs = ({
               },
             }}
           >
-            <Tab
-              label="能力值"
-              id="char-tab-0"
-              aria-controls="char-tabpanel-0"
-            />
-            <Tab
-              label="聯盟戰地"
-              id="char-tab-1"
-              aria-controls="char-tabpanel-1"
-            />
-            <Tab
-              label="極限屬性"
-              id="char-tab-2"
-              aria-controls="char-tabpanel-2"
-            />
-            <Tab
-              label="套裝效果"
-              id="char-tab-3"
-              aria-controls="char-tabpanel-3"
-            />
-            <Tab
-              label="聯盟神器"
-              id="char-tab-4"
-              aria-controls="char-tabpanel-4"
-            />
-            <Tab
-              label="符文系統"
-              id="char-tab-5"
-              aria-controls="char-tabpanel-5"
-            />
-            <Tab
-              label="傳授技能"
-              id="char-tab-6"
-              aria-controls="char-tabpanel-6"
-            />
+            {tabNames.map((name, i) => (
+              <Tab
+                key={i}
+                label={name}
+                id={`char-tab-${i}`}
+                aria-controls={`char-tabpanel-${i}`}
+              />
+            ))}
           </Tabs>
         </Box>
         <Box

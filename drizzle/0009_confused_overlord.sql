@@ -1,0 +1,1 @@
+ALTER TABLE `character_union_champion` ADD `champion_image` text;
