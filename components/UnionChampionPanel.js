@@ -1,5 +1,6 @@
 'use client';
 
+import { useRouter } from 'next/navigation';
 import { Box, Typography, Chip, Grid, Paper, Tooltip } from '@mui/material';
 import SectionTitle from './panel/SectionTitle';
 import LockIcon from '@mui/icons-material/Lock';
@@ -7,6 +8,7 @@ import PanelSkeleton from './panel/PanelSkeleton';
 import PanelError from './panel/PanelError';
 import PanelEmpty from './panel/PanelEmpty';
 import SectionHeader from './panel/SectionHeader';
+import { track } from '../lib/analytics';
 
 const TOTAL_SLOTS = 6;
 
@@ -25,9 +27,10 @@ const GRADE_COLORS = {
 
 const getGradeStyle = (grade) => GRADE_COLORS[grade] || GRADE_COLORS.C;
 
-const ChampionCard = ({ champion }) => {
+const ChampionCard = ({ champion, onClick }) => {
   const gradeStyle = getGradeStyle(champion.champion_grade);
   const badgeCount = champion.champion_badge_info?.length || 0;
+  const isClickable = !!champion.champion_ocid;
 
   return (
     <Tooltip
@@ -42,19 +45,31 @@ const ChampionCard = ({ champion }) => {
       }
       arrow
       placement="top"
+      disableInteractive
     >
       <Paper
         variant="outlined"
+        role={isClickable ? 'button' : undefined}
+        tabIndex={isClickable ? 0 : undefined}
+        onClick={isClickable ? () => onClick(champion) : undefined}
+        onKeyDown={
+          isClickable
+            ? (e) => {
+                if (e.key === 'Enter' || e.key === ' ') onClick(champion);
+              }
+            : undefined
+        }
         sx={{
           p: 1.5,
           borderRadius: 2,
           borderColor: gradeStyle.border,
           borderWidth: 1.5,
           textAlign: 'center',
-          cursor: 'default',
-          transition: 'box-shadow 150ms ease',
+          cursor: isClickable ? 'pointer' : 'default',
+          transition: 'box-shadow 150ms ease, transform 150ms ease',
           '&:hover': {
             boxShadow: `0 0 12px ${gradeStyle.border}40`,
+            ...(isClickable && { transform: 'translateY(-2px)' }),
           },
         }}
       >
@@ -82,6 +97,21 @@ const ChampionCard = ({ champion }) => {
             Slot {champion.champion_slot}
           </Typography>
         </Box>
+        {champion.champion_image && (
+          <Box
+            component="img"
+            src={champion.champion_image}
+            alt={champion.champion_name}
+            sx={{
+              width: 64,
+              height: 64,
+              objectFit: 'contain',
+              mx: 'auto',
+              mb: 0.5,
+              imageRendering: 'pixelated',
+            }}
+          />
+        )}
         <Typography variant="body2" sx={{ fontWeight: 700 }}>
           {champion.champion_class}
         </Typography>
@@ -135,6 +165,17 @@ const EmptySlot = () => (
 );
 
 const UnionChampionPanel = ({ loading, error, data, onRetry }) => {
+  const router = useRouter();
+
+  const handleChampionClick = (champion) => {
+    track('union-champion-click', {
+      name: champion.champion_name,
+      class: champion.champion_class,
+      grade: champion.champion_grade,
+    });
+    router.push(`/?ocid=${champion.champion_ocid}`);
+  };
+
   if (loading) return <PanelSkeleton rows={4} />;
 
   if (error) {
@@ -157,7 +198,7 @@ const UnionChampionPanel = ({ loading, error, data, onRetry }) => {
       <Grid container spacing={1.5} sx={{ mt: 0.5 }}>
         {champions.map((champion) => (
           <Grid key={champion.champion_slot} size={{ xs: 6, md: 4 }}>
-            <ChampionCard champion={champion} />
+            <ChampionCard champion={champion} onClick={handleChampionClick} />
           </Grid>
         ))}
         {Array.from({ length: emptySlotCount }).map((_, i) => (
