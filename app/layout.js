@@ -1,4 +1,5 @@
 import Script from 'next/script';
+import { cookies } from 'next/headers';
 import './globals.css';
 import Navigation from '../components/Navigation';
 import MuiThemeProvider from '../components/MuiThemeProvider';
@@ -60,28 +61,41 @@ export const metadata = {
   },
 };
 
-export default function RootLayout({ children }) {
+export default async function RootLayout({ children }) {
+  const stored = (await cookies()).get('color-mode')?.value;
+  const initialMode = stored === 'dark' || stored === 'light' ? stored : null;
+
   return (
-    <html lang="zh-tw" suppressHydrationWarning>
+    <html
+      lang="zh-tw"
+      data-color-mode={initialMode || undefined}
+      style={initialMode ? { colorScheme: initialMode } : undefined}
+      suppressHydrationWarning
+    >
       <head>
         <Script id="color-mode-init" strategy="beforeInteractive">
           {`(function() {
   try {
+    var el = document.documentElement;
+    // Server already set the mode from the color-mode cookie — respect it.
+    if (el.getAttribute('data-color-mode')) return;
+    // First visit (no cookie): honor a saved localStorage pref, else system.
+    // React persists a cookie after mount so the next SSR is correct.
     var mode = localStorage.getItem('color-mode');
-    if (!mode) {
+    if (mode !== 'dark' && mode !== 'light') {
       mode = window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light';
     }
-    document.documentElement.setAttribute('data-color-mode', mode);
-    document.documentElement.style.colorScheme = mode;
+    el.setAttribute('data-color-mode', mode);
+    el.style.colorScheme = mode;
     if (mode === 'dark') {
-      document.documentElement.style.backgroundColor = '#1a1210';
+      el.style.backgroundColor = '#1a1210';
     }
   } catch(e) {}
 })()`}
         </Script>
       </head>
       <body>
-        <MuiThemeProvider>
+        <MuiThemeProvider initialMode={initialMode}>
           <Navigation />
           <main id="main-content">
             <PageTransition>{children}</PageTransition>

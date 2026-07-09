@@ -1,6 +1,12 @@
 'use client';
 
-import { createContext, useContext, useMemo, useState } from 'react';
+import {
+  createContext,
+  useContext,
+  useEffect,
+  useMemo,
+  useState,
+} from 'react';
 import { createTheme, ThemeProvider } from '@mui/material/styles';
 import CssBaseline from '@mui/material/CssBaseline';
 import { track } from '../lib/analytics';
@@ -70,20 +76,43 @@ const sharedComponents = {
   },
 };
 
-export default function AppThemeProvider({ children }) {
-  // Read data-color-mode (set by blocking script in layout.js), then
-  // fall back to localStorage / matchMedia. SSR returns 'light';
-  // globals.css handles visual flash during hydration mismatch.
-  const [mode, setMode] = useState(() => {
-    if (typeof window === 'undefined') return 'light';
-    const attr = document.documentElement.getAttribute('data-color-mode');
-    if (attr === 'dark' || attr === 'light') return attr;
-    const stored = localStorage.getItem('color-mode');
-    if (stored === 'dark' || stored === 'light') return stored;
-    if (window.matchMedia('(prefers-color-scheme: dark)').matches)
-      return 'dark';
-    return 'light';
-  });
+function persistMode(next) {
+  try {
+    localStorage.setItem('color-mode', next);
+  } catch {
+    // storage disabled (private mode) — cookie below still carries the mode
+  }
+  // 1-year cookie so the server can render the right theme on the next
+  // request. This is what keeps SSR and the first client render in sync.
+  document.cookie = `color-mode=${next}; path=/; max-age=31536000; samesite=lax`;
+  document.documentElement.setAttribute('data-color-mode', next);
+  document.documentElement.style.colorScheme = next;
+}
+
+export default function AppThemeProvider({ children, initialMode }) {
+  // initialMode is read from the color-mode cookie server-side (layout.js),
+  // so SSR and the first client render use the SAME value — no hydration
+  // mismatch. Only a first-time visitor (no cookie yet) resolves the stored /
+  // system preference after mount, which is the one case that can briefly flash.
+  const [mode, setMode] = useState(initialMode || 'light');
+
+  useEffect(() => {
+    if (initialMode) return; // cookie already decided the mode
+    let resolved = 'light';
+    try {
+      const stored = localStorage.getItem('color-mode');
+      if (stored === 'dark' || stored === 'light') resolved = stored;
+      else if (window.matchMedia('(prefers-color-scheme: dark)').matches)
+        resolved = 'dark';
+    } catch {
+      // ignore
+    }
+    persistMode(resolved); // write the cookie so the next SSR is correct
+    // One-time sync from client-only prefs on first visit; returning users
+    // hit the early return above and never reach this.
+    // eslint-disable-next-line react-hooks/set-state-in-effect
+    if (resolved !== 'light') setMode(resolved);
+  }, [initialMode]);
 
   const colorMode = useMemo(
     () => ({
@@ -91,9 +120,7 @@ export default function AppThemeProvider({ children }) {
       toggleColorMode: () => {
         setMode(prev => {
           const next = prev === 'light' ? 'dark' : 'light';
-          localStorage.setItem('color-mode', next);
-          document.documentElement.setAttribute('data-color-mode', next);
-          document.documentElement.style.colorScheme = next;
+          persistMode(next);
           track('theme-toggle', { mode: next });
           return next;
         });
