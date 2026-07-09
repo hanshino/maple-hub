@@ -59,13 +59,13 @@ effCost        = netCost - redeemValue             // 扣自用點數市值後�
 
 ## 3. 架構與檔案
 
-| 檔案 | 內容 |
-|---|---|
-| `lib/vipCalculator.js`（新增） | 純函式 `computeVip(inputs)` + 常數 `LEVELS`、`TARGET_PRESETS`。不含 React，可獨立單測。 |
-| `app/vip-calculator/page.js`（新增） | `'use client'` client component。以 `useMemo` 包 `computeVip`，MUI 呈現。 |
-| `components/Navigation.js`（修改） | `NAV_ITEMS` 加 `{ href:'/vip-calculator', label:'VIP 試算', icon: CalculateOutlined }`。 |
-| `app/sitemap.js`（修改） | 補 `/vip-calculator` 一筆。 |
-| `__tests__/lib/vipCalculator.test.js`（新增） | 單元測試（見 §6）。 |
+| 檔案                                          | 內容                                                                                     |
+| --------------------------------------------- | ---------------------------------------------------------------------------------------- |
+| `lib/vipCalculator.js`（新增）                | 純函式 `computeVip(inputs)` + 常數 `LEVELS`、`TARGET_PRESETS`。不含 React，可獨立單測。  |
+| `app/vip-calculator/page.js`（新增）          | `'use client'` client component。以 `useMemo` 包 `computeVip`，MUI 呈現。                |
+| `components/Navigation.js`（修改）            | `NAV_ITEMS` 加 `{ href:'/vip-calculator', label:'VIP 試算', icon: CalculateOutlined }`。 |
+| `app/sitemap.js`（修改）                      | 補 `/vip-calculator` 一筆。                                                              |
+| `__tests__/lib/vipCalculator.test.js`（新增） | 單元測試（見 §6）。                                                                      |
 
 **常數維護**：`LEVELS`、`TARGET_PRESETS` 硬編在 `lib/vipCalculator.js` 頂部。官方調整門檻/轉換率時＝改物件、發 PR。以 `// ponytail:` 註記升級路徑（若官方頻繁變動再改讀 config）。
 

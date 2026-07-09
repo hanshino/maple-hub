@@ -2,11 +2,7 @@
  * @jest-environment node
  */
 
-import {
-  computeVip,
-  LEVELS,
-  TARGET_PRESETS,
-} from '../../lib/vipCalculator';
+import { computeVip, LEVELS, TARGET_PRESETS } from '../../lib/vipCalculator';
 
 // 鑽石(32) + 皇家達成(3,675,000)、回饋 5%、匯率 1
 const DIAMOND_ROYAL = {
@@ -76,7 +72,12 @@ describe('vipCalculator', () => {
     });
 
     it('exPts 有值：正確計算兌換次數與剩餘點數', () => {
-      const r = computeVip({ ...DIAMOND_ROYAL, exPts: 1000000, exReward: 500, marketValue: 2 });
+      const r = computeVip({
+        ...DIAMOND_ROYAL,
+        exPts: 1000000,
+        exReward: 500,
+        marketValue: 2,
+      });
       expect(r.redemptions).toBe(3); // floor(3,675,000 / 1,000,000)
       expect(r.leftoverPts).toBe(675000);
       expect(r.gamePoints).toBe(1500);
@@ -110,10 +111,12 @@ describe('vipCalculator', () => {
     });
 
     it('折數有填時 clamp 到 0–1', () => {
-      expect(computeVip({ ...DIAMOND_ROYAL, discount: 5 }).discountUsed).toBe(1);
-      expect(
-        computeVip({ ...DIAMOND_ROYAL, discount: -3 }).discountUsed
-      ).toBe(0);
+      expect(computeVip({ ...DIAMOND_ROYAL, discount: 5 }).discountUsed).toBe(
+        1
+      );
+      expect(computeVip({ ...DIAMOND_ROYAL, discount: -3 }).discountUsed).toBe(
+        0
+      );
     });
   });
 });
