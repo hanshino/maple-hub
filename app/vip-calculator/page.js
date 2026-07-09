@@ -15,6 +15,11 @@ import {
   MenuItem,
   InputLabel,
   FormControl,
+  InputAdornment,
+  IconButton,
+  Button,
+  Checkbox,
+  FormControlLabel,
   Table,
   TableContainer,
   TableHead,
@@ -24,9 +29,17 @@ import {
   Chip,
   Alert,
 } from '@mui/material';
+import CloseIcon from '@mui/icons-material/Close';
+import AddIcon from '@mui/icons-material/Add';
+import RestartAltIcon from '@mui/icons-material/RestartAlt';
 import { FaCanadianMapleLeaf } from 'react-icons/fa';
 import { useColorMode } from '../../components/MuiThemeProvider';
-import { computeVip, LEVELS, TARGET_PRESETS } from '../../lib/vipCalculator';
+import {
+  computeVip,
+  mesoPointValue,
+  LEVELS,
+  TARGET_PRESETS,
+} from '../../lib/vipCalculator';
 
 // UI-only labels for TARGET_PRESETS — purely presentational, no calc here.
 const TARGET_LABELS = [
@@ -40,6 +53,13 @@ const TARGET_LABELS = [
 
 const fmt = n =>
   Number.isFinite(n) ? Math.round(n).toLocaleString('en-US') : '—';
+
+// 折（8＝8折）→ 倍率(0–1)；空字串／非數字 → null（自動）。
+function zheToMult(zhe) {
+  if (zhe === '' || zhe == null) return null;
+  const n = Number(zhe);
+  return Number.isFinite(n) ? Math.min(1, Math.max(0, n / 10)) : null;
+}
 
 function glassSx(mode) {
   return {
@@ -125,14 +145,54 @@ export default function VipCalculatorPage() {
   // 商家：銷售與預算
   const [costCap, setCostCap] = useState('20000');
   const [cash, setCash] = useState('40000');
-  const [discount, setDiscount] = useState('');
 
-  // 商家：自用點數兌換
+  // 商家：分批賣客（混合折數）
+  const [tranches, setTranches] = useState([
+    { face: '10000', discZhe: '7.8' },
+    { face: '20000', discZhe: '8.0' },
+  ]);
+  const [remDiscZhe, setRemDiscZhe] = useState('');
+
+  // 商家：自用點數兌換 + 遊戲幣回收
   const [exPts, setExPts] = useState('45000');
   const [exReward, setExReward] = useState('150');
-  const [marketValue, setMarketValue] = useState('0');
+  const [sellMeso, setSellMeso] = useState(true);
+  const [mesoPts, setMesoPts] = useState('5');
+  const [mesoAmtYi, setMesoAmtYi] = useState('1');
+  const [cashNtd, setCashNtd] = useState('1');
+  const [cashMesoWan, setCashMesoWan] = useState('2700');
 
   const targetPts = targetPreset === 'custom' ? customPts : targetPreset;
+
+  const updateTranche = (idx, key, value) =>
+    setTranches(prev =>
+      prev.map((t, i) => (i === idx ? { ...t, [key]: value } : t))
+    );
+  const addTranche = () =>
+    setTranches(prev => [...prev, { face: '10000', discZhe: '' }]);
+  const removeTranche = idx =>
+    setTranches(prev => prev.filter((_, i) => i !== idx));
+
+  const trancheInputs = useMemo(
+    () =>
+      tranches.map(t => ({
+        face: Number(t.face) || 0,
+        disc: zheToMult(t.discZhe),
+      })),
+    [tranches]
+  );
+  const autoDiscount = useMemo(() => zheToMult(remDiscZhe), [remDiscZhe]);
+
+  const marketValue = useMemo(() => {
+    if (!sellMeso) return 0;
+    const ntd = Number(cashNtd) || 0;
+    const wan = Number(cashMesoWan) || 0;
+    return mesoPointValue({
+      pointsPerBatch: Number(mesoPts) || 0,
+      mesoPerBatch: (Number(mesoAmtYi) || 0) * 1e8,
+      mesoPerNtd: ntd > 0 ? (wan * 1e4) / ntd : 0,
+    });
+  }, [sellMeso, mesoPts, mesoAmtYi, cashNtd, cashMesoWan]);
 
   const inputs = useMemo(
     () => ({
@@ -142,7 +202,8 @@ export default function VipCalculatorPage() {
       baseRate,
       costCap,
       cash,
-      discount,
+      tranches: trancheInputs,
+      autoDiscount,
       exPts,
       exReward,
       marketValue,
@@ -154,7 +215,8 @@ export default function VipCalculatorPage() {
       baseRate,
       costCap,
       cash,
-      discount,
+      trancheInputs,
+      autoDiscount,
       exPts,
       exReward,
       marketValue,
@@ -164,19 +226,40 @@ export default function VipCalculatorPage() {
   const result = useMemo(() => computeVip(inputs), [inputs]);
 
   const costCapNum = Number(costCap) || 0;
-  const marketValueNum = Number(marketValue) || 0;
+
+  // 分批賣客：總面額／賣超判斷（僅供 UI 提示，非引擎計算）
+  const totalFace = trancheInputs.reduce((sum, t) => sum + t.face, 0);
+  const oversold =
+    Number.isFinite(result.requiredLeadou) &&
+    totalFace > result.requiredLeadou + 1e-6;
+  const coveragePct =
+    Number.isFinite(result.requiredLeadou) && result.requiredLeadou > 0
+      ? Math.min(100, (result.pricedFace / result.requiredLeadou) * 100)
+      : 0;
+  const belowSuggested = result.autoDiscountUsed < result.minDiscount - 1e-9;
+  const suggestedZhe = Number.isFinite(result.minDiscount)
+    ? (result.minDiscount * 10).toFixed(1)
+    : '';
+  const remDiscDisplay =
+    remDiscZhe !== '' ? remDiscZhe : result.autoVolume > 0 ? suggestedZhe : '';
+
+  // 遊戲幣回收：換算比例只做單位換算（億/萬），元/點市值由 mesoPointValue 算出
+  const mesoPerPoint =
+    (Number(mesoPts) || 0) > 0
+      ? ((Number(mesoAmtYi) || 0) * 1e8) / (Number(mesoPts) || 0)
+      : 0;
+  const totalMesoYi = (result.gamePoints * mesoPerPoint) / 1e8;
 
   const netCostTone = Number.isFinite(result.netCost)
     ? result.netCost <= costCapNum
       ? 'success'
       : 'error'
     : 'neutral';
-  const effCostTone =
-    marketValueNum > 0 && Number.isFinite(result.effCost)
-      ? result.effCost <= costCapNum
-        ? 'success'
-        : 'error'
-      : 'neutral';
+  const effCostTone = Number.isFinite(result.effCost)
+    ? result.effCost <= costCapNum
+      ? 'success'
+      : 'error'
+    : 'neutral';
 
   const lossDiff = Math.abs(result.lossSum - result.netCost);
   const crossCheckOk = lossDiff < 1;
@@ -448,16 +531,239 @@ export default function VipCalculatorPage() {
                   </Grid>
                 </Grid>
 
-                <TextField
+                <Typography variant="body2" sx={{ fontWeight: 700, mb: 1 }}>
+                  分批賣客（混合折數）
+                </Typography>
+
+                <Box sx={{ display: 'flex', gap: 1, mb: 0.75, px: 0.25 }}>
+                  <Typography
+                    variant="caption"
+                    sx={{ flex: 1, color: 'text.disabled', fontWeight: 700 }}
+                  >
+                    賣出面額（元 / 樂豆，1:1）
+                  </Typography>
+                  <Typography
+                    variant="caption"
+                    sx={{
+                      width: 100,
+                      textAlign: 'center',
+                      color: 'text.disabled',
+                      fontWeight: 700,
+                    }}
+                  >
+                    折數（留空＝自動）
+                  </Typography>
+                  <Box sx={{ width: 34 }} />
+                </Box>
+
+                {tranches.map((t, idx) => (
+                  <Box
+                    key={idx}
+                    sx={{
+                      display: 'flex',
+                      gap: 1,
+                      mb: 1,
+                      alignItems: 'center',
+                    }}
+                  >
+                    <TextField
+                      size="small"
+                      type="number"
+                      value={t.face}
+                      onChange={e => updateTranche(idx, 'face', e.target.value)}
+                      sx={{ flex: 1, minWidth: 0, ...fieldSx }}
+                    />
+                    <TextField
+                      size="small"
+                      type="number"
+                      placeholder="自動"
+                      value={t.discZhe}
+                      onChange={e =>
+                        updateTranche(idx, 'discZhe', e.target.value)
+                      }
+                      sx={{ width: 96, flexShrink: 0, ...fieldSx }}
+                      slotProps={{
+                        input: {
+                          endAdornment: (
+                            <InputAdornment position="end">折</InputAdornment>
+                          ),
+                        },
+                      }}
+                    />
+                    <IconButton
+                      size="small"
+                      aria-label="刪除"
+                      disabled={tranches.length <= 1}
+                      onClick={() => removeTranche(idx)}
+                      sx={{
+                        flexShrink: 0,
+                        border: '1px solid',
+                        borderColor: 'divider',
+                        borderRadius: 2,
+                        color: 'error.main',
+                      }}
+                    >
+                      <CloseIcon fontSize="small" />
+                    </IconButton>
+                  </Box>
+                ))}
+
+                <Button
                   fullWidth
-                  size="small"
-                  type="number"
-                  label="給客人的折數（0.78＝78折）"
-                  placeholder="留空＝自動算最低折數"
-                  value={discount}
-                  onChange={e => setDiscount(e.target.value)}
-                  sx={{ mb: 3, ...fieldSx }}
-                />
+                  variant="outlined"
+                  startIcon={<AddIcon />}
+                  onClick={addTranche}
+                  sx={{
+                    mb: 2,
+                    borderStyle: 'dashed',
+                    textTransform: 'none',
+                    fontWeight: 700,
+                  }}
+                >
+                  新增一筆客人
+                </Button>
+
+                <Box
+                  sx={{
+                    p: 1.75,
+                    borderRadius: 2,
+                    mb: 2,
+                    bgcolor:
+                      mode === 'dark'
+                        ? 'rgba(255,255,255,0.04)'
+                        : 'rgba(247,147,30,0.06)',
+                    border: '1px solid',
+                    borderColor:
+                      mode === 'dark'
+                        ? 'rgba(255,255,255,0.06)'
+                        : 'rgba(247,147,30,0.12)',
+                  }}
+                >
+                  <Box
+                    sx={{
+                      display: 'flex',
+                      alignItems: 'baseline',
+                      gap: 1,
+                      flexWrap: 'wrap',
+                    }}
+                  >
+                    <Typography
+                      sx={{
+                        fontFamily: 'monospace',
+                        fontWeight: 800,
+                        fontSize: '1.4rem',
+                        color: 'primary.main',
+                        fontVariantNumeric: 'tabular-nums',
+                      }}
+                    >
+                      {Number.isFinite(result.requiredLeadou) &&
+                      result.requiredLeadou > 0 &&
+                      result.discountUsed > 0
+                        ? `${(result.discountUsed * 10).toFixed(1)} 折`
+                        : '—'}
+                    </Typography>
+                    <Typography
+                      variant="caption"
+                      sx={{ color: 'text.secondary', fontWeight: 600 }}
+                    >
+                      有效折數（含未定折推算）
+                    </Typography>
+                    <Typography
+                      variant="caption"
+                      sx={{
+                        ml: 'auto',
+                        fontFamily: 'monospace',
+                        color: 'text.secondary',
+                      }}
+                    >
+                      收回 NT$ {fmt(result.soldRecover)}
+                    </Typography>
+                  </Box>
+                  <Box
+                    sx={{
+                      height: 9,
+                      borderRadius: 999,
+                      bgcolor: 'rgba(247,147,30,0.15)',
+                      my: 1.5,
+                      overflow: 'hidden',
+                    }}
+                  >
+                    <Box
+                      sx={{
+                        height: '100%',
+                        width: `${coveragePct}%`,
+                        borderRadius: 999,
+                        background: 'linear-gradient(90deg, #f7931e, #cc6e00)',
+                        transition: 'width .25s',
+                      }}
+                    />
+                  </Box>
+                  <Typography
+                    variant="caption"
+                    sx={{
+                      display: 'block',
+                      fontFamily: 'monospace',
+                      color: oversold ? 'error.main' : 'text.disabled',
+                    }}
+                  >
+                    {oversold
+                      ? `⚠ 已配置 ${fmt(totalFace)} 超過需賣總量 ${fmt(result.requiredLeadou)}（賣超了 ${fmt(totalFace - result.requiredLeadou)}）`
+                      : `已定折 ${fmt(result.pricedFace)} / 需賣 ${fmt(result.requiredLeadou)}　未定折（空白列＋剩餘） ${fmt(result.autoVolume)}`}
+                  </Typography>
+                </Box>
+
+                <Typography
+                  variant="caption"
+                  sx={{
+                    display: 'block',
+                    fontWeight: 600,
+                    color: 'text.secondary',
+                    mb: 1,
+                  }}
+                >
+                  未填折數的量（空白列＋剩餘），用幾折推算？（留空＝自動＝剛好卡成本上限）
+                </Typography>
+                <Box
+                  sx={{ display: 'flex', gap: 1, alignItems: 'center', mb: 1 }}
+                >
+                  <TextField
+                    size="small"
+                    type="number"
+                    placeholder="建議值"
+                    value={remDiscDisplay}
+                    onChange={e => setRemDiscZhe(e.target.value)}
+                    sx={{ width: 130, flexShrink: 0, ...fieldSx }}
+                    slotProps={{
+                      input: {
+                        endAdornment: (
+                          <InputAdornment position="end">折</InputAdornment>
+                        ),
+                      },
+                    }}
+                  />
+                  <Button
+                    variant="outlined"
+                    size="small"
+                    startIcon={<RestartAltIcon />}
+                    onClick={() => setRemDiscZhe('')}
+                    sx={{ textTransform: 'none', fontWeight: 700 }}
+                  >
+                    用建議折數
+                  </Button>
+                </Box>
+                <Typography
+                  variant="caption"
+                  sx={{
+                    display: 'block',
+                    color: belowSuggested ? 'error.main' : 'text.disabled',
+                    lineHeight: 1.6,
+                    mb: 3,
+                  }}
+                >
+                  {result.autoVolume <= 0
+                    ? '所有量都已定折，沒有需要推算的部分。'
+                    : `未定折的量共 ${fmt(result.autoVolume)} 樂豆，以 ${(result.autoDiscountUsed * 10).toFixed(1)} 折推算。建議 ≥ ${(result.minDiscount * 10).toFixed(1)} 折才不會超過成本上限 ${fmt(costCapNum)}${result.autoDiscountUsed <= 1e-9 ? '（0＝自用不賣）' : ''}。留空＝自動用建議值。`}
+                </Typography>
 
                 <Typography
                   variant="subtitle2"
@@ -497,15 +803,133 @@ export default function VipCalculatorPage() {
                   </Grid>
                 </Grid>
 
-                <TextField
-                  fullWidth
-                  size="small"
-                  type="number"
-                  label="該遊戲點數市值（元／點，沒有填 0）"
-                  value={marketValue}
-                  onChange={e => setMarketValue(e.target.value)}
-                  sx={fieldSx}
+                <FormControlLabel
+                  control={
+                    <Checkbox
+                      checked={sellMeso}
+                      onChange={e => setSellMeso(e.target.checked)}
+                    />
+                  }
+                  label="把自用點數換遊戲幣賣掉回收現金"
+                  sx={{
+                    mb: 1,
+                    '& .MuiFormControlLabel-label': {
+                      fontWeight: 700,
+                      fontSize: '0.875rem',
+                    },
+                  }}
                 />
+
+                <Box
+                  sx={{
+                    opacity: sellMeso ? 1 : 0.4,
+                    pointerEvents: sellMeso ? 'auto' : 'none',
+                  }}
+                >
+                  <Typography
+                    variant="caption"
+                    sx={{
+                      display: 'block',
+                      fontWeight: 600,
+                      color: 'text.secondary',
+                      mt: 1,
+                      mb: 1,
+                    }}
+                  >
+                    ① 遊戲內：點數換遊戲幣的比例
+                  </Typography>
+                  <Box
+                    sx={{
+                      display: 'flex',
+                      alignItems: 'flex-end',
+                      gap: 1,
+                      mb: 2,
+                    }}
+                  >
+                    <TextField
+                      fullWidth
+                      size="small"
+                      type="number"
+                      label="點數"
+                      value={mesoPts}
+                      onChange={e => setMesoPts(e.target.value)}
+                      sx={fieldSx}
+                    />
+                    <Typography
+                      sx={{ fontWeight: 800, color: 'primary.main', pb: 1 }}
+                    >
+                      ＝
+                    </Typography>
+                    <TextField
+                      fullWidth
+                      size="small"
+                      type="number"
+                      label="遊戲幣（億）"
+                      value={mesoAmtYi}
+                      onChange={e => setMesoAmtYi(e.target.value)}
+                      sx={fieldSx}
+                    />
+                  </Box>
+
+                  <Typography
+                    variant="caption"
+                    sx={{
+                      display: 'block',
+                      fontWeight: 600,
+                      color: 'text.secondary',
+                      mb: 1,
+                    }}
+                  >
+                    ② 市場：玩家收購遊戲幣的行情
+                  </Typography>
+                  <Box
+                    sx={{
+                      display: 'flex',
+                      alignItems: 'flex-end',
+                      gap: 1,
+                      mb: 2,
+                    }}
+                  >
+                    <TextField
+                      fullWidth
+                      size="small"
+                      type="number"
+                      label="台幣"
+                      value={cashNtd}
+                      onChange={e => setCashNtd(e.target.value)}
+                      sx={fieldSx}
+                    />
+                    <Typography
+                      sx={{ fontWeight: 800, color: 'primary.main', pb: 1 }}
+                    >
+                      ＝
+                    </Typography>
+                    <TextField
+                      fullWidth
+                      size="small"
+                      type="number"
+                      label="遊戲幣（萬）"
+                      value={cashMesoWan}
+                      onChange={e => setCashMesoWan(e.target.value)}
+                      sx={fieldSx}
+                    />
+                  </Box>
+
+                  <Typography
+                    variant="caption"
+                    sx={{
+                      display: 'block',
+                      color: 'text.disabled',
+                      lineHeight: 1.6,
+                    }}
+                  >
+                    {!sellMeso
+                      ? '未啟用：自用點數留著自用，回收現金 0。'
+                      : result.gamePoints <= 0
+                        ? '目前兌換設定得到 0 遊戲點數。'
+                        : `${fmt(result.gamePoints)} 遊戲點 → ${fmt(totalMesoYi)} 億遊戲幣 → 回收 NT$ ${fmt(result.redeemValue)}（等效 ${marketValue.toFixed(2)} 元/點）`}
+                  </Typography>
+                </Box>
               </CardContent>
             </Card>
           </Grid>
@@ -537,48 +961,47 @@ export default function VipCalculatorPage() {
             <Grid size={{ xs: 12, sm: 6, md: 4 }}>
               <StatCard
                 mode={mode}
-                label="卡在成本上限內的最低折數"
-                value={
-                  result.minDiscount <= 0
-                    ? '不用賣客人，預算就夠'
-                    : `${(result.minDiscount * 10).toFixed(1)} 折`
-                }
+                label="賣客收回總額"
+                value={`NT$ ${fmt(result.soldRecover)}`}
+                sub={`有效折數 ${(result.discountUsed * 10).toFixed(1)} 折`}
               />
             </Grid>
             <Grid size={{ xs: 12, sm: 6, md: 4 }}>
               <StatCard
                 mode={mode}
-                label="依折數計算的淨成本"
+                label="淨成本（買進－收回）"
                 value={`NT$ ${fmt(result.netCost)}`}
                 tone={netCostTone}
-              />
-            </Grid>
-            <Grid size={{ xs: 12, sm: 6, md: 4 }}>
-              <StatCard
-                mode={mode}
-                label="自用兌換次數／剩餘點數"
-                value={`${result.redemptions} 次`}
-                sub={`剩 ${fmt(result.leftoverPts)} 點`}
-              />
-            </Grid>
-            <Grid size={{ xs: 12, sm: 6, md: 4 }}>
-              <StatCard
-                mode={mode}
-                label="自用點數市值"
-                value={`${fmt(result.gamePoints)} 點`}
                 sub={
-                  marketValueNum > 0
-                    ? `≈ NT$ ${fmt(result.redeemValue)}`
-                    : '未填市值'
+                  result.netCost <= costCapNum
+                    ? `✓ 在成本上限 ${fmt(costCapNum)} 內`
+                    : `✗ 超過成本上限 ${fmt(costCapNum)}`
                 }
               />
             </Grid>
             <Grid size={{ xs: 12, sm: 6, md: 4 }}>
               <StatCard
                 mode={mode}
-                label="扣自用點數後的實際成本"
+                label="遊戲幣回收現金"
+                value={`NT$ ${fmt(result.redeemValue)}`}
+                sub={
+                  sellMeso
+                    ? `${fmt(result.gamePoints)} 遊戲點換幣賣出`
+                    : '未啟用（留自用）'
+                }
+              />
+            </Grid>
+            <Grid size={{ xs: 12, sm: 6, md: 4 }}>
+              <StatCard
+                mode={mode}
+                label="實際成本（淨成本－回收）"
                 value={`NT$ ${fmt(result.effCost)}`}
                 tone={effCostTone}
+                sub={
+                  result.effCost <= costCapNum
+                    ? `✓ 在成本上限 ${fmt(costCapNum)} 內`
+                    : `✗ 超過成本上限 ${fmt(costCapNum)}`
+                }
               />
             </Grid>
           </>

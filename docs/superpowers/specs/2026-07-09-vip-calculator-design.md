@@ -115,3 +115,41 @@ TARGET_PRESETS = [ 150000, 225000, 675000, 1000000, 3675000, 5000000 ] + 自訂
 3. 滾動總淨損與單筆淨成本一致（徽章顯示 ✓），且對應單元測試通過。
 4. light/dark、窄螢幕皆正常。
 5. `npm run lint`、`npm test`、`npm run build` 全綠；diff 無 TODO/skip、無動到無關檔案。
+
+## 8. 進階回收（混合折數 + 遊戲幣回收）
+
+商家模式的兩項延伸，與同一分支一起實作。核心洞察：兩者都不需要動核心引擎的骨架——混合折數是折數輸入的一般化，遊戲幣回收是 `marketValue` 的推導。
+
+### 8.1 混合折數（分批賣客）
+
+商家把要出的樂豆拆給多個客人、各自不同折數。每筆 `{ face(面額，元/樂豆 1:1), disc(折數倍率 0–1，可 null=未定折) }`。未定折的量（空白列 ＋ 尚未分配的剩餘 `requiredLeadou − Σface`）統一用一個「建議折」推算。
+
+```
+pricedRecover    = Σ(faceᵢ × discᵢ)                                  // 已定折的列
+autoVolume       = Σ(空白列 face) + max(0, requiredLeadou − Σface)
+minDiscount      = clamp((buyCost − costCap − pricedRecover) / autoVolume, 0, 1)  // 剛好卡成本上限
+autoDiscountUsed = (autoDiscount 有填) ? clamp(autoDiscount,0,1) : minDiscount
+soldRecover      = pricedRecover + autoVolume × autoDiscountUsed
+discountUsed     = clamp(soldRecover / requiredLeadou, 0, 1)          // 有效折數（攤到全部需賣量）
+netCost          = buyCost − requiredLeadou × discountUsed
+```
+
+- **向後相容**：空 `tranches` ＋ 單一 `autoDiscount`（或舊 `discount`）＝ 原本的單一折數行為，既有測試不變。
+- 滾動模擬與「Σ 每輪淨損 ＝ netCost」不變式沿用 `discountUsed`，不受影響。
+- 折數 UI 以「折」為單位（8＝8折＝×0.8），內部 ÷10 轉倍率；留空＝未定折＝交給系統用建議折推算。
+
+### 8.2 遊戲幣回收（純 UI 推導 marketValue）
+
+VIP 兌換的遊戲點數不能送禮，但可在遊戲內買遊戲幣（Meso）再賣給玩家收現金。兩個行情：① 遊戲內「X 點 = Y 遊戲幣」；② 市場「1 NTD = Z 遊戲幣」。
+
+```
+mesoPointValue = (Y / X) / Z    // 元/點；X 或 Z ≤ 0 時回 0
+```
+
+頁面把 `mesoPointValue` 當作 `marketValue` 餵進現有引擎（checkbox 關閉＝留自用＝marketValue 0）。引擎的 `redeemValue = gamePoints × marketValue`、`effCost = netCost − redeemValue` 不變。純函式 `mesoPointValue` 抽在 `lib/vipCalculator.js`，可單測。
+
+### 8.3 檔案/測試（本階段實際變更）
+
+- `lib/vipCalculator.js`：`computeVip` 加 `tranches`/`autoDiscount` 與新輸出 `pricedFace/autoVolume/remainder/soldRecover/autoDiscountUsed`；新增 `mesoPointValue`。
+- `app/vip-calculator/page.js`：商家模式改用分批列表 ＋ 建議折欄；市值改兩行情 ＋ 開關。
+- 測試新增：混合折數卡成本上限、空白列併入、賣超、`autoDiscount` 覆寫、`mesoPointValue` 已知值/除零/接引擎；既有 12 項全數保留。
