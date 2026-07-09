@@ -21,6 +21,7 @@ import LeaderboardIcon from '@mui/icons-material/Leaderboard';
 import HomeIcon from '@mui/icons-material/Home';
 import InfoOutlinedIcon from '@mui/icons-material/InfoOutlined';
 import GroupsIcon from '@mui/icons-material/Groups';
+import CalculateOutlinedIcon from '@mui/icons-material/CalculateOutlined';
 import LightModeIcon from '@mui/icons-material/LightMode';
 import DarkModeIcon from '@mui/icons-material/DarkMode';
 import MenuIcon from '@mui/icons-material/Menu';
@@ -32,6 +33,7 @@ const NAV_ITEMS = [
   { href: '/', label: '首頁', icon: HomeIcon, exact: true },
   { href: '/leaderboard', label: '排行榜', icon: LeaderboardIcon },
   { href: '/guild', label: '工會', icon: GroupsIcon },
+  { href: '/vip-calculator', label: 'VIP 試算', icon: CalculateOutlinedIcon },
   { href: '/about', label: '關於', icon: InfoOutlinedIcon },
 ];
 

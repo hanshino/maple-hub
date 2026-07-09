@@ -31,6 +31,12 @@ export default async function sitemap() {
       priority: 0.7,
     },
     {
+      url: `${SITE_URL}/vip-calculator`,
+      lastModified: new Date(),
+      changeFrequency: 'monthly',
+      priority: 0.5,
+    },
+    {
       url: `${SITE_URL}/about`,
       lastModified: new Date(),
       changeFrequency: 'monthly',
