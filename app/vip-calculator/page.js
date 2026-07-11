@@ -37,6 +37,7 @@ import { useColorMode } from '../../components/MuiThemeProvider';
 import {
   computeVip,
   mesoPointValue,
+  tierIndexOf,
   LEVELS,
   TARGET_PRESETS,
 } from '../../lib/vipCalculator';
@@ -59,6 +60,23 @@ function zheToMult(zhe) {
   if (zhe === '' || zhe == null) return null;
   const n = Number(zhe);
   return Number.isFinite(n) ? Math.min(1, Math.max(0, n / 10)) : null;
+}
+
+// 空字串→0（＝已達標）；其餘非數字亦→0（信任邊界）。
+function toNum0(x) {
+  if (x === '') return 0;
+  const n = Number(x);
+  return Number.isFinite(n) ? n : 0;
+}
+
+// 分段轉換率標籤：單段顯示「X段 · N 點/樂豆」，跨段顯示「跨 N 段（a→b 點/樂豆）」。
+function rateLabel(parts, key) {
+  if (!parts || parts.length === 0) return '—';
+  if (parts.length === 1) {
+    const p = parts[0];
+    return `${p.name}段 · ${key === 'self' ? p.self : p.gift} 點／樂豆`;
+  }
+  return `跨 ${parts.length} 段（${parts.map(p => (key === 'self' ? p.self : p.gift)).join('→')} 點／樂豆）`;
 }
 
 function glassSx(mode) {
@@ -136,9 +154,9 @@ export default function VipCalculatorPage() {
   const isMerchant = uiMode === 'merchant';
 
   // 帳號與門檻
-  const [level, setLevel] = useState(LEVELS[2].rate); // 鑽石
   const [targetPreset, setTargetPreset] = useState(String(TARGET_PRESETS[4])); // 皇家達成
   const [customPts, setCustomPts] = useState('3675000');
+  const [deficitPts, setDeficitPts] = useState('2092440');
   const [bonusPct, setBonusPct] = useState('5');
   const [baseRate, setBaseRate] = useState('1');
 
@@ -163,6 +181,11 @@ export default function VipCalculatorPage() {
   const [cashMesoWan, setCashMesoWan] = useState('2700');
 
   const targetPts = targetPreset === 'custom' ? customPts : targetPreset;
+  const targetPtsNum = Number(targetPts) || 0;
+  const deficitNum = toNum0(deficitPts);
+  const currentPts = Math.max(0, targetPtsNum - deficitNum);
+  const curTierIdx = tierIndexOf(currentPts);
+  const tgtTierIdx = tierIndexOf(targetPtsNum); // 達到 target 時所在等級（皇家門檻 3.675M ⇒ 皇家）
 
   const updateTranche = (idx, key, value) =>
     setTranches(prev =>
@@ -196,8 +219,8 @@ export default function VipCalculatorPage() {
 
   const inputs = useMemo(
     () => ({
-      giftRate: level,
       targetPts,
+      currentPts,
       bonusPct,
       baseRate,
       costCap,
@@ -209,8 +232,8 @@ export default function VipCalculatorPage() {
       marketValue,
     }),
     [
-      level,
       targetPts,
+      currentPts,
       bonusPct,
       baseRate,
       costCap,
@@ -226,6 +249,13 @@ export default function VipCalculatorPage() {
   const result = useMemo(() => computeVip(inputs), [inputs]);
 
   const costCapNum = Number(costCap) || 0;
+
+  // 自用／送禮雙路比較
+  const done = result.remainingPts <= 0;
+  const bothPathsFinite =
+    Number.isFinite(result.buyCostSelf) && Number.isFinite(result.buyCostGift);
+  const selfCheaper = result.buyCostSelf <= result.buyCostGift;
+  const pathSaving = Math.abs(result.buyCostGift - result.buyCostSelf);
 
   // 分批賣客：總面額／賣超判斷（僅供 UI 提示，非引擎計算）
   const totalFace = trancheInputs.reduce((sum, t) => sum + t.face, 0);
@@ -354,11 +384,12 @@ export default function VipCalculatorPage() {
           ...glassSx(mode),
         }}
       >
-        {LEVELS.map(l => {
-          const active = l.rate === level;
+        {LEVELS.map((l, idx) => {
+          const active = idx === curTierIdx;
+          const isTarget = idx === tgtTierIdx;
           return (
             <Box
-              key={l.rate}
+              key={l.name}
               sx={{
                 flex: 1,
                 textAlign: 'center',
@@ -379,6 +410,49 @@ export default function VipCalculatorPage() {
                 borderTopColor: active ? 'primary.main' : 'transparent',
               }}
             >
+              <Box
+                sx={{
+                  display: 'flex',
+                  justifyContent: 'center',
+                  gap: 0.5,
+                  minHeight: 16,
+                  mb: 0.5,
+                }}
+              >
+                {active && (
+                  <Box
+                    component="span"
+                    sx={{
+                      fontSize: 9,
+                      fontWeight: 800,
+                      color: '#fff',
+                      bgcolor: 'primary.main',
+                      borderRadius: 999,
+                      px: 0.75,
+                      lineHeight: '15px',
+                    }}
+                  >
+                    目前
+                  </Box>
+                )}
+                {isTarget && (
+                  <Box
+                    component="span"
+                    sx={{
+                      fontSize: 9,
+                      fontWeight: 800,
+                      color: 'primary.dark',
+                      border: '1px solid',
+                      borderColor: 'primary.main',
+                      borderRadius: 999,
+                      px: 0.75,
+                      lineHeight: '13px',
+                    }}
+                  >
+                    🎯 目標
+                  </Box>
+                )}
+              </Box>
               <Typography
                 variant="caption"
                 sx={{
@@ -418,24 +492,6 @@ export default function VipCalculatorPage() {
               </Typography>
 
               <FormControl fullWidth size="small" sx={{ mb: 2 }}>
-                <InputLabel id="vip-level-label">
-                  目前 VIP 等級（決定送禮轉換率）
-                </InputLabel>
-                <Select
-                  labelId="vip-level-label"
-                  label="目前 VIP 等級（決定送禮轉換率）"
-                  value={level}
-                  onChange={e => setLevel(Number(e.target.value))}
-                >
-                  {LEVELS.map(l => (
-                    <MenuItem key={l.rate} value={l.rate}>
-                      {l.name}（{l.rate} 點／樂豆）
-                    </MenuItem>
-                  ))}
-                </Select>
-              </FormControl>
-
-              <FormControl fullWidth size="small" sx={{ mb: 2 }}>
                 <InputLabel id="vip-target-label">目標門檻</InputLabel>
                 <Select
                   labelId="vip-target-label"
@@ -463,6 +519,55 @@ export default function VipCalculatorPage() {
                   sx={{ mb: 2, ...fieldSx }}
                 />
               )}
+
+              <TextField
+                fullWidth
+                size="small"
+                type="number"
+                label="距離目標還差 VIP 點數"
+                value={deficitPts}
+                onChange={e => setDeficitPts(e.target.value)}
+                placeholder="遊戲顯示的「還差」點數"
+                helperText="填遊戲會員頁面顯示的「距離目標還差」點數（例：還差 2,092,440 上皇家）。留空＝已達標。目前累積與等級會用「目標－還差」自動反推。"
+                sx={{
+                  mb: 0.75,
+                  ...fieldSx,
+                  '& .MuiOutlinedInput-root': {
+                    bgcolor:
+                      mode === 'dark'
+                        ? 'rgba(247,147,30,0.12)'
+                        : 'rgba(247,147,30,0.08)',
+                    '& fieldset': { borderColor: 'primary.main' },
+                  },
+                }}
+              />
+              <Typography
+                variant="caption"
+                sx={{
+                  display: 'block',
+                  fontFamily: 'monospace',
+                  color: 'text.secondary',
+                  mb: 2,
+                  lineHeight: 1.6,
+                }}
+              >
+                目前累積約{' '}
+                <Box
+                  component="span"
+                  sx={{ color: 'primary.dark', fontWeight: 700 }}
+                >
+                  {fmt(currentPts)}
+                </Box>{' '}
+                點 → 等級{' '}
+                <Box
+                  component="span"
+                  sx={{ color: 'primary.dark', fontWeight: 700 }}
+                >
+                  {LEVELS[curTierIdx].name}
+                </Box>
+                （自用 {LEVELS[curTierIdx].self}／送禮 {LEVELS[curTierIdx].rate}{' '}
+                點/樂豆）
+              </Typography>
 
               <TextField
                 fullWidth
@@ -940,73 +1045,399 @@ export default function VipCalculatorPage() {
       <Typography variant="h6" sx={{ fontWeight: 800, mb: 2 }}>
         試算結果
       </Typography>
-      <Grid container spacing={2} sx={{ mb: 4 }}>
-        <Grid size={{ xs: 12, sm: 6, md: 4 }}>
-          <StatCard
-            mode={mode}
-            label="需消耗樂豆點數"
-            value={`${fmt(result.requiredLeadou)} 樂豆`}
-          />
-        </Grid>
-        <Grid size={{ xs: 12, sm: 6, md: 4 }}>
-          <StatCard
-            mode={mode}
-            label="需儲值金額（已含回饋）"
-            value={`NT$ ${fmt(result.buyCost)}`}
-          />
+
+      {/* 還差 hero */}
+      <Card
+        elevation={0}
+        sx={{
+          ...glassSx(mode),
+          mb: 2.5,
+          background:
+            mode === 'dark'
+              ? 'linear-gradient(135deg, rgba(247,147,30,0.16), transparent 85%)'
+              : 'linear-gradient(135deg, rgba(247,147,30,0.12), transparent 85%)',
+          ...(done && {
+            borderColor:
+              mode === 'dark'
+                ? 'rgba(143,206,110,0.35)'
+                : 'rgba(91,156,63,0.35)',
+          }),
+        }}
+      >
+        <CardContent sx={{ p: 3, '&:last-child': { pb: 3 } }}>
+          <Typography
+            variant="caption"
+            sx={{
+              fontWeight: 700,
+              color: 'text.secondary',
+              letterSpacing: 0.3,
+            }}
+          >
+            {done ? '已達標' : '距離目標還差'}
+          </Typography>
+          <Typography
+            sx={{
+              fontFamily: 'monospace',
+              fontWeight: 800,
+              fontSize: 'clamp(1.7rem, 6vw, 2.3rem)',
+              color: done ? 'success.main' : 'primary.dark',
+              fontVariantNumeric: 'tabular-nums',
+              lineHeight: 1.15,
+              mt: 0.25,
+            }}
+          >
+            {done ? '🎉 已達到目標門檻' : `${fmt(result.remainingPts)} 點`}
+          </Typography>
+          <Typography
+            variant="caption"
+            sx={{
+              display: 'block',
+              fontFamily: 'monospace',
+              color: 'text.disabled',
+              mt: 0.5,
+            }}
+          >
+            {done
+              ? `目前 ${fmt(currentPts)} ≥ 目標 ${fmt(targetPtsNum)}`
+              : `目標 ${fmt(targetPtsNum)} － 還差 ${fmt(result.remainingPts)} ⇒ 目前累積約 ${fmt(currentPts)}`}
+          </Typography>
+        </CardContent>
+      </Card>
+
+      {/* 自己消費 / 送禮 雙欄卡 */}
+      <Grid container spacing={2} sx={{ mb: 1 }}>
+        <Grid size={{ xs: 12, sm: 6 }}>
+          <Card
+            elevation={0}
+            sx={{
+              ...glassSx(mode),
+              height: '100%',
+              position: 'relative',
+              overflow: 'visible',
+              ...(!done &&
+                bothPathsFinite &&
+                selfCheaper && {
+                  borderColor:
+                    mode === 'dark'
+                      ? 'rgba(143,206,110,0.5)'
+                      : 'rgba(91,156,63,0.5)',
+                }),
+            }}
+          >
+            {!done && bothPathsFinite && selfCheaper && (
+              <Chip
+                label="最省"
+                color="success"
+                size="small"
+                sx={{
+                  position: 'absolute',
+                  top: -10,
+                  right: 14,
+                  fontWeight: 800,
+                  height: 22,
+                }}
+              />
+            )}
+            <CardContent sx={{ p: 2.75, '&:last-child': { pb: 2.75 } }}>
+              <Typography
+                sx={{
+                  fontWeight: 800,
+                  color:
+                    !done && bothPathsFinite && selfCheaper
+                      ? 'success.main'
+                      : 'primary.dark',
+                }}
+              >
+                自己消費（自用購買）
+              </Typography>
+              <Typography
+                variant="caption"
+                sx={{
+                  display: 'block',
+                  fontFamily: 'monospace',
+                  color: 'text.disabled',
+                  mb: 1.5,
+                  minHeight: 16,
+                }}
+              >
+                {rateLabel(result.parts, 'self')}
+              </Typography>
+              <Box
+                sx={{
+                  display: 'flex',
+                  justifyContent: 'space-between',
+                  alignItems: 'baseline',
+                  py: 0.75,
+                }}
+              >
+                <Typography variant="body2" color="text.secondary">
+                  需自己買
+                </Typography>
+                <Typography sx={{ fontFamily: 'monospace', fontWeight: 700 }}>
+                  {fmt(result.leadouSelf)} 樂豆
+                </Typography>
+              </Box>
+              <Box
+                sx={{
+                  display: 'flex',
+                  justifyContent: 'space-between',
+                  alignItems: 'baseline',
+                  py: 0.75,
+                  borderTop: '1px solid',
+                  borderColor: 'divider',
+                }}
+              >
+                <Typography variant="body2" color="text.secondary">
+                  需儲值
+                </Typography>
+                <Typography
+                  sx={{
+                    fontFamily: 'monospace',
+                    fontWeight: 800,
+                    fontSize: '1.35rem',
+                    color:
+                      !done && bothPathsFinite && selfCheaper
+                        ? 'success.main'
+                        : 'primary.main',
+                  }}
+                >
+                  NT$ {fmt(result.buyCostSelf)}
+                </Typography>
+              </Box>
+            </CardContent>
+          </Card>
         </Grid>
 
-        {isMerchant && (
-          <>
-            <Grid size={{ xs: 12, sm: 6, md: 4 }}>
-              <StatCard
-                mode={mode}
-                label="賣客收回總額"
-                value={`NT$ ${fmt(result.soldRecover)}`}
-                sub={`有效折數 ${(result.discountUsed * 10).toFixed(1)} 折`}
+        <Grid size={{ xs: 12, sm: 6 }}>
+          <Card
+            elevation={0}
+            sx={{
+              ...glassSx(mode),
+              height: '100%',
+              position: 'relative',
+              overflow: 'visible',
+              ...(!done &&
+                bothPathsFinite &&
+                !selfCheaper && {
+                  borderColor:
+                    mode === 'dark'
+                      ? 'rgba(143,206,110,0.5)'
+                      : 'rgba(91,156,63,0.5)',
+                }),
+            }}
+          >
+            {!done && bothPathsFinite && !selfCheaper && (
+              <Chip
+                label="最省"
+                color="success"
+                size="small"
+                sx={{
+                  position: 'absolute',
+                  top: -10,
+                  right: 14,
+                  fontWeight: 800,
+                  height: 22,
+                }}
               />
-            </Grid>
-            <Grid size={{ xs: 12, sm: 6, md: 4 }}>
-              <StatCard
-                mode={mode}
-                label="淨成本（買進－收回）"
-                value={`NT$ ${fmt(result.netCost)}`}
-                tone={netCostTone}
-                sub={
-                  result.netCost <= costCapNum
-                    ? `✓ 在成本上限 ${fmt(costCapNum)} 內`
-                    : `✗ 超過成本上限 ${fmt(costCapNum)}`
-                }
-              />
-            </Grid>
-            <Grid size={{ xs: 12, sm: 6, md: 4 }}>
-              <StatCard
-                mode={mode}
-                label="遊戲幣回收現金"
-                value={`NT$ ${fmt(result.redeemValue)}`}
-                sub={
-                  sellMeso
-                    ? `${fmt(result.gamePoints)} 遊戲點換幣賣出`
-                    : '未啟用（留自用）'
-                }
-              />
-            </Grid>
-            <Grid size={{ xs: 12, sm: 6, md: 4 }}>
-              <StatCard
-                mode={mode}
-                label="實際成本（淨成本－回收）"
-                value={`NT$ ${fmt(result.effCost)}`}
-                tone={effCostTone}
-                sub={
-                  result.effCost <= costCapNum
-                    ? `✓ 在成本上限 ${fmt(costCapNum)} 內`
-                    : `✗ 超過成本上限 ${fmt(costCapNum)}`
-                }
-              />
-            </Grid>
-          </>
-        )}
+            )}
+            <CardContent sx={{ p: 2.75, '&:last-child': { pb: 2.75 } }}>
+              <Typography
+                sx={{
+                  fontWeight: 800,
+                  color:
+                    !done && bothPathsFinite && !selfCheaper
+                      ? 'success.main'
+                      : 'primary.dark',
+                }}
+              >
+                送禮（贈送他人）
+              </Typography>
+              <Typography
+                variant="caption"
+                sx={{
+                  display: 'block',
+                  fontFamily: 'monospace',
+                  color: 'text.disabled',
+                  mb: 1.5,
+                  minHeight: 16,
+                }}
+              >
+                {rateLabel(result.parts, 'gift')}
+              </Typography>
+              <Box
+                sx={{
+                  display: 'flex',
+                  justifyContent: 'space-between',
+                  alignItems: 'baseline',
+                  py: 0.75,
+                }}
+              >
+                <Typography variant="body2" color="text.secondary">
+                  需送禮
+                </Typography>
+                <Typography sx={{ fontFamily: 'monospace', fontWeight: 700 }}>
+                  {fmt(result.leadouGift)} 樂豆
+                </Typography>
+              </Box>
+              <Box
+                sx={{
+                  display: 'flex',
+                  justifyContent: 'space-between',
+                  alignItems: 'baseline',
+                  py: 0.75,
+                  borderTop: '1px solid',
+                  borderColor: 'divider',
+                }}
+              >
+                <Typography variant="body2" color="text.secondary">
+                  需儲值
+                </Typography>
+                <Typography
+                  sx={{
+                    fontFamily: 'monospace',
+                    fontWeight: 800,
+                    fontSize: '1.35rem',
+                    color:
+                      !done && bothPathsFinite && !selfCheaper
+                        ? 'success.main'
+                        : 'primary.main',
+                  }}
+                >
+                  NT$ {fmt(result.buyCostGift)}
+                </Typography>
+              </Box>
+            </CardContent>
+          </Card>
+        </Grid>
       </Grid>
+
+      <Typography
+        variant="body2"
+        sx={{ fontFamily: 'monospace', color: 'text.secondary', mb: 3 }}
+      >
+        {done
+          ? '已達標，兩種方式都不用再花錢。'
+          : bothPathsFinite
+            ? `${selfCheaper ? '自己消費' : '送禮'} 比 ${selfCheaper ? '送禮' : '自己消費'} 省 NT$ ${fmt(pathSaving)}（自用轉換率較高）。送禮較貴但適合代儲——可向客人收回現金（見商家模式）。`
+            : '—'}
+      </Typography>
+
+      {/* 分段明細 */}
+      {result.parts.length > 0 && (
+        <>
+          <Typography variant="subtitle1" sx={{ fontWeight: 800, mb: 1.5 }}>
+            分段明細{result.parts.length > 1 ? '（跨等級用各段比率）' : ''}
+          </Typography>
+          <Card elevation={0} sx={{ ...glassSx(mode), mb: 4 }}>
+            <CardContent sx={{ p: 3 }}>
+              <TableContainer sx={{ overflowX: 'auto' }}>
+                <Table size="small" sx={{ minWidth: 460 }}>
+                  <TableHead>
+                    <TableRow>
+                      <TableCell>等級段</TableCell>
+                      <TableCell align="right">這段點數</TableCell>
+                      <TableCell align="right">自用（樂豆）</TableCell>
+                      <TableCell align="right">送禮（樂豆）</TableCell>
+                    </TableRow>
+                  </TableHead>
+                  <TableBody>
+                    {result.parts.map(p => (
+                      <TableRow key={p.tierIndex}>
+                        <TableCell sx={fieldSx}>
+                          {p.name}（{p.self}／{p.gift}）
+                        </TableCell>
+                        <TableCell align="right" sx={fieldSx}>
+                          {fmt(p.pts)}
+                        </TableCell>
+                        <TableCell align="right" sx={fieldSx}>
+                          {fmt(p.ldSelf)}
+                        </TableCell>
+                        <TableCell align="right" sx={fieldSx}>
+                          {fmt(p.ldGift)}
+                        </TableCell>
+                      </TableRow>
+                    ))}
+                    {result.parts.length > 1 && (
+                      <TableRow
+                        sx={{
+                          '& td': {
+                            fontWeight: 800,
+                            color: 'primary.dark',
+                            borderTop: '1px solid',
+                            borderColor: 'divider',
+                          },
+                        }}
+                      >
+                        <TableCell>總計</TableCell>
+                        <TableCell align="right" sx={fieldSx}>
+                          {fmt(result.remainingPts)}
+                        </TableCell>
+                        <TableCell align="right" sx={fieldSx}>
+                          {fmt(result.leadouSelf)}
+                        </TableCell>
+                        <TableCell align="right" sx={fieldSx}>
+                          {fmt(result.leadouGift)}
+                        </TableCell>
+                      </TableRow>
+                    )}
+                  </TableBody>
+                </Table>
+              </TableContainer>
+            </CardContent>
+          </Card>
+        </>
+      )}
+
+      {isMerchant && (
+        <Grid container spacing={2} sx={{ mb: 4 }}>
+          <Grid size={{ xs: 12, sm: 6, md: 4 }}>
+            <StatCard
+              mode={mode}
+              label="賣客收回總額"
+              value={`NT$ ${fmt(result.soldRecover)}`}
+              sub={`有效折數 ${(result.discountUsed * 10).toFixed(1)} 折`}
+            />
+          </Grid>
+          <Grid size={{ xs: 12, sm: 6, md: 4 }}>
+            <StatCard
+              mode={mode}
+              label="淨成本（買進－收回）"
+              value={`NT$ ${fmt(result.netCost)}`}
+              tone={netCostTone}
+              sub={
+                result.netCost <= costCapNum
+                  ? `✓ 在成本上限 ${fmt(costCapNum)} 內`
+                  : `✗ 超過成本上限 ${fmt(costCapNum)}`
+              }
+            />
+          </Grid>
+          <Grid size={{ xs: 12, sm: 6, md: 4 }}>
+            <StatCard
+              mode={mode}
+              label="遊戲幣回收現金"
+              value={`NT$ ${fmt(result.redeemValue)}`}
+              sub={
+                sellMeso
+                  ? `${fmt(result.gamePoints)} 遊戲點換幣賣出`
+                  : '未啟用（留自用）'
+              }
+            />
+          </Grid>
+          <Grid size={{ xs: 12, sm: 6, md: 4 }}>
+            <StatCard
+              mode={mode}
+              label="實際成本（淨成本－回收）"
+              value={`NT$ ${fmt(result.effCost)}`}
+              tone={effCostTone}
+              sub={
+                result.effCost <= costCapNum
+                  ? `✓ 在成本上限 ${fmt(costCapNum)} 內`
+                  : `✗ 超過成本上限 ${fmt(costCapNum)}`
+              }
+            />
+          </Grid>
+        </Grid>
+      )}
 
       {/* 滾動操作模擬 */}
       {isMerchant && (
