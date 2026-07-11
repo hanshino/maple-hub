@@ -96,7 +96,7 @@ function StatCard({ mode, label, value, sub, tone }) {
         },
       }}
     >
-      <CardContent sx={{ p: 2 }}>
+      <CardContent sx={{ p: 2.75, '&:last-child': { pb: 2.75 } }}>
         <Typography
           variant="caption"
           sx={{ display: 'block', fontWeight: 600, color: 'text.secondary' }}
@@ -409,7 +409,7 @@ export default function VipCalculatorPage() {
       <Grid container spacing={2.5} sx={{ mb: 4 }}>
         <Grid size={{ xs: 12, md: isMerchant ? 6 : 12 }}>
           <Card elevation={0} sx={glassSx(mode)}>
-            <CardContent sx={{ p: 2.5 }}>
+            <CardContent sx={{ p: 3 }}>
               <Typography
                 variant="subtitle2"
                 sx={{ fontWeight: 800, color: 'primary.dark', mb: 2 }}
@@ -492,7 +492,7 @@ export default function VipCalculatorPage() {
         {isMerchant && (
           <Grid size={{ xs: 12, md: 6 }}>
             <Card elevation={0} sx={glassSx(mode)}>
-              <CardContent sx={{ p: 2.5 }}>
+              <CardContent sx={{ p: 3 }}>
                 <Typography
                   variant="subtitle2"
                   sx={{ fontWeight: 800, color: 'primary.dark', mb: 2 }}
@@ -625,7 +625,7 @@ export default function VipCalculatorPage() {
 
                 <Box
                   sx={{
-                    p: 1.75,
+                    p: 2.25,
                     borderRadius: 2,
                     mb: 2,
                     bgcolor:
@@ -1015,7 +1015,7 @@ export default function VipCalculatorPage() {
             滾動操作模擬
           </Typography>
           <Card elevation={0} sx={glassSx(mode)}>
-            <CardContent sx={{ p: 2.5 }}>
+            <CardContent sx={{ p: 3 }}>
               <TableContainer sx={{ overflowX: 'auto' }}>
                 <Table size="small" sx={{ minWidth: 520 }}>
                   <TableHead>
