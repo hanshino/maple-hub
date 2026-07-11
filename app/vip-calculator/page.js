@@ -142,7 +142,15 @@ function StatCard({ mode, label, value, sub, tone }) {
 }
 
 // 自用／送禮雙路比較卡：兩張只差標題、比率標籤、樂豆與需儲值數字，以及是否「最省」高亮。
-function PathCard({ mode, highlighted, title, subtitle, leadouLabel, leadou, cost }) {
+function PathCard({
+  mode,
+  highlighted,
+  title,
+  subtitle,
+  leadouLabel,
+  leadou,
+  cost,
+}) {
   return (
     <Card
       elevation={0}
@@ -273,6 +281,14 @@ export default function VipCalculatorPage() {
   const targetPts = targetPreset === 'custom' ? customPts : targetPreset;
   const targetPtsNum = Number(targetPts) || 0;
   const deficitNum = toNum0(deficitPts);
+  // 還差點數合法範圍 [0, target]；超出＝欄位漂移（例：切小目標後沒更新此欄），
+  // 不靜默夾值改算，改成顯示錯誤、擋住試算結果。
+  const deficitError =
+    targetPtsNum > 0 && (deficitNum < 0 || deficitNum > targetPtsNum);
+  const deficitErrorMsg =
+    deficitNum < 0
+      ? '「還差」點數不能為負數。'
+      : `「還差」點數（${fmt(deficitNum)}）不能大於目標門檻（${fmt(targetPtsNum)}）。切換目標後別忘了更新這欄。`;
   const currentPts = Math.max(0, targetPtsNum - deficitNum);
   const curTierIdx = tierIndexOf(currentPts);
   const tgtTierIdx = tierIndexOf(targetPtsNum); // 達到 target 時所在等級（皇家門檻 3.675M ⇒ 皇家）
@@ -616,7 +632,12 @@ export default function VipCalculatorPage() {
                 value={deficitPts}
                 onChange={e => setDeficitPts(e.target.value)}
                 placeholder="遊戲顯示的「還差」點數"
-                helperText="填遊戲會員頁面顯示的「距離目標還差」點數（例：還差 2,092,440 上皇家）。留空＝已達標。目前累積與等級會用「目標－還差」自動反推。"
+                error={deficitError}
+                helperText={
+                  deficitError
+                    ? deficitErrorMsg
+                    : '填遊戲會員頁面顯示的「距離目標還差」點數（例：還差 2,092,440 上皇家）。留空＝已達標。目前累積與等級會用「目標－還差」自動反推。'
+                }
                 sx={{
                   mb: 0.75,
                   ...fieldSx,
@@ -625,37 +646,41 @@ export default function VipCalculatorPage() {
                       mode === 'dark'
                         ? 'rgba(247,147,30,0.12)'
                         : 'rgba(247,147,30,0.08)',
-                    '& fieldset': { borderColor: 'primary.main' },
+                    '& fieldset': {
+                      borderColor: deficitError ? 'error.main' : 'primary.main',
+                    },
                   },
                 }}
               />
-              <Typography
-                variant="caption"
-                sx={{
-                  display: 'block',
-                  fontFamily: 'monospace',
-                  color: 'text.secondary',
-                  mb: 2,
-                  lineHeight: 1.6,
-                }}
-              >
-                目前累積約{' '}
-                <Box
-                  component="span"
-                  sx={{ color: 'primary.dark', fontWeight: 700 }}
+              {!deficitError && (
+                <Typography
+                  variant="caption"
+                  sx={{
+                    display: 'block',
+                    fontFamily: 'monospace',
+                    color: 'text.secondary',
+                    mb: 2,
+                    lineHeight: 1.6,
+                  }}
                 >
-                  {fmt(currentPts)}
-                </Box>{' '}
-                點 → 等級{' '}
-                <Box
-                  component="span"
-                  sx={{ color: 'primary.dark', fontWeight: 700 }}
-                >
-                  {LEVELS[curTierIdx].name}
-                </Box>
-                （自用 {LEVELS[curTierIdx].self}／送禮 {LEVELS[curTierIdx].rate}{' '}
-                點/樂豆）
-              </Typography>
+                  目前累積約{' '}
+                  <Box
+                    component="span"
+                    sx={{ color: 'primary.dark', fontWeight: 700 }}
+                  >
+                    {fmt(currentPts)}
+                  </Box>{' '}
+                  點 → 等級{' '}
+                  <Box
+                    component="span"
+                    sx={{ color: 'primary.dark', fontWeight: 700 }}
+                  >
+                    {LEVELS[curTierIdx].name}
+                  </Box>
+                  （自用 {LEVELS[curTierIdx].self}／送禮{' '}
+                  {LEVELS[curTierIdx].rate} 點/樂豆）
+                </Typography>
+              )}
 
               <TextField
                 fullWidth
@@ -1134,316 +1159,325 @@ export default function VipCalculatorPage() {
         試算結果
       </Typography>
 
-      {/* 還差 hero */}
-      <Card
-        elevation={0}
-        sx={{
-          ...getGlassCardSx(mode),
-          mb: 2.5,
-          background:
-            mode === 'dark'
-              ? 'linear-gradient(135deg, rgba(247,147,30,0.16), transparent 85%)'
-              : 'linear-gradient(135deg, rgba(247,147,30,0.12), transparent 85%)',
-          ...(done && {
-            borderColor:
-              mode === 'dark'
-                ? 'rgba(143,206,110,0.35)'
-                : 'rgba(91,156,63,0.35)',
-          }),
-        }}
-      >
-        <CardContent sx={{ p: 3, '&:last-child': { pb: 3 } }}>
-          <Typography
-            variant="caption"
-            sx={{
-              fontWeight: 700,
-              color: 'text.secondary',
-              letterSpacing: 0.3,
-            }}
-          >
-            {done ? '已達標' : '距離目標還差'}
-          </Typography>
-          <Typography
-            sx={{
-              fontFamily: 'monospace',
-              fontWeight: 800,
-              fontSize: 'clamp(1.7rem, 6vw, 2.3rem)',
-              color: done ? 'success.main' : 'primary.dark',
-              fontVariantNumeric: 'tabular-nums',
-              lineHeight: 1.15,
-              mt: 0.25,
-            }}
-          >
-            {done ? '🎉 已達到目標門檻' : `${fmt(result.remainingPts)} 點`}
-          </Typography>
-          <Typography
-            variant="caption"
-            sx={{
-              display: 'block',
-              fontFamily: 'monospace',
-              color: 'text.disabled',
-              mt: 0.5,
-            }}
-          >
-            {done
-              ? `目前 ${fmt(currentPts)} ≥ 目標 ${fmt(targetPtsNum)}`
-              : `目標 ${fmt(targetPtsNum)} － 還差 ${fmt(result.remainingPts)} ⇒ 目前累積約 ${fmt(currentPts)}`}
-          </Typography>
-        </CardContent>
-      </Card>
-
-      {/* 自己消費 / 送禮 雙欄卡 */}
-      <Grid container spacing={2} sx={{ mb: 1 }}>
-        <Grid size={{ xs: 12, sm: 6 }}>
-          <PathCard
-            mode={mode}
-            highlighted={selfWins}
-            title="自己消費（自用購買）"
-            subtitle={rateLabel(result.parts, 'self')}
-            leadouLabel="需自己買"
-            leadou={result.leadouSelf}
-            cost={result.buyCostSelf}
-          />
-        </Grid>
-
-        <Grid size={{ xs: 12, sm: 6 }}>
-          <PathCard
-            mode={mode}
-            highlighted={giftWins}
-            title="送禮（贈送他人）"
-            subtitle={rateLabel(result.parts, 'gift')}
-            leadouLabel="需送禮"
-            leadou={result.leadouGift}
-            cost={result.buyCostGift}
-          />
-        </Grid>
-      </Grid>
-
-      <Typography
-        variant="body2"
-        sx={{ fontFamily: 'monospace', color: 'text.secondary', mb: 3 }}
-      >
-        {done
-          ? '已達標，兩種方式都不用再花錢。'
-          : bothPathsFinite
-            ? `${selfCheaper ? '自己消費' : '送禮'} 比 ${selfCheaper ? '送禮' : '自己消費'} 省 NT$ ${fmt(pathSaving)}（自用轉換率較高）。送禮較貴但適合代儲——可向客人收回現金（見商家模式）。`
-            : '—'}
-      </Typography>
-
-      {/* 分段明細 */}
-      {result.parts.length > 0 && (
+      {deficitError ? (
+        <Alert severity="warning" sx={{ mb: 2 }}>
+          請先修正上方「距離目標還差」點數，再查看試算結果。
+        </Alert>
+      ) : (
         <>
-          <Typography variant="subtitle1" sx={{ fontWeight: 800, mb: 1.5 }}>
-            分段明細{result.parts.length > 1 ? '（跨等級用各段比率）' : ''}
-          </Typography>
-          <Card elevation={0} sx={{ ...getGlassCardSx(mode), mb: 4 }}>
-            <CardContent sx={{ p: 3 }}>
-              <TableContainer sx={{ overflowX: 'auto' }}>
-                <Table size="small" sx={{ minWidth: 460 }}>
-                  <TableHead>
-                    <TableRow>
-                      <TableCell>等級段</TableCell>
-                      <TableCell align="right">這段點數</TableCell>
-                      <TableCell align="right">自用（樂豆）</TableCell>
-                      <TableCell align="right">送禮（樂豆）</TableCell>
-                    </TableRow>
-                  </TableHead>
-                  <TableBody>
-                    {result.parts.map(p => (
-                      <TableRow key={p.tierIndex}>
-                        <TableCell sx={fieldSx}>
-                          {p.name}（{p.self}／{p.gift}）
-                        </TableCell>
-                        <TableCell align="right" sx={fieldSx}>
-                          {fmt(p.pts)}
-                        </TableCell>
-                        <TableCell align="right" sx={fieldSx}>
-                          {fmt(p.ldSelf)}
-                        </TableCell>
-                        <TableCell align="right" sx={fieldSx}>
-                          {fmt(p.ldGift)}
-                        </TableCell>
-                      </TableRow>
-                    ))}
-                    {result.parts.length > 1 && (
-                      <TableRow
-                        sx={{
-                          '& td': {
-                            fontWeight: 800,
-                            color: 'primary.dark',
-                            borderTop: '1px solid',
-                            borderColor: 'divider',
-                          },
-                        }}
-                      >
-                        <TableCell>總計</TableCell>
-                        <TableCell align="right" sx={fieldSx}>
-                          {fmt(result.remainingPts)}
-                        </TableCell>
-                        <TableCell align="right" sx={fieldSx}>
-                          {fmt(result.leadouSelf)}
-                        </TableCell>
-                        <TableCell align="right" sx={fieldSx}>
-                          {fmt(result.leadouGift)}
-                        </TableCell>
-                      </TableRow>
-                    )}
-                  </TableBody>
-                </Table>
-              </TableContainer>
-            </CardContent>
-          </Card>
-        </>
-      )}
-
-      {isMerchant && (
-        <Grid container spacing={2} sx={{ mb: 4 }}>
-          <Grid size={{ xs: 12, sm: 6, md: 4 }}>
-            <StatCard
-              mode={mode}
-              label="賣客收回總額"
-              value={`NT$ ${fmt(result.soldRecover)}`}
-              sub={`有效折數 ${(result.discountUsed * 10).toFixed(1)} 折`}
-            />
-          </Grid>
-          <Grid size={{ xs: 12, sm: 6, md: 4 }}>
-            <StatCard
-              mode={mode}
-              label="淨成本（買進－收回）"
-              value={`NT$ ${fmt(result.netCost)}`}
-              tone={netCostTone}
-              sub={
-                result.netCost <= costCapNum
-                  ? `✓ 在成本上限 ${fmt(costCapNum)} 內`
-                  : `✗ 超過成本上限 ${fmt(costCapNum)}`
-              }
-            />
-          </Grid>
-          <Grid size={{ xs: 12, sm: 6, md: 4 }}>
-            <StatCard
-              mode={mode}
-              label="遊戲幣回收現金"
-              value={`NT$ ${fmt(result.redeemValue)}`}
-              sub={
-                sellMeso
-                  ? `${fmt(result.gamePoints)} 遊戲點換幣賣出`
-                  : '未啟用（留自用）'
-              }
-            />
-          </Grid>
-          <Grid size={{ xs: 12, sm: 6, md: 4 }}>
-            <StatCard
-              mode={mode}
-              label="實際成本（淨成本－回收）"
-              value={`NT$ ${fmt(result.effCost)}`}
-              tone={effCostTone}
-              sub={
-                result.effCost <= costCapNum
-                  ? `✓ 在成本上限 ${fmt(costCapNum)} 內`
-                  : `✗ 超過成本上限 ${fmt(costCapNum)}`
-              }
-            />
-          </Grid>
-        </Grid>
-      )}
-
-      {/* 滾動操作模擬 */}
-      {isMerchant && (
-        <Box>
-          <Typography variant="h6" sx={{ fontWeight: 800, mb: 2 }}>
-            滾動操作模擬
-          </Typography>
-          <Card elevation={0} sx={getGlassCardSx(mode)}>
-            <CardContent sx={{ p: 3 }}>
-              <TableContainer sx={{ overflowX: 'auto' }}>
-                <Table size="small" sx={{ minWidth: 520 }}>
-                  <TableHead>
-                    <TableRow>
-                      <TableCell>輪次</TableCell>
-                      <TableCell align="right">投入現金</TableCell>
-                      <TableCell align="right">買到樂豆</TableCell>
-                      <TableCell align="right">累積樂豆</TableCell>
-                      <TableCell align="right">賣出收回</TableCell>
-                      <TableCell align="right">手上現金</TableCell>
-                    </TableRow>
-                  </TableHead>
-                  <TableBody>
-                    {result.sim.map(s => (
-                      <TableRow
-                        key={s.round}
-                        sx={{
-                          bgcolor: s.done
-                            ? mode === 'dark'
-                              ? 'rgba(247,147,30,0.12)'
-                              : 'rgba(247,147,30,0.08)'
-                            : 'transparent',
-                        }}
-                      >
-                        <TableCell
-                          sx={{
-                            fontWeight: s.done ? 700 : 400,
-                            color: s.done ? 'primary.dark' : 'text.primary',
-                          }}
-                        >
-                          第{s.round}輪{s.done ? ' ✓達標' : ''}
-                        </TableCell>
-                        <TableCell align="right" sx={fieldSx}>
-                          {fmt(s.investCash)}
-                        </TableCell>
-                        <TableCell align="right" sx={fieldSx}>
-                          {fmt(s.bought)}
-                        </TableCell>
-                        <TableCell align="right" sx={fieldSx}>
-                          {fmt(s.acc)}
-                        </TableCell>
-                        <TableCell align="right" sx={fieldSx}>
-                          {fmt(s.soldBack)}
-                        </TableCell>
-                        <TableCell align="right" sx={fieldSx}>
-                          {fmt(s.cash)}
-                        </TableCell>
-                      </TableRow>
-                    ))}
-                  </TableBody>
-                </Table>
-              </TableContainer>
-
-              {result.sim.length === 0 ? (
-                <Alert severity="warning" sx={{ mt: 2 }}>
-                  現金或匯率不足以開始模擬。
-                </Alert>
-              ) : !result.reached ? (
-                <Alert severity="warning" sx={{ mt: 2 }}>
-                  現金不足以在 40 輪內達標，需更多本金或更低折數。
-                </Alert>
-              ) : (
-                <Chip
-                  label={`滾動總淨損 NT$ ${fmt(result.lossSum)} ＝ 單筆淨成本 NT$ ${fmt(result.netCost)} ${crossCheckOk ? '✓ 一致' : '✗ 不一致'}`}
-                  color={crossCheckOk ? 'success' : 'error'}
-                  variant="outlined"
-                  sx={{
-                    mt: 2,
-                    fontFamily: 'monospace',
-                    height: 'auto',
-                    py: 0.75,
-                    '& .MuiChip-label': { whiteSpace: 'normal' },
-                  }}
-                />
-              )}
-
+          {/* 還差 hero */}
+          <Card
+            elevation={0}
+            sx={{
+              ...getGlassCardSx(mode),
+              mb: 2.5,
+              background:
+                mode === 'dark'
+                  ? 'linear-gradient(135deg, rgba(247,147,30,0.16), transparent 85%)'
+                  : 'linear-gradient(135deg, rgba(247,147,30,0.12), transparent 85%)',
+              ...(done && {
+                borderColor:
+                  mode === 'dark'
+                    ? 'rgba(143,206,110,0.35)'
+                    : 'rgba(91,156,63,0.35)',
+              }),
+            }}
+          >
+            <CardContent sx={{ p: 3, '&:last-child': { pb: 3 } }}>
               <Typography
                 variant="caption"
-                color="text.disabled"
-                sx={{ display: 'block', mt: 2, lineHeight: 1.7 }}
+                sx={{
+                  fontWeight: 700,
+                  color: 'text.secondary',
+                  letterSpacing: 0.3,
+                }}
               >
-                一輪：用手上現金買樂豆（現金 × 匯率 × (1+回饋)）→
-                整批送禮給客人累積 VIP 點數，同時收「樂豆張數 × 折數」的現金 →
-                回進下一輪，累積到門檻為止（最後一輪只補缺口）。假設 1 樂豆 ≈ 1
-                元面值；實務上請收到客人款項後再進下一輪，避免資金卡死。
+                {done ? '已達標' : '距離目標還差'}
+              </Typography>
+              <Typography
+                sx={{
+                  fontFamily: 'monospace',
+                  fontWeight: 800,
+                  fontSize: 'clamp(1.7rem, 6vw, 2.3rem)',
+                  color: done ? 'success.main' : 'primary.dark',
+                  fontVariantNumeric: 'tabular-nums',
+                  lineHeight: 1.15,
+                  mt: 0.25,
+                }}
+              >
+                {done ? '🎉 已達到目標門檻' : `${fmt(result.remainingPts)} 點`}
+              </Typography>
+              <Typography
+                variant="caption"
+                sx={{
+                  display: 'block',
+                  fontFamily: 'monospace',
+                  color: 'text.disabled',
+                  mt: 0.5,
+                }}
+              >
+                {done
+                  ? `目前 ${fmt(currentPts)} ≥ 目標 ${fmt(targetPtsNum)}`
+                  : `目標 ${fmt(targetPtsNum)} － 還差 ${fmt(result.remainingPts)} ⇒ 目前累積約 ${fmt(currentPts)}`}
               </Typography>
             </CardContent>
           </Card>
-        </Box>
+
+          {/* 自己消費 / 送禮 雙欄卡 */}
+          <Grid container spacing={2} sx={{ mb: 1 }}>
+            <Grid size={{ xs: 12, sm: 6 }}>
+              <PathCard
+                mode={mode}
+                highlighted={selfWins}
+                title="自己消費（自用購買）"
+                subtitle={rateLabel(result.parts, 'self')}
+                leadouLabel="需自己買"
+                leadou={result.leadouSelf}
+                cost={result.buyCostSelf}
+              />
+            </Grid>
+
+            <Grid size={{ xs: 12, sm: 6 }}>
+              <PathCard
+                mode={mode}
+                highlighted={giftWins}
+                title="送禮（贈送他人）"
+                subtitle={rateLabel(result.parts, 'gift')}
+                leadouLabel="需送禮"
+                leadou={result.leadouGift}
+                cost={result.buyCostGift}
+              />
+            </Grid>
+          </Grid>
+
+          <Typography
+            variant="body2"
+            sx={{ fontFamily: 'monospace', color: 'text.secondary', mb: 3 }}
+          >
+            {done
+              ? '已達標，兩種方式都不用再花錢。'
+              : bothPathsFinite
+                ? `${selfCheaper ? '自己消費' : '送禮'} 比 ${selfCheaper ? '送禮' : '自己消費'} 省 NT$ ${fmt(pathSaving)}（自用轉換率較高）。送禮較貴但適合代儲——可向客人收回現金（見商家模式）。`
+                : '—'}
+          </Typography>
+
+          {/* 分段明細 */}
+          {result.parts.length > 0 && (
+            <>
+              <Typography variant="subtitle1" sx={{ fontWeight: 800, mb: 1.5 }}>
+                分段明細{result.parts.length > 1 ? '（跨等級用各段比率）' : ''}
+              </Typography>
+              <Card elevation={0} sx={{ ...getGlassCardSx(mode), mb: 4 }}>
+                <CardContent sx={{ p: 3 }}>
+                  <TableContainer sx={{ overflowX: 'auto' }}>
+                    <Table size="small" sx={{ minWidth: 460 }}>
+                      <TableHead>
+                        <TableRow>
+                          <TableCell>等級段</TableCell>
+                          <TableCell align="right">這段點數</TableCell>
+                          <TableCell align="right">自用（樂豆）</TableCell>
+                          <TableCell align="right">送禮（樂豆）</TableCell>
+                        </TableRow>
+                      </TableHead>
+                      <TableBody>
+                        {result.parts.map(p => (
+                          <TableRow key={p.tierIndex}>
+                            <TableCell sx={fieldSx}>
+                              {p.name}（{p.self}／{p.gift}）
+                            </TableCell>
+                            <TableCell align="right" sx={fieldSx}>
+                              {fmt(p.pts)}
+                            </TableCell>
+                            <TableCell align="right" sx={fieldSx}>
+                              {fmt(p.ldSelf)}
+                            </TableCell>
+                            <TableCell align="right" sx={fieldSx}>
+                              {fmt(p.ldGift)}
+                            </TableCell>
+                          </TableRow>
+                        ))}
+                        {result.parts.length > 1 && (
+                          <TableRow
+                            sx={{
+                              '& td': {
+                                fontWeight: 800,
+                                color: 'primary.dark',
+                                borderTop: '1px solid',
+                                borderColor: 'divider',
+                              },
+                            }}
+                          >
+                            <TableCell>總計</TableCell>
+                            <TableCell align="right" sx={fieldSx}>
+                              {fmt(result.remainingPts)}
+                            </TableCell>
+                            <TableCell align="right" sx={fieldSx}>
+                              {fmt(result.leadouSelf)}
+                            </TableCell>
+                            <TableCell align="right" sx={fieldSx}>
+                              {fmt(result.leadouGift)}
+                            </TableCell>
+                          </TableRow>
+                        )}
+                      </TableBody>
+                    </Table>
+                  </TableContainer>
+                </CardContent>
+              </Card>
+            </>
+          )}
+
+          {isMerchant && (
+            <Grid container spacing={2} sx={{ mb: 4 }}>
+              <Grid size={{ xs: 12, sm: 6, md: 4 }}>
+                <StatCard
+                  mode={mode}
+                  label="賣客收回總額"
+                  value={`NT$ ${fmt(result.soldRecover)}`}
+                  sub={`有效折數 ${(result.discountUsed * 10).toFixed(1)} 折`}
+                />
+              </Grid>
+              <Grid size={{ xs: 12, sm: 6, md: 4 }}>
+                <StatCard
+                  mode={mode}
+                  label="淨成本（買進－收回）"
+                  value={`NT$ ${fmt(result.netCost)}`}
+                  tone={netCostTone}
+                  sub={
+                    result.netCost <= costCapNum
+                      ? `✓ 在成本上限 ${fmt(costCapNum)} 內`
+                      : `✗ 超過成本上限 ${fmt(costCapNum)}`
+                  }
+                />
+              </Grid>
+              <Grid size={{ xs: 12, sm: 6, md: 4 }}>
+                <StatCard
+                  mode={mode}
+                  label="遊戲幣回收現金"
+                  value={`NT$ ${fmt(result.redeemValue)}`}
+                  sub={
+                    sellMeso
+                      ? `${fmt(result.gamePoints)} 遊戲點換幣賣出`
+                      : '未啟用（留自用）'
+                  }
+                />
+              </Grid>
+              <Grid size={{ xs: 12, sm: 6, md: 4 }}>
+                <StatCard
+                  mode={mode}
+                  label="實際成本（淨成本－回收）"
+                  value={`NT$ ${fmt(result.effCost)}`}
+                  tone={effCostTone}
+                  sub={
+                    result.effCost <= costCapNum
+                      ? `✓ 在成本上限 ${fmt(costCapNum)} 內`
+                      : `✗ 超過成本上限 ${fmt(costCapNum)}`
+                  }
+                />
+              </Grid>
+            </Grid>
+          )}
+
+          {/* 滾動操作模擬 */}
+          {isMerchant && (
+            <Box>
+              <Typography variant="h6" sx={{ fontWeight: 800, mb: 2 }}>
+                滾動操作模擬
+              </Typography>
+              <Card elevation={0} sx={getGlassCardSx(mode)}>
+                <CardContent sx={{ p: 3 }}>
+                  <TableContainer sx={{ overflowX: 'auto' }}>
+                    <Table size="small" sx={{ minWidth: 520 }}>
+                      <TableHead>
+                        <TableRow>
+                          <TableCell>輪次</TableCell>
+                          <TableCell align="right">投入現金</TableCell>
+                          <TableCell align="right">買到樂豆</TableCell>
+                          <TableCell align="right">累積樂豆</TableCell>
+                          <TableCell align="right">賣出收回</TableCell>
+                          <TableCell align="right">手上現金</TableCell>
+                        </TableRow>
+                      </TableHead>
+                      <TableBody>
+                        {result.sim.map(s => (
+                          <TableRow
+                            key={s.round}
+                            sx={{
+                              bgcolor: s.done
+                                ? mode === 'dark'
+                                  ? 'rgba(247,147,30,0.12)'
+                                  : 'rgba(247,147,30,0.08)'
+                                : 'transparent',
+                            }}
+                          >
+                            <TableCell
+                              sx={{
+                                fontWeight: s.done ? 700 : 400,
+                                color: s.done ? 'primary.dark' : 'text.primary',
+                              }}
+                            >
+                              第{s.round}輪{s.done ? ' ✓達標' : ''}
+                            </TableCell>
+                            <TableCell align="right" sx={fieldSx}>
+                              {fmt(s.investCash)}
+                            </TableCell>
+                            <TableCell align="right" sx={fieldSx}>
+                              {fmt(s.bought)}
+                            </TableCell>
+                            <TableCell align="right" sx={fieldSx}>
+                              {fmt(s.acc)}
+                            </TableCell>
+                            <TableCell align="right" sx={fieldSx}>
+                              {fmt(s.soldBack)}
+                            </TableCell>
+                            <TableCell align="right" sx={fieldSx}>
+                              {fmt(s.cash)}
+                            </TableCell>
+                          </TableRow>
+                        ))}
+                      </TableBody>
+                    </Table>
+                  </TableContainer>
+
+                  {result.sim.length === 0 ? (
+                    <Alert severity="warning" sx={{ mt: 2 }}>
+                      現金或匯率不足以開始模擬。
+                    </Alert>
+                  ) : !result.reached ? (
+                    <Alert severity="warning" sx={{ mt: 2 }}>
+                      現金不足以在 40 輪內達標，需更多本金或更低折數。
+                    </Alert>
+                  ) : (
+                    <Chip
+                      label={`滾動總淨損 NT$ ${fmt(result.lossSum)} ＝ 單筆淨成本 NT$ ${fmt(result.netCost)} ${crossCheckOk ? '✓ 一致' : '✗ 不一致'}`}
+                      color={crossCheckOk ? 'success' : 'error'}
+                      variant="outlined"
+                      sx={{
+                        mt: 2,
+                        fontFamily: 'monospace',
+                        height: 'auto',
+                        py: 0.75,
+                        '& .MuiChip-label': { whiteSpace: 'normal' },
+                      }}
+                    />
+                  )}
+
+                  <Typography
+                    variant="caption"
+                    color="text.disabled"
+                    sx={{ display: 'block', mt: 2, lineHeight: 1.7 }}
+                  >
+                    一輪：用手上現金買樂豆（現金 × 匯率 × (1+回饋)）→
+                    整批送禮給客人累積 VIP 點數，同時收「樂豆張數 × 折數」的現金
+                    → 回進下一輪，累積到門檻為止（最後一輪只補缺口）。假設 1
+                    樂豆 ≈ 1
+                    元面值；實務上請收到客人款項後再進下一輪，避免資金卡死。
+                  </Typography>
+                </CardContent>
+              </Card>
+            </Box>
+          )}
+        </>
       )}
     </Container>
   );
