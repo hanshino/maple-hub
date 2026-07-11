@@ -208,13 +208,14 @@ redemptions    = floor(remainingPts / exPts)            // 用差額（這趟賺
 leftoverPts    = remainingPts − redemptions × exPts
 ```
 
-- **向後相容**：`currentPts` 預設 0 時，`segment(0, target)` 會跨全段。**注意**：既有測試「鑽石(32)+皇家(3,675,000) → 114,843.75」的期望值會因分段改為 **125,000**（150000/16 + 525000/24 + 3000000/32）——這是刻意的正確性修正，需一併更新該測試（並改以「single-band 情境」另立一筆保留單段驗證）。
+- **比率解析（向後相容關鍵）**：`giftRate`/`selfRate` 保留為**選用覆寫**——有傳（既有呼叫端／測試）就用該平率 `remainingPts / rate`；沒傳（新 UI）才用 `segment()` 分段。因此**既有 12 筆測試全部原封不動通過**（它們傳 `giftRate` 且無 `currentPts` ＝ 平率、`remainingPts = targetPts`），無需改任何期望值（含 114,843.75 那筆）。
+- **向後相容**：`currentPts` 預設 0 → `remainingPts = targetPts`；配合平率覆寫，舊行為完全不變。新 UI 不傳 rate、改傳 `currentPts`，才走分段。
 - 混合折數、`mesoPointValue`、「Σ每輪淨損 ＝ netCost」不變式皆沿用 `requiredLeadou`(=leadouGift)，不受影響。
 
 ### 9.3 引擎變更（`lib/vipCalculator.js`）
 
-- `LEVELS` → 擴為 `BANDS`（加 `self`、`lo`/`hi`）。保留 `LEVELS`/`TARGET_PRESETS` 匯出以免破壞既有 import；或同步更新使用端。
-- `computeVip(inputs)` 加 `currentPts`（預設 0）；內部 `segment()`；回傳新欄位 `remainingPts`、`leadouSelf`、`buyCostSelf`、`leadouGift`、`buyCostGift`、`parts`。既有 `requiredLeadou`/`buyCost` 對應送禮路徑，語意不變。
+- `LEVELS`：**原地擴充**每筆加 `self`、`lo`、`hi`（保留 `name`/`rate`(=送禮率)/`ptsLabel`）；`segment()` 直接讀 `LEVELS`。因 `.rate` 與長度不變，constants 測試不動；`TARGET_PRESETS` 不變。
+- `computeVip(inputs)` 加 `currentPts`（預設 0）；`giftRate`/`selfRate` 改為**選用覆寫**（見 9.2），沒傳才 `segment()`。回傳新欄位 `remainingPts`、`leadouSelf`、`buyCostSelf`、`leadouGift`、`buyCostGift`、`parts`。既有 `requiredLeadou`(=leadouGift)/`buyCost` 語意不變。`redemptions` 改用 `remainingPts`（`currentPts=0` 時 ＝ `targetPts`，相容）。
 - 新增匯出純函式 `tierIndexOf(pts)` 與 `segment(current, target)`，可獨立單測。
 
 ### 9.4 UI 變更（`app/vip-calculator/page.js`）
@@ -236,7 +237,7 @@ leftoverPts    = remainingPts − redemptions × exPts
 
 - `segment()`：單段（鑽石內）、跨兩段（金→鑽）、跨全段（0→皇家＝125,000 樂豆 gift）、已達標（parts 空、樂豆 0）。
 - `tierIndexOf()`：各邊界值（149999→金前一段、150000→金、675000→鑽、3675000→皇）。
-- `computeVip`：`currentPts>0` 差額計算、雙路徑 `leadouSelf`/`leadouGift`、`redemptions` 用 `remainingPts`、`currentPts=0` 向後相容（並更新舊 114,843.75 案為 125,000 或改單段案）。
+- `computeVip`（新增，不動既有 12 筆）：不傳 rate ＋ `currentPts>0` → 分段雙路徑 `leadouSelf`/`leadouGift`；`redemptions` 用 `remainingPts`；`currentPts=0` 且傳 `giftRate` → 平率（驗證覆寫路徑仍等於舊值 114,843.75）。
 - 頁面：deficit → currentPts 反推、等級標籤、雙欄與明細表渲染不 crash。
 
 ### 9.7 驗收條件
