@@ -34,6 +34,7 @@ import AddIcon from '@mui/icons-material/Add';
 import RestartAltIcon from '@mui/icons-material/RestartAlt';
 import { FaCanadianMapleLeaf } from 'react-icons/fa';
 import { useColorMode } from '../../components/MuiThemeProvider';
+import { getGlassCardSx } from '../../lib/theme';
 import {
   computeVip,
   mesoPointValue,
@@ -79,16 +80,10 @@ function rateLabel(parts, key) {
   return `跨 ${parts.length} 段（${parts.map(p => (key === 'self' ? p.self : p.gift)).join('→')} 點／樂豆）`;
 }
 
-function glassSx(mode) {
-  return {
-    borderRadius: 3,
-    border: '1px solid',
-    borderColor:
-      mode === 'dark' ? 'rgba(255,255,255,0.08)' : 'rgba(247,147,30,0.15)',
-    bgcolor: mode === 'dark' ? 'rgba(42,31,26,0.6)' : 'rgba(255,255,255,0.7)',
-    backdropFilter: 'blur(8px)',
-  };
-}
+// 輸入框等寬字型（靜態，模組層級即可）。
+const fieldSx = {
+  '& .MuiInputBase-input': { fontFamily: 'monospace' },
+};
 
 function toneColor(tone) {
   if (tone === 'success') return 'success.main';
@@ -102,7 +97,7 @@ function StatCard({ mode, label, value, sub, tone }) {
     <Card
       elevation={0}
       sx={{
-        ...glassSx(mode),
+        ...getGlassCardSx(mode),
         height: '100%',
         transition: 'transform 0.18s ease, box-shadow 0.18s ease',
         '&:hover': {
@@ -141,6 +136,101 @@ function StatCard({ mode, label, value, sub, tone }) {
             {sub}
           </Typography>
         )}
+      </CardContent>
+    </Card>
+  );
+}
+
+// 自用／送禮雙路比較卡：兩張只差標題、比率標籤、樂豆與需儲值數字，以及是否「最省」高亮。
+function PathCard({ mode, highlighted, title, subtitle, leadouLabel, leadou, cost }) {
+  return (
+    <Card
+      elevation={0}
+      sx={{
+        ...getGlassCardSx(mode),
+        height: '100%',
+        position: 'relative',
+        overflow: 'visible',
+        ...(highlighted && {
+          borderColor:
+            mode === 'dark' ? 'rgba(143,206,110,0.5)' : 'rgba(91,156,63,0.5)',
+        }),
+      }}
+    >
+      {highlighted && (
+        <Chip
+          label="最省"
+          color="success"
+          size="small"
+          sx={{
+            position: 'absolute',
+            top: -10,
+            right: 14,
+            fontWeight: 800,
+            height: 22,
+          }}
+        />
+      )}
+      <CardContent sx={{ p: 2.75, '&:last-child': { pb: 2.75 } }}>
+        <Typography
+          sx={{
+            fontWeight: 800,
+            color: highlighted ? 'success.main' : 'primary.dark',
+          }}
+        >
+          {title}
+        </Typography>
+        <Typography
+          variant="caption"
+          sx={{
+            display: 'block',
+            fontFamily: 'monospace',
+            color: 'text.disabled',
+            mb: 1.5,
+            minHeight: 16,
+          }}
+        >
+          {subtitle}
+        </Typography>
+        <Box
+          sx={{
+            display: 'flex',
+            justifyContent: 'space-between',
+            alignItems: 'baseline',
+            py: 0.75,
+          }}
+        >
+          <Typography variant="body2" color="text.secondary">
+            {leadouLabel}
+          </Typography>
+          <Typography sx={{ fontFamily: 'monospace', fontWeight: 700 }}>
+            {fmt(leadou)} 樂豆
+          </Typography>
+        </Box>
+        <Box
+          sx={{
+            display: 'flex',
+            justifyContent: 'space-between',
+            alignItems: 'baseline',
+            py: 0.75,
+            borderTop: '1px solid',
+            borderColor: 'divider',
+          }}
+        >
+          <Typography variant="body2" color="text.secondary">
+            需儲值
+          </Typography>
+          <Typography
+            sx={{
+              fontFamily: 'monospace',
+              fontWeight: 800,
+              fontSize: '1.35rem',
+              color: highlighted ? 'success.main' : 'primary.main',
+            }}
+          >
+            NT$ {fmt(cost)}
+          </Typography>
+        </Box>
       </CardContent>
     </Card>
   );
@@ -256,6 +346,8 @@ export default function VipCalculatorPage() {
     Number.isFinite(result.buyCostSelf) && Number.isFinite(result.buyCostGift);
   const selfCheaper = result.buyCostSelf <= result.buyCostGift;
   const pathSaving = Math.abs(result.buyCostGift - result.buyCostSelf);
+  const selfWins = !done && bothPathsFinite && selfCheaper;
+  const giftWins = !done && bothPathsFinite && !selfCheaper;
 
   // 分批賣客：總面額／賣超判斷（僅供 UI 提示，非引擎計算）
   const totalFace = trancheInputs.reduce((sum, t) => sum + t.face, 0);
@@ -294,10 +386,6 @@ export default function VipCalculatorPage() {
   const lossDiff = Math.abs(result.lossSum - result.netCost);
   const crossCheckOk = lossDiff < 1;
 
-  const fieldSx = {
-    '& .MuiInputBase-input': { fontFamily: 'monospace' },
-  };
-
   return (
     <Container maxWidth="md" sx={{ py: { xs: 3, md: 5 } }}>
       {/* Header */}
@@ -333,7 +421,7 @@ export default function VipCalculatorPage() {
           mb: 3,
           p: 0.5,
           borderRadius: 3,
-          ...glassSx(mode),
+          ...getGlassCardSx(mode),
         }}
       >
         <ToggleButton
@@ -381,7 +469,7 @@ export default function VipCalculatorPage() {
           borderRadius: 3,
           overflow: 'hidden',
           mb: 3,
-          ...glassSx(mode),
+          ...getGlassCardSx(mode),
         }}
       >
         {LEVELS.map((l, idx) => {
@@ -482,7 +570,7 @@ export default function VipCalculatorPage() {
       {/* 輸入區 */}
       <Grid container spacing={2.5} sx={{ mb: 4 }}>
         <Grid size={{ xs: 12, md: isMerchant ? 6 : 12 }}>
-          <Card elevation={0} sx={glassSx(mode)}>
+          <Card elevation={0} sx={getGlassCardSx(mode)}>
             <CardContent sx={{ p: 3 }}>
               <Typography
                 variant="subtitle2"
@@ -596,7 +684,7 @@ export default function VipCalculatorPage() {
 
         {isMerchant && (
           <Grid size={{ xs: 12, md: 6 }}>
-            <Card elevation={0} sx={glassSx(mode)}>
+            <Card elevation={0} sx={getGlassCardSx(mode)}>
               <CardContent sx={{ p: 3 }}>
                 <Typography
                   variant="subtitle2"
@@ -1050,7 +1138,7 @@ export default function VipCalculatorPage() {
       <Card
         elevation={0}
         sx={{
-          ...glassSx(mode),
+          ...getGlassCardSx(mode),
           mb: 2.5,
           background:
             mode === 'dark'
@@ -1107,207 +1195,27 @@ export default function VipCalculatorPage() {
       {/* 自己消費 / 送禮 雙欄卡 */}
       <Grid container spacing={2} sx={{ mb: 1 }}>
         <Grid size={{ xs: 12, sm: 6 }}>
-          <Card
-            elevation={0}
-            sx={{
-              ...glassSx(mode),
-              height: '100%',
-              position: 'relative',
-              overflow: 'visible',
-              ...(!done &&
-                bothPathsFinite &&
-                selfCheaper && {
-                  borderColor:
-                    mode === 'dark'
-                      ? 'rgba(143,206,110,0.5)'
-                      : 'rgba(91,156,63,0.5)',
-                }),
-            }}
-          >
-            {!done && bothPathsFinite && selfCheaper && (
-              <Chip
-                label="最省"
-                color="success"
-                size="small"
-                sx={{
-                  position: 'absolute',
-                  top: -10,
-                  right: 14,
-                  fontWeight: 800,
-                  height: 22,
-                }}
-              />
-            )}
-            <CardContent sx={{ p: 2.75, '&:last-child': { pb: 2.75 } }}>
-              <Typography
-                sx={{
-                  fontWeight: 800,
-                  color:
-                    !done && bothPathsFinite && selfCheaper
-                      ? 'success.main'
-                      : 'primary.dark',
-                }}
-              >
-                自己消費（自用購買）
-              </Typography>
-              <Typography
-                variant="caption"
-                sx={{
-                  display: 'block',
-                  fontFamily: 'monospace',
-                  color: 'text.disabled',
-                  mb: 1.5,
-                  minHeight: 16,
-                }}
-              >
-                {rateLabel(result.parts, 'self')}
-              </Typography>
-              <Box
-                sx={{
-                  display: 'flex',
-                  justifyContent: 'space-between',
-                  alignItems: 'baseline',
-                  py: 0.75,
-                }}
-              >
-                <Typography variant="body2" color="text.secondary">
-                  需自己買
-                </Typography>
-                <Typography sx={{ fontFamily: 'monospace', fontWeight: 700 }}>
-                  {fmt(result.leadouSelf)} 樂豆
-                </Typography>
-              </Box>
-              <Box
-                sx={{
-                  display: 'flex',
-                  justifyContent: 'space-between',
-                  alignItems: 'baseline',
-                  py: 0.75,
-                  borderTop: '1px solid',
-                  borderColor: 'divider',
-                }}
-              >
-                <Typography variant="body2" color="text.secondary">
-                  需儲值
-                </Typography>
-                <Typography
-                  sx={{
-                    fontFamily: 'monospace',
-                    fontWeight: 800,
-                    fontSize: '1.35rem',
-                    color:
-                      !done && bothPathsFinite && selfCheaper
-                        ? 'success.main'
-                        : 'primary.main',
-                  }}
-                >
-                  NT$ {fmt(result.buyCostSelf)}
-                </Typography>
-              </Box>
-            </CardContent>
-          </Card>
+          <PathCard
+            mode={mode}
+            highlighted={selfWins}
+            title="自己消費（自用購買）"
+            subtitle={rateLabel(result.parts, 'self')}
+            leadouLabel="需自己買"
+            leadou={result.leadouSelf}
+            cost={result.buyCostSelf}
+          />
         </Grid>
 
         <Grid size={{ xs: 12, sm: 6 }}>
-          <Card
-            elevation={0}
-            sx={{
-              ...glassSx(mode),
-              height: '100%',
-              position: 'relative',
-              overflow: 'visible',
-              ...(!done &&
-                bothPathsFinite &&
-                !selfCheaper && {
-                  borderColor:
-                    mode === 'dark'
-                      ? 'rgba(143,206,110,0.5)'
-                      : 'rgba(91,156,63,0.5)',
-                }),
-            }}
-          >
-            {!done && bothPathsFinite && !selfCheaper && (
-              <Chip
-                label="最省"
-                color="success"
-                size="small"
-                sx={{
-                  position: 'absolute',
-                  top: -10,
-                  right: 14,
-                  fontWeight: 800,
-                  height: 22,
-                }}
-              />
-            )}
-            <CardContent sx={{ p: 2.75, '&:last-child': { pb: 2.75 } }}>
-              <Typography
-                sx={{
-                  fontWeight: 800,
-                  color:
-                    !done && bothPathsFinite && !selfCheaper
-                      ? 'success.main'
-                      : 'primary.dark',
-                }}
-              >
-                送禮（贈送他人）
-              </Typography>
-              <Typography
-                variant="caption"
-                sx={{
-                  display: 'block',
-                  fontFamily: 'monospace',
-                  color: 'text.disabled',
-                  mb: 1.5,
-                  minHeight: 16,
-                }}
-              >
-                {rateLabel(result.parts, 'gift')}
-              </Typography>
-              <Box
-                sx={{
-                  display: 'flex',
-                  justifyContent: 'space-between',
-                  alignItems: 'baseline',
-                  py: 0.75,
-                }}
-              >
-                <Typography variant="body2" color="text.secondary">
-                  需送禮
-                </Typography>
-                <Typography sx={{ fontFamily: 'monospace', fontWeight: 700 }}>
-                  {fmt(result.leadouGift)} 樂豆
-                </Typography>
-              </Box>
-              <Box
-                sx={{
-                  display: 'flex',
-                  justifyContent: 'space-between',
-                  alignItems: 'baseline',
-                  py: 0.75,
-                  borderTop: '1px solid',
-                  borderColor: 'divider',
-                }}
-              >
-                <Typography variant="body2" color="text.secondary">
-                  需儲值
-                </Typography>
-                <Typography
-                  sx={{
-                    fontFamily: 'monospace',
-                    fontWeight: 800,
-                    fontSize: '1.35rem',
-                    color:
-                      !done && bothPathsFinite && !selfCheaper
-                        ? 'success.main'
-                        : 'primary.main',
-                  }}
-                >
-                  NT$ {fmt(result.buyCostGift)}
-                </Typography>
-              </Box>
-            </CardContent>
-          </Card>
+          <PathCard
+            mode={mode}
+            highlighted={giftWins}
+            title="送禮（贈送他人）"
+            subtitle={rateLabel(result.parts, 'gift')}
+            leadouLabel="需送禮"
+            leadou={result.leadouGift}
+            cost={result.buyCostGift}
+          />
         </Grid>
       </Grid>
 
@@ -1328,7 +1236,7 @@ export default function VipCalculatorPage() {
           <Typography variant="subtitle1" sx={{ fontWeight: 800, mb: 1.5 }}>
             分段明細{result.parts.length > 1 ? '（跨等級用各段比率）' : ''}
           </Typography>
-          <Card elevation={0} sx={{ ...glassSx(mode), mb: 4 }}>
+          <Card elevation={0} sx={{ ...getGlassCardSx(mode), mb: 4 }}>
             <CardContent sx={{ p: 3 }}>
               <TableContainer sx={{ overflowX: 'auto' }}>
                 <Table size="small" sx={{ minWidth: 460 }}>
@@ -1445,7 +1353,7 @@ export default function VipCalculatorPage() {
           <Typography variant="h6" sx={{ fontWeight: 800, mb: 2 }}>
             滾動操作模擬
           </Typography>
-          <Card elevation={0} sx={glassSx(mode)}>
+          <Card elevation={0} sx={getGlassCardSx(mode)}>
             <CardContent sx={{ p: 3 }}>
               <TableContainer sx={{ overflowX: 'auto' }}>
                 <Table size="small" sx={{ minWidth: 520 }}>
