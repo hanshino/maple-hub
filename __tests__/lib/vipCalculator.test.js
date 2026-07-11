@@ -5,6 +5,8 @@
 import {
   computeVip,
   mesoPointValue,
+  segment,
+  tierIndexOf,
   LEVELS,
   TARGET_PRESETS,
 } from '../../lib/vipCalculator';
@@ -247,6 +249,102 @@ describe('vipCalculator', () => {
       expect(r.gamePoints).toBe(12150); // floor(3,675,000/45,000)=81, ×150
       expect(r.redeemValue).toBeCloseTo(9000, 0);
       expect(r.effCost).toBeCloseTo(r.netCost - 9000, 0);
+    });
+  });
+
+  describe('分段精算 / 目前進度 / 自用送禮雙路（新增）', () => {
+    describe('tierIndexOf', () => {
+      it.each([
+        [0, 0],
+        [149999, 0],
+        [150000, 1],
+        [674999, 1],
+        [675000, 2],
+        [3674999, 2],
+        [3675000, 3],
+        [5000000, 3],
+      ])('%i 點 → 等級索引 %i', (pts, idx) => {
+        expect(tierIndexOf(pts)).toBe(idx);
+      });
+    });
+
+    describe('segment', () => {
+      it('單段（鑽石內，1,582,560→3,675,000）', () => {
+        const s = segment(1582560, 3675000);
+        expect(s.parts).toHaveLength(1);
+        expect(s.parts[0].name).toBe('鑽石');
+        expect(s.leadouSelf).toBeCloseTo(52311, 2); // 2,092,440 / 40
+        expect(s.leadouGift).toBeCloseTo(65388.75, 2); // 2,092,440 / 32
+      });
+
+      it('跨全段（0→3,675,000）', () => {
+        const s = segment(0, 3675000);
+        expect(s.parts).toHaveLength(3); // 非VIP/銀 + 金 + 鑽
+        expect(s.leadouGift).toBeCloseTo(125000, 2); // 150000/16+525000/24+3000000/32
+        expect(s.leadouSelf).toBeCloseTo(100000, 2); // 150000/20+525000/30+3000000/40
+      });
+
+      it('跨兩段（金牌 300,000→皇家 3,675,000）', () => {
+        const s = segment(300000, 3675000);
+        expect(s.parts.map(p => p.name)).toEqual(['金牌', '鑽石']);
+        expect(s.leadouGift).toBeCloseTo(109375, 2); // 375000/24 + 3000000/32
+        expect(s.leadouSelf).toBeCloseTo(87500, 2); // 375000/30 + 3000000/40
+      });
+
+      it('已達標（current ≥ target）：parts 空、樂豆 0', () => {
+        const s = segment(4000000, 3675000);
+        expect(s.parts).toHaveLength(0);
+        expect(s.leadouGift).toBe(0);
+        expect(s.leadouSelf).toBe(0);
+      });
+    });
+
+    describe('computeVip 分段模式（不傳 rate，傳 currentPts）', () => {
+      const base = { targetPts: 3675000, bonusPct: 5, baseRate: 1 };
+
+      it('鑽石差額：雙路徑樂豆與需儲值', () => {
+        const r = computeVip({ ...base, currentPts: 1582560 });
+        expect(r.remainingPts).toBe(2092440);
+        expect(r.leadouSelf).toBeCloseTo(52311, 2);
+        expect(r.leadouGift).toBeCloseTo(65388.75, 2);
+        expect(r.buyCostSelf).toBeCloseTo(49820, 0); // 52311 / 1.05
+        expect(r.buyCostGift).toBeCloseTo(62275, 0); // 65388.75 / 1.05
+        expect(r.requiredLeadou).toBeCloseTo(r.leadouGift, 6);
+        expect(r.parts).toHaveLength(1);
+      });
+
+      it('currentPts=0 分段（跨全段）→ leadouGift 125,000（≠ 舊平率 114,844）', () => {
+        const r = computeVip({ ...base, currentPts: 0 });
+        expect(r.leadouGift).toBeCloseTo(125000, 2);
+      });
+
+      it('redemptions 用差額 remainingPts', () => {
+        const r = computeVip({ ...base, currentPts: 1582560, exPts: 1000000 });
+        expect(r.redemptions).toBe(2); // floor(2,092,440 / 1,000,000)
+        expect(r.leftoverPts).toBe(92440);
+      });
+
+      it('已達標：remainingPts=0、樂豆與成本 0、reached', () => {
+        const r = computeVip({ ...base, currentPts: 4000000 });
+        expect(r.remainingPts).toBe(0);
+        expect(r.leadouGift).toBe(0);
+        expect(r.buyCost).toBe(0);
+        expect(r.reached).toBe(true);
+        expect(r.sim).toHaveLength(0);
+      });
+    });
+
+    describe('向後相容：傳 giftRate 仍為平率', () => {
+      it('giftRate=32 覆寫 → requiredLeadou 114,843.75（分段被忽略）', () => {
+        const r = computeVip({
+          giftRate: 32,
+          targetPts: 3675000,
+          bonusPct: 5,
+          baseRate: 1,
+        });
+        expect(r.requiredLeadou).toBeCloseTo(114843.75, 2);
+        expect(r.parts).toHaveLength(0); // 覆寫模式不輸出分段
+      });
     });
   });
 });
