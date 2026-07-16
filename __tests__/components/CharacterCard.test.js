@@ -77,19 +77,36 @@ describe('CharacterCard', () => {
     expect(screen.getByText('TestGuild')).toBeInTheDocument();
   });
 
-  it('renders equipment button', () => {
-    const mockOnEquipmentClick = jest.fn();
+  it('does not render an equipment button (moved to page-level EquipmentSection)', () => {
     render(
       <TestWrapper>
-        <CharacterCard
-          character={mockCharacter}
-          onEquipmentClick={mockOnEquipmentClick}
-        />
+        <CharacterCard character={mockCharacter} />
       </TestWrapper>
     );
 
-    const button = screen.getByText('裝備');
-    expect(button).toBeInTheDocument();
+    expect(
+      screen.queryByRole('button', { name: '裝備' })
+    ).not.toBeInTheDocument();
+  });
+
+  it('renders achievement badges when thresholds are met', () => {
+    render(
+      <TestWrapper>
+        <CharacterCard character={{ ...mockCharacter, character_level: 275 }} />
+      </TestWrapper>
+    );
+
+    expect(screen.getByText('Lv.270+')).toBeInTheDocument();
+  });
+
+  it('renders nothing extra when no achievement thresholds are met', () => {
+    render(
+      <TestWrapper>
+        <CharacterCard character={mockCharacter} />
+      </TestWrapper>
+    );
+
+    expect(screen.queryByRole('list', { name: '成就徽章' })).toBeNull();
   });
 
   it('renders formatted timestamp', () => {

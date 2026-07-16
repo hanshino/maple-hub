@@ -17,6 +17,7 @@ import DiamondIcon from '@mui/icons-material/Diamond';
 import ShieldIcon from '@mui/icons-material/Shield';
 import AccessTimeIcon from '@mui/icons-material/AccessTime';
 import ShareIcon from '@mui/icons-material/Share';
+import AchievementBadges from './AchievementBadges';
 
 const ICON_SIZE = 16;
 const TABLE_FONT_SIZE = '0.65rem';
@@ -181,8 +182,9 @@ const CharacterCard = memo(function CharacterCard({
   character,
   unionData = null,
   battlePower = null,
-  onEquipmentClick = null,
   presetAnalysis = null,
+  equipment = null,
+  hexaCoreData = null,
 }) {
   const [snackOpen, setSnackOpen] = useState(false);
 
@@ -357,8 +359,7 @@ const CharacterCard = memo(function CharacterCard({
                     borderLeft: { xs: 'none', sm: '1px solid' },
                     borderTop: { xs: '1px solid', sm: 'none' },
                     borderColor: theme => alpha(theme.palette.divider, 0.15),
-                    pl: { xs: 0, sm: 2 },
-                    pt: { xs: 1, sm: 0 },
+                    p: 2,
                   }}
                 >
                   <PresetCombinationTable
@@ -468,16 +469,6 @@ const CharacterCard = memo(function CharacterCard({
         }}
       >
         <Box sx={{ display: 'flex', gap: 1 }}>
-          {onEquipmentClick && (
-            <Button
-              variant="outlined"
-              size="small"
-              onClick={onEquipmentClick}
-              sx={{ fontWeight: 600 }}
-            >
-              裝備
-            </Button>
-          )}
           <Button
             variant="outlined"
             size="small"
@@ -504,6 +495,14 @@ const CharacterCard = memo(function CharacterCard({
           </Typography>
         </Box>
       </Box>
+
+      {/* === Layer 5: Achievement badges === */}
+      <AchievementBadges
+        character={character}
+        equipment={equipment}
+        unionData={unionData}
+        hexaCoreData={hexaCoreData}
+      />
 
       <Snackbar
         open={snackOpen}

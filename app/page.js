@@ -12,9 +12,13 @@ import {
   CardContent,
   Skeleton,
   Button,
+  Accordion,
+  AccordionSummary,
+  AccordionDetails,
 } from '@mui/material';
 import SearchIcon from '@mui/icons-material/Search';
 import LeaderboardIcon from '@mui/icons-material/Leaderboard';
+import ExpandMoreIcon from '@mui/icons-material/ExpandMore';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import CharacterCard from '../components/CharacterCard';
@@ -23,12 +27,17 @@ import ErrorMessage from '../components/ErrorMessage';
 import HexaMatrixProgress from '../components/HexaMatrixProgress';
 import ProgressBar from '../components/ProgressBar';
 import CharacterSearch from '../components/CharacterSearch';
-import EquipmentDialog from '../components/EquipmentDialog';
 import CharacterDataTabs from '../components/CharacterDataTabs';
 import StatBalanceChart from '../components/StatBalanceChart';
+import StatHighlightStrip from '../components/StatHighlightStrip';
+import EquipmentSection from '../components/equipment/EquipmentSection';
+import RuneSummaryCard from '../components/summary/RuneSummaryCard';
+import HexaSummaryCard from '../components/summary/HexaSummaryCard';
+import SetEffectSummaryCard from '../components/summary/SetEffectSummaryCard';
 import RecentCharacters from '../components/RecentCharacters';
 import { generateDateRange } from '../lib/progressUtils';
 import { analyzeAllPresets } from '../lib/combatPowerCalculator';
+import { processEquipmentData } from '../lib/equipmentUtils';
 import { saveSearchHistory, migrateStorage } from '../lib/localStorage';
 import { track } from '../lib/analytics';
 
@@ -49,7 +58,6 @@ function HomeContent() {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
   const [lastOcid, setLastOcid] = useState(null);
-  const [equipmentDialogOpen, setEquipmentDialogOpen] = useState(false);
 
   useEffect(() => {
     migrateStorage();
@@ -182,6 +190,16 @@ function HomeContent() {
   const unionChampionData = charData?.unionChampion || null;
   const cashEquipmentData = charData?.cashEquipment || null;
   const petEquipmentData = charData?.petEquipment || null;
+
+  // Slot-keyed equipment map (for AchievementBadges) and the merged shape
+  // EquipmentSection expects (equipment_presets is a sibling field on the API
+  // response, not nested under `equipment`).
+  const equipmentPositionMap = equipmentRawData
+    ? processEquipmentData(equipmentRawData)
+    : null;
+  const equipmentSectionData = equipmentRawData
+    ? { ...equipmentRawData, equipment_presets: charData?.equipment_presets }
+    : null;
 
   // Compute preset analysis
   const presetAnalysis =
@@ -390,41 +408,87 @@ function HomeContent() {
 
       {!loading && character && (
         <Box>
-          {/* Hero row: Character info + Stat Balance side-by-side */}
-          <Grid container spacing={2} sx={{ mb: 3 }}>
-            <Grid size={{ xs: 12, md: 7 }}>
-              <Card elevation={4} sx={{ height: '100%' }}>
-                <CharacterCard
-                  character={character}
-                  historicalData={chartData}
-                  unionData={unionData}
-                  battlePower={battlePower}
-                  onEquipmentClick={() => setEquipmentDialogOpen(true)}
-                  presetAnalysis={presetAnalysis}
-                />
-              </Card>
-            </Grid>
-            <Grid size={{ xs: 12, md: 5 }}>
+          {/* Character head card (achievement badges render inside) */}
+          <Card elevation={4} sx={{ mb: 3 }}>
+            <CharacterCard
+              character={character}
+              unionData={unionData}
+              battlePower={battlePower}
+              presetAnalysis={presetAnalysis}
+              equipment={equipmentPositionMap}
+              hexaCoreData={hexaCoreData}
+            />
+          </Card>
+
+          {/* At-a-glance stat tiles */}
+          <StatHighlightStrip battlePower={battlePower} statsData={statsData} />
+
+          {/* Main two columns: stat balance + quick exp progress | equipment */}
+          <Grid container spacing={2} sx={{ mb: 3, alignItems: 'flex-start' }}>
+            <Grid size={{ xs: 12, md: 4 }}>
               <StatBalanceChart
                 statsData={statsData}
                 equipmentData={equipmentRawData}
                 loading={false}
               />
-            </Grid>
-          </Grid>
-
-          {/* Two columns: Progress + Hexa Matrix */}
-          <Grid container spacing={2} sx={{ mb: 4, alignItems: 'flex-start' }}>
-            <Grid size={{ xs: 12, md: 7 }}>
-              <Card elevation={2}>
-                <CardContent>
+              <Card elevation={2} sx={{ mt: 2 }}>
+                <CardContent sx={{ p: 3 }}>
                   <Typography
-                    variant="h6"
-                    component="h3"
-                    sx={{ fontWeight: 700, mb: 2.5 }}
+                    variant="subtitle2"
+                    sx={{ fontWeight: 700, mb: 1.5 }}
                   >
                     經驗值進度
                   </Typography>
+                  <ProgressBar
+                    progress={
+                      parseFloat(character.character_exp_rate || 0) / 100
+                    }
+                    expRate={5}
+                    level={character.character_level}
+                  />
+                </CardContent>
+              </Card>
+            </Grid>
+            <Grid size={{ xs: 12, md: 8 }}>
+              <Card elevation={2}>
+                <CardContent sx={{ p: 3 }}>
+                  <EquipmentSection
+                    equipmentData={equipmentSectionData}
+                    cashEquipmentData={cashEquipmentData}
+                    petEquipmentData={petEquipmentData}
+                    characterImage={character.character_image}
+                  />
+                </CardContent>
+              </Card>
+            </Grid>
+          </Grid>
+
+          {/* Three-card summary row: runes | HEXA | set effects */}
+          <Grid container spacing={2} sx={{ mb: 3, alignItems: 'stretch' }}>
+            <Grid size={{ xs: 12, md: 4 }}>
+              <RuneSummaryCard runes={runes} />
+            </Grid>
+            <Grid size={{ xs: 12, md: 4 }}>
+              <HexaSummaryCard
+                hexaCoreData={hexaCoreData}
+                hexaStatData={hexaStatData}
+              />
+            </Grid>
+            <Grid size={{ xs: 12, md: 4 }}>
+              <SetEffectSummaryCard data={setEffectData} />
+            </Grid>
+          </Grid>
+
+          {/* Growth tracking: demoted to a collapsed-by-default section */}
+          <Accordion defaultExpanded={false} sx={{ mb: 3 }}>
+            <AccordionSummary expandIcon={<ExpandMoreIcon />} sx={{ px: 3 }}>
+              <Typography variant="h6" sx={{ fontWeight: 700 }}>
+                成長追蹤
+              </Typography>
+            </AccordionSummary>
+            <AccordionDetails sx={{ p: 3 }}>
+              <Grid container spacing={2} sx={{ alignItems: 'flex-start' }}>
+                <Grid size={{ xs: 12, md: 7 }}>
                   <Box sx={{ mb: 3 }}>
                     <ProgressBar
                       progress={
@@ -436,21 +500,17 @@ function HomeContent() {
                     />
                   </Box>
                   <ProgressChart progressData={chartData} />
-                </CardContent>
-              </Card>
-            </Grid>
-            <Grid size={{ xs: 12, md: 5 }}>
-              <Card elevation={2}>
-                <CardContent sx={{ p: 3 }}>
+                </Grid>
+                <Grid size={{ xs: 12, md: 5 }}>
                   <HexaMatrixProgress
                     character={character}
                     hexaCoreData={hexaCoreData}
                     hexaStatData={hexaStatData}
                   />
-                </CardContent>
-              </Card>
-            </Grid>
-          </Grid>
+                </Grid>
+              </Grid>
+            </AccordionDetails>
+          </Accordion>
 
           {/* Character Data Tabs */}
           <Box sx={{ mt: 2 }}>
@@ -467,19 +527,6 @@ function HomeContent() {
             />
           </Box>
         </Box>
-      )}
-
-      {/* Equipment Dialog */}
-      {!loading && character && (
-        <EquipmentDialog
-          ocid={character.ocid}
-          character={character}
-          open={equipmentDialogOpen}
-          onClose={() => setEquipmentDialogOpen(false)}
-          prefetchedData={equipmentRawData}
-          cashEquipmentData={cashEquipmentData}
-          petEquipmentData={petEquipmentData}
-        />
       )}
     </Container>
   );
