@@ -13,7 +13,9 @@ import CloseIcon from '@mui/icons-material/Close';
 import StarIcon from '@mui/icons-material/Star';
 import { analyzeScrolls } from '../lib/equipmentUtils';
 
-const POTENTIAL_GRADE_COLORS = {
+// Exported for reuse by components/equipment/EquipmentCardCompact.js —
+// keep this the single source of truth for potential grade color coding.
+export const POTENTIAL_GRADE_COLORS = {
   特殊: '#4fc3f7', // Rare — blue
   稀有: '#ba68c8', // Epic — purple
   罕見: '#ffd54f', // Unique — gold
