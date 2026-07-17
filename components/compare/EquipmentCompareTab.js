@@ -1,7 +1,18 @@
 'use client';
 
 import { useState } from 'react';
-import { Box, Chip, Collapse, IconButton, Typography } from '@mui/material';
+import {
+  Box,
+  Chip,
+  Collapse,
+  IconButton,
+  Table,
+  TableBody,
+  TableCell,
+  TableHead,
+  TableRow,
+  Typography,
+} from '@mui/material';
 import ExpandMoreIcon from '@mui/icons-material/ExpandMore';
 import { processEquipmentData } from '../../lib/equipmentUtils';
 import {
@@ -233,13 +244,76 @@ function ItemDetail({ item, sideLabel }) {
  * lib/characterComparison.js. Never ranks slots by predicted
  * combat-power gain.
  */
+// Flat attack/magic source-breakdown table. A row renders only when a
+// side actually has a value (all-zero sources stay hidden); delta color
+// follows the row's precomputed direction.
+function AttackSourceTable({ sourceRows }) {
+  const visible = (sourceRows || []).filter(
+    ({ row }) => row && (row.left > 0 || row.right > 0)
+  );
+  if (visible.length === 0) return null;
+  const deltaColor = row =>
+    row.direction === 'ahead'
+      ? 'success.main'
+      : row.direction === 'behind'
+        ? 'error.main'
+        : 'text.secondary';
+  return (
+    <Box sx={{ mb: 3 }}>
+      <Box component="h4" sx={{ fontWeight: 800, mb: 2 }}>
+        攻擊力來源拆解
+      </Box>
+      <Box sx={{ overflowX: 'auto' }}>
+        <Table size="small" sx={{ minWidth: 420 }}>
+          <TableHead>
+            <TableRow>
+              <TableCell>來源</TableCell>
+              <TableCell align="right">我的角色</TableCell>
+              <TableCell align="right">參考角色</TableCell>
+              <TableCell align="right">差值</TableCell>
+            </TableRow>
+          </TableHead>
+          <TableBody>
+            {visible.map(({ label, row }) => (
+              <TableRow key={label}>
+                <TableCell sx={{ fontWeight: 700 }}>{label}</TableCell>
+                <TableCell align="right">
+                  {formatRawValue(row.left, row.unit)}
+                </TableCell>
+                <TableCell align="right">
+                  {formatRawValue(row.right, row.unit)}
+                </TableCell>
+                <TableCell align="right">
+                  <Typography
+                    component="span"
+                    sx={{ fontWeight: 800, color: deltaColor(row) }}
+                  >
+                    {formatDelta(row.delta, row.unit)}
+                  </Typography>
+                </TableCell>
+              </TableRow>
+            ))}
+          </TableBody>
+        </Table>
+      </Box>
+      <Typography
+        variant="caption"
+        color="text.secondary"
+        sx={{ display: 'block', mt: 1.5 }}
+      >
+        固定值加總（含寵物裝備與現金道具），不含潛能／聯盟／超級屬性等 %
+        加成。
+      </Typography>
+    </Box>
+  );
+}
+
 export default function EquipmentCompareTab({
   leftEquipmentData,
   rightEquipmentData,
   starSumRow,
   starForceRow,
-  scrollAttackRow,
-  scrollMagicRow,
+  sourceRows,
 }) {
   const [expandedSlot, setExpandedSlot] = useState(null);
 
@@ -286,23 +360,6 @@ export default function EquipmentCompareTab({
             {formatDelta(starForceRow.delta, starForceRow.unit)}）
           </Typography>
         </Box>
-        {[
-          { label: '卷軸攻擊力總和', row: scrollAttackRow },
-          { label: '卷軸魔力總和', row: scrollMagicRow },
-        ].map(({ label, row }) =>
-          row && (row.left > 0 || row.right > 0) ? (
-            <Box key={label}>
-              <Typography variant="caption" color="text.secondary">
-                {label}
-              </Typography>
-              <Typography sx={{ fontWeight: 800 }}>
-                {formatRawValue(row.left, row.unit)} /{' '}
-                {formatRawValue(row.right, row.unit)}（
-                {formatDelta(row.delta, row.unit)}）
-              </Typography>
-            </Box>
-          ) : null
-        )}
         <Chip
           label={EVIDENCE_LABELS[starSumRow.evidence]}
           size="small"
@@ -310,6 +367,8 @@ export default function EquipmentCompareTab({
           sx={{ px: 1 }}
         />
       </Box>
+
+      <AttackSourceTable sourceRows={sourceRows} />
 
       {slots.length === 0 ? (
         <Typography color="text.secondary">尚無裝備資料可比較</Typography>

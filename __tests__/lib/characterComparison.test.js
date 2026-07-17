@@ -40,6 +40,8 @@ function makeRawCharacter({
   symbols = [],
   setEffects = [],
   familiar = null,
+  petEquipment = {},
+  cashEquipment = { cash_item_equipment_base: [] },
   syncedAt = '2026-07-17T00:00:00.000Z',
 } = {}) {
   return {
@@ -89,8 +91,8 @@ function makeRawCharacter({
     unionRaider: { union_raider_stat: raiderStats },
     unionArtifacts: { union_artifact_crystal: [], union_artifact_effect: [] },
     unionChampion: { union_champion: [], champion_badge_total_info: [] },
-    cashEquipment: { cash_item_equipment_base: [] },
-    petEquipment: {},
+    cashEquipment,
+    petEquipment,
     familiar,
     syncedAt,
   };
@@ -897,5 +899,113 @@ describe('compareCharacters + rankUpgradeDirections — familiar category', () =
     expect(familiarEntry.metric).toBe('summonedFamiliarFinalDamage');
     expect(familiarEntry.myValue).toBe(10);
     expect(familiarEntry.referenceValue).toBe(40);
+  });
+});
+
+describe('normalizeCharacterForComparison — attack source sums', () => {
+  const richEquipment = {
+    equipmentItems: [
+      {
+        item_equipment_slot: '帽子',
+        starforce: 22,
+        item_base_option: { attack_power: '10', magic_power: '0' },
+        item_starforce_option: { attack_power: '120', magic_power: '0' },
+        item_etc_option: { attack_power: '50', magic_power: '0' },
+        item_add_option: { attack_power: '9', magic_power: '3' },
+        item_total_option: { attack_power: '189', magic_power: '3' },
+      },
+      {
+        item_equipment_slot: '武器',
+        starforce: 22,
+        item_base_option: { attack_power: '189' },
+        item_starforce_option: { attack_power: '222' },
+        item_etc_option: { attack_power: '72' },
+        item_add_option: { attack_power: '59' },
+        item_total_option: { attack_power: '542' },
+      },
+    ],
+    petEquipment: {
+      pet_1_equipment: {
+        item_name: '月光水晶鑰匙',
+        item_option: [
+          { option_type: '攻擊力', option_value: '105' },
+          { option_type: '魔法攻擊力', option_value: '10' },
+        ],
+      },
+    },
+    cashEquipment: {
+      cash_item_equipment_base: [
+        {
+          cash_item_name: '強化披風',
+          cash_item_option: [{ option_type: '攻擊力', option_value: '20' }],
+        },
+        { cash_item_name: '純造型帽', cash_item_option: [] },
+      ],
+    },
+  };
+
+  it('sums base/starforce/scroll/flame/total plus pet and cash attack', () => {
+    const eq = normalizeCharacterForComparison(
+      makeRawCharacter(richEquipment)
+    ).equipment;
+
+    expect(eq.baseAttackSum).toBe(199);
+    expect(eq.starforceAttackSum).toBe(342);
+    expect(eq.scrollAttackSum).toBe(122);
+    expect(eq.flameAttackSum).toBe(68);
+    expect(eq.totalAttackSum).toBe(731);
+    expect(eq.flameMagicSum).toBe(3);
+    expect(eq.petAttackSum).toBe(105);
+    expect(eq.petMagicSum).toBe(10);
+    expect(eq.cashAttackSum).toBe(20);
+    expect(eq.cashMagicSum).toBe(0);
+  });
+
+  it('treats pet/cash absence as a real zero once equipment data exists', () => {
+    const eq = normalizeCharacterForComparison(
+      makeRawCharacter({
+        equipmentItems: [{ item_equipment_slot: '帽子', starforce: 1 }],
+      })
+    ).equipment;
+
+    expect(eq.petAttackSum).toBe(0);
+    expect(eq.cashAttackSum).toBe(0);
+  });
+
+  it('keeps every source sum unknown when equipment coverage is missing', () => {
+    const eq = normalizeCharacterForComparison(makeRawCharacter()).equipment;
+
+    expect(eq.baseAttackSum).toBeNull();
+    expect(eq.starforceAttackSum).toBeNull();
+    expect(eq.totalAttackSum).toBeNull();
+    expect(eq.petAttackSum).toBeNull();
+    expect(eq.cashAttackSum).toBeNull();
+  });
+
+  it('exposes each source sum as a derived Equipment row with a delta', () => {
+    const mine = normalizeCharacterForComparison(
+      makeRawCharacter({ ocid: 'A', name: 'A', ...richEquipment })
+    );
+    const reference = normalizeCharacterForComparison(
+      makeRawCharacter({
+        ocid: 'B',
+        name: 'B',
+        equipmentItems: [
+          {
+            item_equipment_slot: '武器',
+            starforce: 22,
+            item_starforce_option: { attack_power: '195' },
+          },
+        ],
+      })
+    );
+
+    const { equipment } = compareCharacters(mine, reference).categories;
+    expect(equipment.starforceAttackSum.category).toBe('Equipment');
+    expect(equipment.starforceAttackSum.metric).toBe('starforceAttackSum');
+    expect(equipment.starforceAttackSum.evidence).toBe('derived');
+    expect(equipment.starforceAttackSum.delta).toBe(147);
+    expect(equipment.petAttackSum.delta).toBe(105);
+    expect(equipment.cashAttackSum.delta).toBe(20);
   });
 });

@@ -78,8 +78,14 @@ describe('EquipmentCompareTab', () => {
     expect(screen.queryByText('星力 0')).not.toBeInTheDocument();
   });
 
-  it('shows scroll sum blocks only when a side has a non-zero value', () => {
-    const attackRow = { ...dummyRow, left: 746, right: 682, delta: 64 };
+  it('renders breakdown rows only for sources where a side has a value', () => {
+    const attackRow = {
+      ...dummyRow,
+      left: 746,
+      right: 682,
+      delta: 64,
+      direction: 'ahead',
+    };
     const magicRow = { ...dummyRow, left: 0, right: 0, delta: 0 };
 
     render(
@@ -88,14 +94,35 @@ describe('EquipmentCompareTab', () => {
         rightEquipmentData={buildEquipmentData(null)}
         starSumRow={dummyRow}
         starForceRow={dummyRow}
-        scrollAttackRow={attackRow}
-        scrollMagicRow={magicRow}
+        sourceRows={[
+          { label: '卷軸攻擊力', row: attackRow },
+          { label: '卷軸魔力', row: magicRow },
+        ]}
       />
     );
 
-    expect(screen.getByText('卷軸攻擊力總和')).toBeInTheDocument();
-    expect(screen.getByText(/746 \/ 682（\+64）/)).toBeInTheDocument();
-    expect(screen.queryByText('卷軸魔力總和')).not.toBeInTheDocument();
+    expect(screen.getByText('攻擊力來源拆解')).toBeInTheDocument();
+    expect(screen.getByText('卷軸攻擊力')).toBeInTheDocument();
+    expect(screen.getByText('746')).toBeInTheDocument();
+    expect(screen.getByText('682')).toBeInTheDocument();
+    expect(screen.getByText('+64')).toBeInTheDocument();
+    expect(screen.queryByText('卷軸魔力')).not.toBeInTheDocument();
+  });
+
+  it('hides the breakdown table entirely when no source has a value', () => {
+    render(
+      <EquipmentCompareTab
+        leftEquipmentData={buildEquipmentData(null)}
+        rightEquipmentData={buildEquipmentData(null)}
+        starSumRow={dummyRow}
+        starForceRow={dummyRow}
+        sourceRows={[
+          { label: '卷軸攻擊力', row: { ...dummyRow, left: 0, right: 0 } },
+        ]}
+      />
+    );
+
+    expect(screen.queryByText('攻擊力來源拆解')).not.toBeInTheDocument();
   });
 
   it('summarizes the per-slot stat difference when both sides are equipped', () => {

@@ -191,8 +191,46 @@ export default function CompareTabs({
             rightEquipmentData={rightRaw?.equipment}
             starSumRow={categories.equipment.starSum}
             starForceRow={categories.equipment.finalStatStarForce}
-            scrollAttackRow={categories.equipment.scrollAttackSum}
-            scrollMagicRow={categories.equipment.scrollMagicSum}
+            sourceRows={[
+              { label: '白值攻擊力', row: categories.equipment.baseAttackSum },
+              {
+                label: '星力攻擊力',
+                row: categories.equipment.starforceAttackSum,
+              },
+              {
+                label: '卷軸攻擊力',
+                row: categories.equipment.scrollAttackSum,
+              },
+              {
+                label: '星火攻擊力',
+                row: categories.equipment.flameAttackSum,
+              },
+              {
+                label: '裝備攻擊力合計',
+                row: categories.equipment.totalAttackSum,
+              },
+              {
+                label: '寵物裝備攻擊力',
+                row: categories.equipment.petAttackSum,
+              },
+              {
+                label: '現金道具攻擊力',
+                row: categories.equipment.cashAttackSum,
+              },
+              { label: '白值魔力', row: categories.equipment.baseMagicSum },
+              {
+                label: '星力魔力',
+                row: categories.equipment.starforceMagicSum,
+              },
+              { label: '卷軸魔力', row: categories.equipment.scrollMagicSum },
+              { label: '星火魔力', row: categories.equipment.flameMagicSum },
+              {
+                label: '裝備魔力合計',
+                row: categories.equipment.totalMagicSum,
+              },
+              { label: '寵物裝備魔力', row: categories.equipment.petMagicSum },
+              { label: '現金道具魔力', row: categories.equipment.cashMagicSum },
+            ]}
           />
         )}
 

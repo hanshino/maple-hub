@@ -31,6 +31,8 @@ export function makeRawCharacter({
   symbols = [],
   setEffects = [],
   familiar = null,
+  petEquipment = {},
+  cashEquipment = { cash_item_equipment_base: [] },
   syncedAt = '2026-07-17T00:00:00.000Z',
 } = {}) {
   return {
@@ -80,8 +82,8 @@ export function makeRawCharacter({
     unionRaider: { union_raider_stat: raiderStats },
     unionArtifacts: { union_artifact_crystal: [], union_artifact_effect: [] },
     unionChampion: { union_champion: [], champion_badge_total_info: [] },
-    cashEquipment: { cash_item_equipment_base: [] },
-    petEquipment: {},
+    cashEquipment,
+    petEquipment,
     familiar,
     syncedAt,
   };
