@@ -1,10 +1,10 @@
 'use client';
 
-import { useEffect, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { Box, TextField, IconButton, InputAdornment } from '@mui/material';
 import SearchIcon from '@mui/icons-material/Search';
 
-function SideField({ side, label, value, loading, onSearch }) {
+function SideField({ side, label, value, loading, onSearch, inputRef }) {
   const [input, setInput] = useState(value);
 
   // The URL is the source of truth: when the parent's value changes
@@ -31,6 +31,7 @@ function SideField({ side, label, value, loading, onSearch }) {
         value={input}
         onChange={e => setInput(e.target.value)}
         disabled={loading}
+        inputRef={inputRef}
         slotProps={{
           input: {
             endAdornment: (
@@ -64,6 +65,20 @@ export default function CharacterSearchBar({
   leftLoading,
   rightLoading,
 }) {
+  const rightInputRef = useRef(null);
+
+  // Entry-point flow (spec "URL and Entry Points"): navigating in from a
+  // character page prefills `left` and leaves `right` empty — focus the
+  // reference search input so the player can type immediately. Runs once
+  // on mount only, so it never steals focus later while the player is
+  // mid-edit.
+  useEffect(() => {
+    if (leftName && !rightName) {
+      rightInputRef.current?.focus();
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
+
   return (
     <Box
       sx={{
@@ -86,6 +101,7 @@ export default function CharacterSearchBar({
         value={rightName}
         loading={rightLoading}
         onSearch={onSearch}
+        inputRef={rightInputRef}
       />
     </Box>
   );

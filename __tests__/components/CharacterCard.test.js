@@ -120,6 +120,20 @@ describe('CharacterCard', () => {
     const timeEl = screen.getByText(/2023/);
     expect(timeEl).toBeInTheDocument();
   });
+
+  it('renders an "加入比較" entry point that navigates to /compare with the character prefilled as left', () => {
+    render(
+      <TestWrapper>
+        <CharacterCard character={mockCharacter} />
+      </TestWrapper>
+    );
+
+    const compareLink = screen.getByRole('link', { name: /加入比較/ });
+    expect(compareLink).toHaveAttribute(
+      'href',
+      '/compare?left=Test%20Character'
+    );
+  });
 });
 
 describe('battle power display', () => {

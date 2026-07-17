@@ -117,6 +117,14 @@ function ItemPotential({ item, prefix, title }) {
   );
 }
 
+// A nullish (absent) starforce field is genuinely unknown — never shown
+// as 0, per the spec's unknown-never-zero principle. An actual 0 (real
+// zero-star item) is still shown as 0.
+function formatStarforce(value) {
+  if (value === null || value === undefined || value === '') return '未知';
+  return value;
+}
+
 function hasNonZero(optionObject) {
   return (
     !!optionObject &&
@@ -158,7 +166,9 @@ function ItemDetail({ item, sideLabel }) {
       <Typography variant="body2" sx={{ fontWeight: 700 }} noWrap>
         {item.item_name}
       </Typography>
-      <Typography variant="caption">星力 {item.starforce ?? 0}</Typography>
+      <Typography variant="caption">
+        星力 {formatStarforce(item.starforce)}
+      </Typography>
       <ItemFixedStats item={item} />
       {hasScrollOrFlame && (
         <Typography variant="caption" color="text.secondary">

@@ -145,7 +145,17 @@ describe('/compare page', () => {
     expect(screen.getByText('2,002,590,020')).toBeInTheDocument();
   });
 
-  it('replacing one side updates only that side, leaving the other success result intact', async () => {
+  it('focuses the reference search input when entering with only `left` prefilled (Add-to-comparison entry point)', async () => {
+    __setSearch('left=影之愛衣');
+    global.fetch = createFetchMock();
+
+    render(<ComparePage />);
+
+    await screen.findByText('影之愛衣');
+    expect(document.activeElement).toBe(screen.getByLabelText('參考角色'));
+  });
+
+  it('replacing the right side updates only that side, leaving the left success result intact', async () => {
     __setSearch('left=影之愛衣&right=護甲大師');
     global.fetch = createFetchMock();
     render(<ComparePage />);
@@ -162,6 +172,37 @@ describe('/compare page', () => {
     // replacement untouched.
     expect(screen.getByText('影之愛衣')).toBeInTheDocument();
     expect(screen.queryByText('護甲大師')).not.toBeInTheDocument();
+
+    await waitFor(() => {
+      const params = new URLSearchParams(__getSearch());
+      expect(params.get('left')).toBe('影之愛衣');
+      expect(params.get('right')).toBe('角色A');
+    });
+  });
+
+  it('replacing the left side updates only that side, leaving the right success result intact', async () => {
+    __setSearch('left=影之愛衣&right=護甲大師');
+    global.fetch = createFetchMock();
+    render(<ComparePage />);
+
+    await screen.findByText('影之愛衣');
+    await screen.findByText('護甲大師');
+
+    const leftInput = screen.getByLabelText('我的角色');
+    fireEvent.change(leftInput, { target: { value: '角色A' } });
+    fireEvent.submit(leftInput.closest('form'));
+
+    await screen.findByText('角色A');
+    // The right side's successful result must survive the left side's
+    // replacement untouched.
+    expect(screen.getByText('護甲大師')).toBeInTheDocument();
+    expect(screen.queryByText('影之愛衣')).not.toBeInTheDocument();
+
+    await waitFor(() => {
+      const params = new URLSearchParams(__getSearch());
+      expect(params.get('left')).toBe('角色A');
+      expect(params.get('right')).toBe('護甲大師');
+    });
   });
 
   it("shows the failed side's error and retry without discarding the other side's success", async () => {
