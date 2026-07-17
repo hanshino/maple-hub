@@ -77,6 +77,38 @@ existing example, and part of the symbol formula is unconfirmed
 Therefore, extending the existing estimator into an additive attribution model
 would create false precision.
 
+### External formula research (MapleCombat)
+
+A survey of <https://github.com/centre173/MapleCombat> (commit `318cf3b`,
+2026-07-15, MIT-licensed code) was performed on 2026-07-17; full notes with
+file:line citations live in `2026-07-17-maplecombat-survey.md`. Conclusions
+relevant to this design:
+
+- Combat-power calculation has two layers: a stats-to-power formula and a
+  raw-API-to-stats derivation. MapleCombat implements the first layer in
+  detail but contains no Nexon OpenAPI integration at all — players manually
+  enter panel-decomposed values read from the game client. The derivation
+  layer remains unsolved by any known research.
+- Displayed combat power reflects only the currently active preset
+  combination. Computing the true combat power of non-active presets from the
+  OpenAPI alone is impossible regardless of formula completeness: the API does
+  not expose per-preset inner ability, active buffs and skill levels, or the
+  per-source breakdown of pet/familiar final-damage buffs that the game's
+  float32 stacking order requires.
+- Reusable pieces for a future estimator upgrade, all still at model-estimate
+  evidence level: explicit Xenon (2.625–2.975 × triple-stat sum) and Demon
+  Avenger (HP-to-stat conversion with 0.75–0.85 coefficients) formulas; a
+  testable hypothesis for the documented ~2% error (only genesis-weapon 10%,
+  pet/familiar buffs, and the ruin skill enter the final-damage multiplier,
+  with separate mentor/empress/genesis buff corrections); an exact 1.35 base
+  critical multiplier.
+- MapleCombat's own verification is regression testing against a previous
+  build's output, not an error bound against real displayed combat power, and
+  its class coefficients are uncited community constants.
+
+This confirms the V1 decision: show active preset identifiers, never estimate
+cross-preset combat power.
+
 ### Live feasibility sample
 
 Official Nexon GET responses were captured on 2026-07-17 for the same-class
@@ -295,6 +327,11 @@ The notice shows both `syncedAt` values. When their difference exceeds ten
 minutes, it warns:
 
 > Snapshot times differ; equipment or preset changes may affect this result.
+
+The notice also states that displayed combat power reflects each character's
+currently active preset combination and is not necessarily that character's
+maximum; the page does not estimate combat power for other presets (see the
+MapleCombat survey findings above).
 
 When an upstream API date is absent, the page describes the data as an
 **undated snapshot**, not an exactly simultaneous live comparison. Structurally
