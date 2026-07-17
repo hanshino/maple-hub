@@ -15,10 +15,12 @@ import {
   processCashItemEquipmentData,
   getEquipmentPosition,
 } from '../../lib/equipmentUtils';
+import { identifyIndependentItems } from '../../lib/combatPowerCalculator';
 import PetEquipmentPanel, {
   processPetEquipmentData,
 } from '../PetEquipmentPanel';
 import CashItemGrid from '../CashItemGrid';
+import EquipmentList from '../EquipmentList';
 import EquipmentDetailDrawer from '../EquipmentDetailDrawer';
 import CashItemDetailDrawer from '../CashItemDetailDrawer';
 import EquipmentCardCompact from './EquipmentCardCompact';
@@ -58,13 +60,6 @@ const slotSortIndex = item => {
   return idx === -1 ? SLOT_ORDER.length : idx;
 };
 
-const mergeEquipmentBySlot = (base, override) => {
-  const map = new Map();
-  (base || []).forEach(item => map.set(item.item_equipment_slot, item));
-  (override || []).forEach(item => map.set(item.item_equipment_slot, item));
-  return Array.from(map.values());
-};
-
 /**
  * Normalizes the equipment API response into { active, presets } regardless
  * of whether the new `equipment_presets` contract field is present.
@@ -74,17 +69,34 @@ const mergeEquipmentBySlot = (base, override) => {
 const normalizePresets = equipmentData => {
   if (!equipmentData) return { active: '1', presets: {} };
 
+  const base = equipmentData.item_equipment || [];
+
   if (equipmentData.equipment_presets?.presets) {
     const { active, presets } = equipmentData.equipment_presets;
-    return { active: String(active || 1), presets };
+    const legacyShape = {
+      item_equipment: base,
+      item_equipment_preset_1: presets[1],
+      item_equipment_preset_2: presets[2],
+      item_equipment_preset_3: presets[3],
+    };
+    const independentItems = identifyIndependentItems(legacyShape);
+    return {
+      active: String(active || 1),
+      presets: Object.fromEntries(
+        Object.entries(presets).map(([key, items]) => [
+          key,
+          [...items, ...independentItems],
+        ])
+      ),
+    };
   }
 
-  const base = equipmentData.item_equipment || [];
+  const independentItems = identifyIndependentItems(equipmentData);
   const presets = {};
   [1, 2, 3].forEach(n => {
-    const overrideList = equipmentData[`item_equipment_preset_${n}`];
-    if (overrideList?.length) {
-      presets[n] = mergeEquipmentBySlot(base, overrideList);
+    const rawPreset = equipmentData[`item_equipment_preset_${n}`];
+    if (rawPreset?.length) {
+      presets[n] = [...rawPreset, ...independentItems];
     }
   });
   if (Object.keys(presets).length === 0) {
@@ -215,14 +227,24 @@ const EquipmentSection = ({
 
       {tabIndex === TAB.CASH && (
         <Box sx={{ py: 1 }}>
-          <CashItemGrid
-            equipment={cashItemEquipment}
-            characterImage={characterImage}
-            selectedSlot={selectedCashSlot}
-            onSlotClick={slot => {
-              if (cashItemEquipment?.[slot]) setSelectedCashSlot(slot);
-            }}
-          />
+          {isDesktop ? (
+            <CashItemGrid
+              equipment={cashItemEquipment}
+              characterImage={characterImage}
+              selectedSlot={selectedCashSlot}
+              onSlotClick={slot => {
+                if (cashItemEquipment?.[slot]) setSelectedCashSlot(slot);
+              }}
+            />
+          ) : (
+            <EquipmentList
+              equipment={cashItemEquipment}
+              selectedSlot={selectedCashSlot}
+              onSlotClick={slot => {
+                if (cashItemEquipment?.[slot]) setSelectedCashSlot(slot);
+              }}
+            />
+          )}
         </Box>
       )}
 
