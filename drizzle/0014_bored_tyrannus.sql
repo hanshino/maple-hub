@@ -1,0 +1,1 @@
+ALTER TABLE `character_familiars` ADD `summoned_flag` tinyint DEFAULT 0;

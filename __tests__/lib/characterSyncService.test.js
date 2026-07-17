@@ -17,6 +17,8 @@ jest.mock('../../lib/nexonApi.js', () => ({
   getUnionArtifact: jest.fn(),
   getCharacterUnion: jest.fn(),
   getUnionChampion: jest.fn(),
+  getCharacterFamiliar: jest.fn(),
+  getCharacterAbility: jest.fn(),
 }));
 
 jest.mock('../../lib/db/queries.js', () => ({
@@ -40,6 +42,8 @@ jest.mock('../../lib/db/queries.js', () => ({
   upsertUnionChampion: jest.fn().mockResolvedValue(undefined),
   upsertCashEquipment: jest.fn().mockResolvedValue(undefined),
   upsertPetEquipment: jest.fn().mockResolvedValue(undefined),
+  upsertFamiliars: jest.fn().mockResolvedValue(undefined),
+  upsertAbilities: jest.fn().mockResolvedValue(undefined),
   incrementNotFoundCount: jest.fn().mockResolvedValue(undefined),
   getCharacterByOcid: jest.fn().mockResolvedValue(null),
 }));
@@ -99,6 +103,8 @@ async function mockAllApisWithDefaults(overrides = {}) {
   });
   nexon.getCharacterUnion.mockResolvedValue({ union_level: 1 });
   nexon.getUnionChampion.mockResolvedValue({ union_champion: [] });
+  nexon.getCharacterFamiliar.mockResolvedValue({ familiar_info: [] });
+  nexon.getCharacterAbility.mockResolvedValue({});
 }
 
 describe('syncCharacter - equipment snapshot', () => {

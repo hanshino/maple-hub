@@ -14,7 +14,7 @@ npm run build        # Production build
 npm run start        # Start production server
 npm run test         # Jest tests
 npm run test:watch   # Jest watch mode
-npm test -- --testPathPattern="__tests__/api/character" # Run specific test file/pattern
+npm test -- --testPathPatterns="__tests__/api/character" # Run specific test file/pattern (Jest 30 renamed the flag; singular --testPathPattern errors)
 npm run lint         # ESLint (next/core-web-vitals + Prettier)
 npm run format       # Prettier auto-format
 npm run format:check # Prettier check (CI)
@@ -35,7 +35,7 @@ npm run format:check # Prettier check (CI)
 ### Key Modules (lib/)
 
 - `nexonApi.js` — Nexon OpenAPI client (character, equipment, union, hexa data)
-- `characterSyncService.js` — Syncs character data from Nexon API to MySQL (13 parallel API calls per OCID)
+- `characterSyncService.js` — Syncs character data from Nexon API to MySQL (16 parallel API calls per OCID)
 - `db/schema.js` — Drizzle ORM schema (characters, stats, equipment, hyper stats, link skills, hexa, symbols, set effects, union, cash/pet equipment)
 - `db/queries.js` — All DB read/write operations (upsert, leaderboard, full character data)
 - `db/index.js` — MySQL connection pool (mysql2 + Drizzle)
@@ -80,6 +80,10 @@ npm run format:check # Prettier check (CI)
 - Hover 用 `translateY` + `boxShadow`，不用 `scale`（避免 layout shift）
 - Icon button 與 Chip 混排時，保持相同邊框色和高度（參考 `linkBtnSx`）
 - Light/dark mode 顏色定義集中在各元件的 `mode === 'dark'` 三元判斷
+- 不要「小框框堆疊」：同質的資料列不要在 `.map()` 裡各包一個 bordered
+  box——用 Table（參考 `components/compare/KeyStatTable.js`）或 divider
+  分隔的清單呈現；邊框只留給真正獨立的卡片，而獨立卡片無論多小都適用
+  下方 `p: 3` 鐵律
 
 #### 間距鐵律（歷史上最常被退件的問題就是「內容貼邊」，以下是硬性數字，不是建議）
 

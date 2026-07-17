@@ -17,6 +17,7 @@ import DiamondIcon from '@mui/icons-material/Diamond';
 import ShieldIcon from '@mui/icons-material/Shield';
 import AccessTimeIcon from '@mui/icons-material/AccessTime';
 import ShareIcon from '@mui/icons-material/Share';
+import CompareArrowsIcon from '@mui/icons-material/CompareArrows';
 import AchievementBadges from './AchievementBadges';
 
 const ICON_SIZE = 16;
@@ -477,6 +478,16 @@ const CharacterCard = memo(function CharacterCard({
             sx={{ fontWeight: 600 }}
           >
             分享
+          </Button>
+          <Button
+            component={Link}
+            href={`/compare?left=${encodeURIComponent(character.character_name)}`}
+            variant="outlined"
+            size="small"
+            startIcon={<CompareArrowsIcon sx={{ fontSize: 16 }} />}
+            sx={{ fontWeight: 600 }}
+          >
+            加入比較
           </Button>
         </Box>
         <Box
