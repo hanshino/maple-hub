@@ -16,6 +16,7 @@ export const CATEGORY_LABELS = {
   'Hyper Stat': '極限屬性',
   'Link Skill': '連結技能',
   'Set Effects': '套裝效果',
+  Familiar: '萌獸',
 };
 
 export const EVIDENCE_LABELS = {
@@ -47,6 +48,7 @@ export const CATEGORY_COVERAGE = [
   { key: 'hyperStat', label: '極限屬性' },
   { key: 'linkSkill', label: '連結技能' },
   { key: 'setEffects', label: '套裝效果' },
+  { key: 'familiar', label: '萌獸' },
 ];
 
 const STAT_METRIC_LABELS = {
@@ -70,9 +72,13 @@ const CATEGORY_METRIC_LABELS = {
   raiderStatCount: '聯盟戰地屬性項目數',
   authenticForce: '真實之力',
   totalHexaCoreLevel: 'HEXA 核心等級總和',
+  totalHexaStatLevel: 'HEXA 屬性等級總和',
   totalHyperStatLevel: '極限屬性等級總和',
   totalLinkSkillLevel: '連結技能等級總和',
   totalSetEffectCount: '套裝件數總和',
+  registeredFamiliarCount: '已登錄萌獸數',
+  linkedFamiliarCount: '連結中萌獸數',
+  linkedFamiliarOptionLevelSum: '連結萌獸選項等級總和',
 };
 
 /**

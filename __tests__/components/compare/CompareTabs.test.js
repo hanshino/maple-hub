@@ -27,7 +27,7 @@ function buildProps(leftRaw, rightRaw) {
 }
 
 describe('CompareTabs', () => {
-  it('renders all eight tabs in the documented order', () => {
+  it('renders all nine tabs in the documented order', () => {
     render(<CompareTabs {...buildProps(shadowRaw, armorMasterRaw)} />);
     const tabs = screen.getAllByRole('tab');
     expect(tabs.map(t => t.textContent)).toEqual([
@@ -39,6 +39,7 @@ describe('CompareTabs', () => {
       '極限屬性',
       '連結技能',
       '套裝效果',
+      '萌獸',
     ]);
   });
 

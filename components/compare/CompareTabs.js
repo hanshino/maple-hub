@@ -17,6 +17,7 @@ const TAB_UNION = 4;
 const TAB_HYPER_STAT = 5;
 const TAB_LINK_SKILL = 6;
 const TAB_SET_EFFECTS = 7;
+const TAB_FAMILIAR = 8;
 
 const TAB_NAMES = [
   '總覽',
@@ -27,6 +28,7 @@ const TAB_NAMES = [
   '極限屬性',
   '連結技能',
   '套裝效果',
+  '萌獸',
 ];
 
 // Index -> normalized-coverage key (see lib/characterComparison.js's
@@ -40,6 +42,7 @@ const TAB_COVERAGE_KEY = [
   'hyperStat',
   'linkSkill',
   'setEffects',
+  'familiar',
 ];
 
 /**
@@ -208,6 +211,10 @@ export default function CompareTabs({
                 label: 'HEXA 核心等級總和',
                 row: categories.hexa.totalCoreLevel,
               },
+              {
+                label: 'HEXA 屬性等級總和',
+                row: categories.hexa.totalStatLevel,
+              },
             ]}
           />
         )}
@@ -262,6 +269,25 @@ export default function CompareTabs({
               {
                 label: '套裝件數總和',
                 row: categories.setEffects.totalSetCount,
+              },
+            ]}
+          />
+        )}
+
+        {activeTab === TAB_FAMILIAR && (
+          <CategoryCompareTab
+            rows={[
+              {
+                label: '已登錄萌獸數',
+                row: categories.familiar.registeredCount,
+              },
+              {
+                label: '連結中萌獸數',
+                row: categories.familiar.linkedCount,
+              },
+              {
+                label: '連結萌獸選項等級總和',
+                row: categories.familiar.linkedOptionLevelSum,
               },
             ]}
           />

@@ -37,6 +37,11 @@ const SUMMARY_CATEGORIES = [
     label: '套裝效果',
     getRow: c => c.setEffects.totalSetCount,
   },
+  {
+    key: 'familiar',
+    label: '萌獸',
+    getRow: c => c.familiar.registeredCount,
+  },
 ];
 
 const DELTA_COLOR = {

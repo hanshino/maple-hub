@@ -35,7 +35,7 @@ npm run format:check # Prettier check (CI)
 ### Key Modules (lib/)
 
 - `nexonApi.js` — Nexon OpenAPI client (character, equipment, union, hexa data)
-- `characterSyncService.js` — Syncs character data from Nexon API to MySQL (13 parallel API calls per OCID)
+- `characterSyncService.js` — Syncs character data from Nexon API to MySQL (15 parallel API calls per OCID)
 - `db/schema.js` — Drizzle ORM schema (characters, stats, equipment, hyper stats, link skills, hexa, symbols, set effects, union, cash/pet equipment)
 - `db/queries.js` — All DB read/write operations (upsert, leaderboard, full character data)
 - `db/index.js` — MySQL connection pool (mysql2 + Drizzle)

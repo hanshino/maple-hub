@@ -36,8 +36,10 @@ function makeRawCharacter({
   union = { union_level: 1000, union_grade: null, union_artifact_level: null },
   raiderStats = [],
   hexaCores = [],
+  hexaStats = {},
   symbols = [],
   setEffects = [],
+  familiar = null,
   syncedAt = '2026-07-17T00:00:00.000Z',
 } = {}) {
   return {
@@ -80,7 +82,7 @@ function makeRawCharacter({
       character_owned_link_skill: ownedLinkSkill,
     },
     hexaCores: { character_hexa_core_equipment: hexaCores },
-    hexaStats: {},
+    hexaStats,
     symbols: { symbol: symbols },
     setEffects: { set_effect: setEffects },
     union,
@@ -89,6 +91,7 @@ function makeRawCharacter({
     unionChampion: { union_champion: [], champion_badge_total_info: [] },
     cashEquipment: { cash_item_equipment_base: [] },
     petEquipment: {},
+    familiar,
     syncedAt,
   };
 }
@@ -658,5 +661,195 @@ describe('compareCharacters — snapshot freshness', () => {
 
     const qualityRow = rows.find(r => r.metric === 'snapshotQuality');
     expect(qualityRow.note).toBe('undated snapshot');
+  });
+});
+
+describe('normalizeCharacterForComparison — HEXA stat cores', () => {
+  it('sums main and sub levels across all active hexa stat core arrays', () => {
+    const raw = makeRawCharacter({
+      hexaStats: {
+        character_hexa_stat_core: [
+          {
+            slot_id: '0',
+            main_stat_level: 10,
+            sub_stat_level_1: 5,
+            sub_stat_level_2: 5,
+          },
+        ],
+        character_hexa_stat_core_2: [
+          {
+            slot_id: '0',
+            main_stat_level: 3,
+            sub_stat_level_1: 2,
+            sub_stat_level_2: 0,
+          },
+        ],
+      },
+    });
+
+    expect(normalizeCharacterForComparison(raw).hexa.totalStatLevel).toBe(25);
+  });
+
+  it('keeps totalStatLevel unknown (null) when no hexa stat data exists', () => {
+    const raw = makeRawCharacter();
+    expect(normalizeCharacterForComparison(raw).hexa.totalStatLevel).toBeNull();
+  });
+
+  it('exposes a derived HEXA stat row with mine-minus-reference delta', () => {
+    const statCores = levels => ({
+      character_hexa_stat_core: [
+        {
+          slot_id: '0',
+          main_stat_level: levels,
+          sub_stat_level_1: 0,
+          sub_stat_level_2: 0,
+        },
+      ],
+    });
+    const mine = normalizeCharacterForComparison(
+      makeRawCharacter({ ocid: 'A', name: 'A', hexaStats: statCores(7) })
+    );
+    const reference = normalizeCharacterForComparison(
+      makeRawCharacter({ ocid: 'B', name: 'B', hexaStats: statCores(10) })
+    );
+
+    const row = compareCharacters(mine, reference).categories.hexa
+      .totalStatLevel;
+    expect(row.category).toBe('HEXA');
+    expect(row.metric).toBe('totalHexaStatLevel');
+    expect(row.evidence).toBe('derived');
+    expect(row.coverage).toBe('complete');
+    expect(row.delta).toBe(-3);
+    expect(row.direction).toBe('behind');
+  });
+});
+
+describe('normalizeCharacterForComparison — familiar (萌獸)', () => {
+  const familiarPayload = {
+    familiar_info: [
+      {
+        familiar_name: '寒冰半人馬',
+        familiar_state: 'linked',
+        familiar_level: 5,
+        option_level: 5,
+        option: [],
+      },
+      {
+        familiar_name: '青蛇',
+        familiar_state: 'registered',
+        familiar_level: 5,
+        option_level: 5,
+        option: [],
+      },
+      {
+        familiar_name: '樹妖',
+        familiar_state: 'registered',
+        familiar_level: 3,
+        option_level: 3,
+        option: [],
+      },
+    ],
+  };
+
+  it('counts registered and linked familiars and sums linked option levels', () => {
+    const normalized = normalizeCharacterForComparison(
+      makeRawCharacter({ familiar: familiarPayload })
+    );
+
+    expect(normalized.familiar).toEqual({
+      coverage: true,
+      registeredCount: 3,
+      linkedCount: 1,
+      linkedOptionLevelSum: 5,
+    });
+  });
+
+  it('reports a real zero (not unknown) when data exists but nothing is linked', () => {
+    const normalized = normalizeCharacterForComparison(
+      makeRawCharacter({
+        familiar: {
+          familiar_info: [
+            {
+              familiar_name: '青蛇',
+              familiar_state: 'registered',
+              option_level: 5,
+            },
+          ],
+        },
+      })
+    );
+
+    expect(normalized.familiar.linkedCount).toBe(0);
+    expect(normalized.familiar.linkedOptionLevelSum).toBe(0);
+  });
+
+  it('treats a character synced before familiar support as unavailable, never zero', () => {
+    const normalized = normalizeCharacterForComparison(makeRawCharacter());
+
+    expect(normalized.familiar).toEqual({
+      coverage: false,
+      registeredCount: null,
+      linkedCount: null,
+      linkedOptionLevelSum: null,
+    });
+  });
+});
+
+describe('compareCharacters + rankUpgradeDirections — familiar category', () => {
+  const familiarOf = (registered, linked) => ({
+    familiar_info: Array.from({ length: registered }, (_, i) => ({
+      familiar_name: `萌獸${i}`,
+      familiar_state: i < linked ? 'linked' : 'registered',
+      option_level: 5,
+      option: [],
+    })),
+  });
+
+  it('produces derived Familiar rows keyed on registered/linked counts', () => {
+    const mine = normalizeCharacterForComparison(
+      makeRawCharacter({ ocid: 'A', name: 'A', familiar: familiarOf(3, 1) })
+    );
+    const reference = normalizeCharacterForComparison(
+      makeRawCharacter({ ocid: 'B', name: 'B', familiar: familiarOf(78, 0) })
+    );
+
+    const { familiar } = compareCharacters(mine, reference).categories;
+    expect(familiar.registeredCount.category).toBe('Familiar');
+    expect(familiar.registeredCount.metric).toBe('registeredFamiliarCount');
+    expect(familiar.registeredCount.evidence).toBe('derived');
+    expect(familiar.registeredCount.delta).toBe(-75);
+    expect(familiar.linkedCount.delta).toBe(1);
+    expect(familiar.linkedOptionLevelSum.delta).toBe(5);
+  });
+
+  it('marks familiar rows partial when only one side has data', () => {
+    const mine = normalizeCharacterForComparison(
+      makeRawCharacter({ ocid: 'A', name: 'A', familiar: familiarOf(3, 1) })
+    );
+    const reference = normalizeCharacterForComparison(
+      makeRawCharacter({ ocid: 'B', name: 'B' })
+    );
+
+    const row = compareCharacters(mine, reference).categories.familiar
+      .registeredCount;
+    expect(row.coverage).toBe('partial');
+    expect(row.delta).toBeNull();
+    expect(row.direction).toBe('unknown');
+  });
+
+  it('surfaces Familiar in upgrade directions when it is the only lagging system', () => {
+    const mine = normalizeCharacterForComparison(
+      makeRawCharacter({ ocid: 'A', name: 'A', familiar: familiarOf(3, 1) })
+    );
+    const reference = normalizeCharacterForComparison(
+      makeRawCharacter({ ocid: 'B', name: 'B', familiar: familiarOf(78, 0) })
+    );
+
+    const directions = rankUpgradeDirections(compareCharacters(mine, reference));
+    const familiarEntry = directions.find(d => d.category === 'Familiar');
+    expect(familiarEntry).toBeDefined();
+    expect(familiarEntry.metric).toBe('registeredFamiliarCount');
+    expect(familiarEntry.myValue).toBe(3);
+    expect(familiarEntry.referenceValue).toBe(78);
   });
 });

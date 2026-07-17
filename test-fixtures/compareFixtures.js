@@ -27,8 +27,10 @@ export function makeRawCharacter({
   union = { union_level: 1000, union_grade: null, union_artifact_level: null },
   raiderStats = [],
   hexaCores = [],
+  hexaStats = {},
   symbols = [],
   setEffects = [],
+  familiar = null,
   syncedAt = '2026-07-17T00:00:00.000Z',
 } = {}) {
   return {
@@ -71,7 +73,7 @@ export function makeRawCharacter({
       character_owned_link_skill: ownedLinkSkill,
     },
     hexaCores: { character_hexa_core_equipment: hexaCores },
-    hexaStats: {},
+    hexaStats,
     symbols: { symbol: symbols },
     setEffects: { set_effect: setEffects },
     union,
@@ -80,6 +82,7 @@ export function makeRawCharacter({
     unionChampion: { union_champion: [], champion_badge_total_info: [] },
     cashEquipment: { cash_item_equipment_base: [] },
     petEquipment: {},
+    familiar,
     syncedAt,
   };
 }
@@ -126,6 +129,24 @@ export const shadowRaw = makeRawCharacter({
   hexaCores: [{ hexa_core_name: '核心A', hexa_core_level: 30 }],
   symbols: [{ symbol_name: '符文A', symbol_level: 20 }],
   setEffects: [{ set_name: '套裝A', total_set_count: 6 }],
+  familiar: {
+    familiar_info: [
+      {
+        familiar_name: '寒冰半人馬',
+        familiar_state: 'linked',
+        familiar_level: 5,
+        option_level: 5,
+        option: [],
+      },
+      {
+        familiar_name: '青蛇',
+        familiar_state: 'registered',
+        familiar_level: 5,
+        option_level: 5,
+        option: [],
+      },
+    ],
+  },
   syncedAt: '2026-07-17T14:02:00.000Z',
 });
 
@@ -175,5 +196,30 @@ export const armorMasterRaw = makeRawCharacter({
   hexaCores: [{ hexa_core_name: '核心A', hexa_core_level: 30 }],
   symbols: [{ symbol_name: '符文A', symbol_level: 25 }],
   setEffects: [{ set_name: '套裝A', total_set_count: 8 }],
+  familiar: {
+    familiar_info: [
+      {
+        familiar_name: '樹妖',
+        familiar_state: 'registered',
+        familiar_level: 5,
+        option_level: 5,
+        option: [],
+      },
+      {
+        familiar_name: '石巨人',
+        familiar_state: 'registered',
+        familiar_level: 3,
+        option_level: 3,
+        option: [],
+      },
+      {
+        familiar_name: '火焰豬',
+        familiar_state: 'registered',
+        familiar_level: 2,
+        option_level: 2,
+        option: [],
+      },
+    ],
+  },
   syncedAt: '2026-07-17T13:47:00.000Z',
 });
