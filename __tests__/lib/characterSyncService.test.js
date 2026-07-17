@@ -24,6 +24,7 @@ jest.mock('../../lib/db/queries.js', () => ({
   upsertCharacterStats: jest.fn().mockResolvedValue(undefined),
   upsertEquipment: jest.fn().mockResolvedValue(undefined),
   upsertEquipmentPreset: jest.fn().mockResolvedValue(undefined),
+  replaceEquipmentSnapshot: jest.fn().mockResolvedValue(undefined),
   upsertHyperStats: jest.fn().mockResolvedValue(undefined),
   upsertHyperStatPreset: jest.fn().mockResolvedValue(undefined),
   upsertLinkSkills: jest.fn().mockResolvedValue(undefined),
@@ -100,39 +101,121 @@ async function mockAllApisWithDefaults(overrides = {}) {
   nexon.getUnionChampion.mockResolvedValue({ union_champion: [] });
 }
 
-describe('syncCharacter - equipment preset', () => {
+describe('syncCharacter - equipment snapshot', () => {
   beforeEach(() => jest.clearAllMocks());
 
-  it('persists the active preset number reported by Nexon', async () => {
+  it('delegates the fulfilled current list unchanged with all three presets, including empty arrays', async () => {
+    const currentItems = [
+      { item_equipment_slot: 'ring', item_name: 'First Ring' },
+      { item_equipment_slot: 'ring', item_name: 'Second Ring' },
+    ];
+    const preset1 = [{ item_equipment_slot: 'hat', item_name: 'Hat' }];
     await mockAllApisWithDefaults({
       equipment: {
-        preset_no: 2,
-        item_equipment_preset_1: [],
-        item_equipment_preset_2: [{ item_name: 'A' }],
+        preset_no: '2',
+        item_equipment: currentItems,
+        item_equipment_preset_1: preset1,
+        item_equipment_preset_2: [],
         item_equipment_preset_3: [],
       },
     });
-    const { upsertEquipmentPreset } = await import('../../lib/db/queries.js');
+    const { replaceEquipmentSnapshot } =
+      await import('../../lib/db/queries.js');
 
-    const result = await syncCharacter(OCID);
+    await syncCharacter(OCID);
 
-    expect(result.success).toBe(true);
-    expect(upsertEquipmentPreset).toHaveBeenCalledWith(OCID, 2);
+    expect(replaceEquipmentSnapshot).toHaveBeenCalledWith(
+      OCID,
+      2,
+      currentItems,
+      {
+        1: preset1,
+        2: [],
+        3: [],
+      }
+    );
   });
 
-  it('defaults to preset 1 when Nexon omits preset_no', async () => {
+  it('clears the equipment snapshot when Nexon fulfills an empty response', async () => {
     await mockAllApisWithDefaults({
       equipment: {
+        preset_no: '1',
+        item_equipment: [],
         item_equipment_preset_1: [],
         item_equipment_preset_2: [],
         item_equipment_preset_3: [],
       },
     });
-    const { upsertEquipmentPreset } = await import('../../lib/db/queries.js');
+    const { replaceEquipmentSnapshot } =
+      await import('../../lib/db/queries.js');
 
     await syncCharacter(OCID);
 
-    expect(upsertEquipmentPreset).toHaveBeenCalledWith(OCID, 1);
+    expect(replaceEquipmentSnapshot).toHaveBeenCalledWith(OCID, 1, [], {
+      1: [],
+      2: [],
+      3: [],
+    });
+  });
+
+  it('does not clear equipment when its upstream request rejects', async () => {
+    await mockAllApisWithDefaults();
+    const nexon = await import('../../lib/nexonApi.js');
+    const { replaceEquipmentSnapshot } =
+      await import('../../lib/db/queries.js');
+    nexon.getCharacterEquipment.mockRejectedValue(new Error('upstream failed'));
+
+    await syncCharacter(OCID);
+
+    expect(replaceEquipmentSnapshot).not.toHaveBeenCalled();
+  });
+});
+
+describe('syncCharacter - authoritative empty snapshots', () => {
+  beforeEach(() => jest.clearAllMocks());
+
+  it('replaces fulfilled empty link, set-effect, and pet snapshots', async () => {
+    await mockAllApisWithDefaults({
+      linkSkill: {
+        use_preset_no: '1',
+        character_link_skill_preset_1: [],
+        character_link_skill_preset_2: [],
+        character_link_skill_preset_3: [],
+      },
+      pet: {},
+    });
+    const { upsertLinkSkills, upsertSetEffects, upsertPetEquipment } =
+      await import('../../lib/db/queries.js');
+
+    await syncCharacter(OCID);
+
+    expect(upsertLinkSkills).toHaveBeenCalledWith(OCID, 1, []);
+    expect(upsertLinkSkills).toHaveBeenCalledWith(OCID, 2, []);
+    expect(upsertLinkSkills).toHaveBeenCalledWith(OCID, 3, []);
+    expect(upsertSetEffects).toHaveBeenCalledWith(OCID, []);
+    expect(upsertPetEquipment).toHaveBeenCalledWith(OCID, []);
+  });
+
+  it('does not clear link, set-effect, or pet rows when upstream requests reject', async () => {
+    await mockAllApisWithDefaults();
+    const nexon = await import('../../lib/nexonApi.js');
+    const { upsertLinkSkills, upsertSetEffects, upsertPetEquipment } =
+      await import('../../lib/db/queries.js');
+    nexon.getCharacterLinkSkill.mockRejectedValue(
+      new Error('link upstream failed')
+    );
+    nexon.getCharacterSetEffect.mockRejectedValue(
+      new Error('set upstream failed')
+    );
+    nexon.getCharacterPetEquipment.mockRejectedValue(
+      new Error('pet upstream failed')
+    );
+
+    await syncCharacter(OCID);
+
+    expect(upsertLinkSkills).not.toHaveBeenCalled();
+    expect(upsertSetEffects).not.toHaveBeenCalled();
+    expect(upsertPetEquipment).not.toHaveBeenCalled();
   });
 });
 
@@ -174,13 +257,13 @@ describe('syncCharacter - pet equipment fields', () => {
     ]);
   });
 
-  it('does not call upsertPetEquipment when the character has no pets', async () => {
+  it('clears pet equipment when the fulfilled response has no pets', async () => {
     await mockAllApisWithDefaults({ pet: {} });
     const { upsertPetEquipment } = await import('../../lib/db/queries.js');
 
     await syncCharacter(OCID);
 
-    expect(upsertPetEquipment).not.toHaveBeenCalled();
+    expect(upsertPetEquipment).toHaveBeenCalledWith(OCID, []);
   });
 });
 

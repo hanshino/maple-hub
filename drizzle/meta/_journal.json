@@ -85,6 +85,13 @@
       "when": 1784195331145,
       "tag": "0011_mature_jackpot",
       "breakpoints": true
+    },
+    {
+      "idx": 12,
+      "version": "5",
+      "when": 1784222877398,
+      "tag": "0012_wonderful_doctor_spectrum",
+      "breakpoints": true
     }
   ]
 }

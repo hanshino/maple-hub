@@ -4,6 +4,7 @@ import {
   upsertLinkSkillPreset,
   upsertPetEquipment,
 } from '../../../lib/db/queries.js';
+import * as schema from '../../../lib/db/schema.js';
 import {
   characters,
   characterStats,
@@ -50,7 +51,11 @@ function buildSelectMockDb(rowsByTable, charRow) {
           };
         }
         return {
-          where: jest.fn().mockResolvedValue(rowsByTable.get(table) || []),
+          where: jest.fn(() => {
+            const rows = rowsByTable.get(table) || [];
+            rows.orderBy = jest.fn().mockResolvedValue(rows);
+            return rows;
+          }),
         };
       }),
     })),
@@ -78,6 +83,113 @@ describe('queries exports', () => {
     expect(typeof upsertEquipmentPreset).toBe('function');
     expect(typeof upsertLinkSkillPreset).toBe('function');
     expect(typeof upsertPetEquipment).toBe('function');
+  });
+});
+
+describe('replaceEquipmentSnapshot', () => {
+  beforeEach(() => jest.clearAllMocks());
+
+  it('replaces active, current, and non-empty preset rows in one transaction while preserving source order', async () => {
+    const { getDb } = await import('../../../lib/db/index.js');
+    const { replaceEquipmentSnapshot } =
+      await import('../../../lib/db/queries.js');
+    const insertedValues = [];
+    const deletedTables = [];
+    const tx = {
+      delete: jest.fn(table => {
+        deletedTables.push(table);
+        return { where: jest.fn().mockResolvedValue(undefined) };
+      }),
+      insert: jest.fn(() => ({
+        values: jest.fn(values => {
+          insertedValues.push(values);
+          return {
+            onDuplicateKeyUpdate: jest.fn().mockResolvedValue(undefined),
+          };
+        }),
+      })),
+    };
+    const transaction = jest.fn(callback => callback(tx));
+    getDb.mockReturnValue({ transaction });
+
+    await replaceEquipmentSnapshot(
+      OCID,
+      2,
+      [
+        { item_equipment_slot: 'ring', item_name: 'First Ring' },
+        { item_equipment_slot: 'ring', item_name: 'Second Ring' },
+      ],
+      {
+        1: [{ item_equipment_slot: 'hat', item_name: 'Hat' }],
+        2: [],
+        3: [{ item_equipment_slot: 'weapon', item_name: 'Sword' }],
+      }
+    );
+
+    expect(transaction).toHaveBeenCalledTimes(1);
+    expect(deletedTables).toEqual(
+      expect.arrayContaining([
+        schema.characterCurrentEquipment,
+        characterEquipment,
+      ])
+    );
+    expect(insertedValues).toEqual(
+      expect.arrayContaining([
+        {
+          ocid: OCID,
+          activePresetNo: 2,
+          hasCurrentEquipmentSnapshot: 1,
+        },
+        expect.arrayContaining([
+          expect.objectContaining({
+            itemName: 'First Ring',
+            itemEquipmentSlot: 'ring',
+            sourceOrdinal: 0,
+          }),
+          expect.objectContaining({
+            itemName: 'Second Ring',
+            itemEquipmentSlot: 'ring',
+            sourceOrdinal: 1,
+          }),
+        ]),
+        expect.arrayContaining([
+          expect.objectContaining({ presetNo: 1, itemName: 'Hat' }),
+          expect.objectContaining({ presetNo: 3, itemName: 'Sword' }),
+        ]),
+      ])
+    );
+  });
+
+  it('rejects from the transaction when a snapshot insert fails', async () => {
+    const { getDb } = await import('../../../lib/db/index.js');
+    const { replaceEquipmentSnapshot } =
+      await import('../../../lib/db/queries.js');
+    const insertFailure = new Error('current equipment insert failed');
+    const tx = {
+      delete: jest.fn(() => ({
+        where: jest.fn().mockResolvedValue(undefined),
+      })),
+      insert: jest.fn(() => ({
+        values: jest.fn(values => {
+          if (Array.isArray(values)) return Promise.reject(insertFailure);
+          return {
+            onDuplicateKeyUpdate: jest.fn().mockResolvedValue(undefined),
+          };
+        }),
+      })),
+    };
+    const transaction = jest.fn(callback => callback(tx));
+    getDb.mockReturnValue({ transaction });
+
+    await expect(
+      replaceEquipmentSnapshot(
+        OCID,
+        1,
+        [{ item_equipment_slot: 'hat', item_name: 'Hat' }],
+        { 1: [], 2: [], 3: [] }
+      )
+    ).rejects.toBe(insertFailure);
+    expect(transaction).toHaveBeenCalledTimes(1);
   });
 });
 
@@ -128,6 +240,94 @@ describe('getFullCharacterData - equipment_presets', () => {
     // Backward-compat: equipment / preset_no reflect the active preset.
     expect(data.equipment.preset_no).toBe(2);
     expect(data.equipment.item_equipment[0].item_name).toBe('Preset2 Hat');
+  });
+
+  it('uses ordered current snapshot rows for legacy equipment while preserving duplicate slots', async () => {
+    const { getDb } = await import('../../../lib/db/index.js');
+
+    const rows = new Map([
+      [
+        schema.characterCurrentEquipment,
+        [
+          {
+            sourceOrdinal: 0,
+            itemEquipmentSlot: 'ring',
+            itemName: 'First Ring',
+          },
+          {
+            sourceOrdinal: 1,
+            itemEquipmentSlot: 'ring',
+            itemName: 'Second Ring',
+          },
+        ],
+      ],
+      [
+        characterEquipment,
+        [{ presetNo: 2, itemEquipmentSlot: 'hat', itemName: 'Fallback Hat' }],
+      ],
+      [characterEquipmentPresets, [{ activePresetNo: 2 }]],
+    ]);
+
+    getDb.mockReturnValue(buildSelectMockDb(rows, baseCharRow));
+
+    const data = await getFullCharacterData(OCID);
+
+    expect(data.equipment.item_equipment).toEqual([
+      expect.objectContaining({
+        item_equipment_slot: 'ring',
+        item_name: 'First Ring',
+      }),
+      expect.objectContaining({
+        item_equipment_slot: 'ring',
+        item_name: 'Second Ring',
+      }),
+    ]);
+    expect(data.equipment_presets.presets['2'][0].item_name).toBe(
+      'Fallback Hat'
+    );
+  });
+
+  it('keeps a fulfilled empty current snapshot empty when the active preset has gear', async () => {
+    const { getDb } = await import('../../../lib/db/index.js');
+
+    const rows = new Map([
+      [schema.characterCurrentEquipment, []],
+      [
+        characterEquipment,
+        [{ presetNo: 2, itemEquipmentSlot: 'hat', itemName: 'Preset Hat' }],
+      ],
+      [
+        characterEquipmentPresets,
+        [{ activePresetNo: 2, hasCurrentEquipmentSnapshot: true }],
+      ],
+    ]);
+
+    getDb.mockReturnValue(buildSelectMockDb(rows, baseCharRow));
+
+    const data = await getFullCharacterData(OCID);
+
+    expect(data.equipment.item_equipment).toEqual([]);
+  });
+
+  it('falls back to the active preset when no persisted current snapshot exists', async () => {
+    const { getDb } = await import('../../../lib/db/index.js');
+
+    const rows = new Map([
+      [schema.characterCurrentEquipment, []],
+      [
+        characterEquipment,
+        [{ presetNo: 2, itemEquipmentSlot: 'hat', itemName: 'Fallback Hat' }],
+      ],
+      [characterEquipmentPresets, [{ activePresetNo: 2 }]],
+    ]);
+
+    getDb.mockReturnValue(buildSelectMockDb(rows, baseCharRow));
+
+    const data = await getFullCharacterData(OCID);
+
+    expect(data.equipment.item_equipment).toEqual([
+      expect.objectContaining({ item_name: 'Fallback Hat' }),
+    ]);
   });
 
   it('defaults active preset to 1 when no preset row exists in DB (NULL-tolerant)', async () => {
