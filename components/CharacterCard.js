@@ -19,6 +19,7 @@ import AccessTimeIcon from '@mui/icons-material/AccessTime';
 import ShareIcon from '@mui/icons-material/Share';
 import CompareArrowsIcon from '@mui/icons-material/CompareArrows';
 import AchievementBadges from './AchievementBadges';
+import { formatTimestamp } from '../lib/format';
 
 const ICON_SIZE = 16;
 const TABLE_FONT_SIZE = '0.65rem';
@@ -28,21 +29,6 @@ const COMBO_LABELS = [
   { key: 'hyperStat', label: '極限屬性' },
   { key: 'linkSkill', label: '傳授技能' },
 ];
-
-const formatTimestamp = dateStr => {
-  try {
-    const d = dateStr ? new Date(dateStr) : new Date();
-    return d.toLocaleString('zh-TW', {
-      year: 'numeric',
-      month: '2-digit',
-      day: '2-digit',
-      hour: '2-digit',
-      minute: '2-digit',
-    });
-  } catch {
-    return '-';
-  }
-};
 
 const formatPower = num => num?.toLocaleString() || '-';
 

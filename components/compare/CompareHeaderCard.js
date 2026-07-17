@@ -14,6 +14,7 @@ import {
 import SwapHorizIcon from '@mui/icons-material/SwapHoriz';
 import { glassCardSx } from './glassCardSx';
 import ErrorMessage from '../ErrorMessage';
+import { formatPlain } from './compareFormat';
 
 function PresetChip({ label, mine, other }) {
   if (mine === null || mine === undefined) {
@@ -144,9 +145,7 @@ function FighterPanel({ roleLabel, state, normalized, otherNormalized }) {
                 fontSize: { xs: '1.3rem', md: '1.6rem' },
               }}
             >
-              {data.basicInfo?.combat_power != null
-                ? Number(data.basicInfo.combat_power).toLocaleString('en-US')
-                : '未知'}
+              {formatPlain(data.basicInfo?.combat_power)}
             </Typography>
           </Box>
         </>
@@ -240,7 +239,7 @@ export default function CompareHeaderCard({
                     fontSize: '1.3rem',
                   }}
                 >
-                  {Math.abs(headline.delta).toLocaleString('en-US')}
+                  {formatPlain(Math.abs(headline.delta))}
                 </Typography>
                 <Typography
                   variant="body2"

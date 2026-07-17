@@ -1,5 +1,6 @@
 import { render, screen, fireEvent, waitFor } from '@testing-library/react';
 import ComparePage from '../../../app/compare/page';
+import { clearCharacterSideCache } from '../../../components/compare/useCharacterSide';
 import {
   shadowRaw,
   armorMasterRaw,
@@ -130,6 +131,10 @@ function createFetchMock({ delayedSearchName, delayedSearchPromise } = {}) {
 
 beforeEach(() => {
   __setSearch('');
+  // useCharacterSide's module-level cache persists across tests in this
+  // file — clear it so one test's fetched characters don't silently
+  // serve a later test's assertions from cache.
+  clearCharacterSideCache();
 });
 
 describe('/compare page', () => {
@@ -294,6 +299,31 @@ describe('/compare page', () => {
         /影之愛衣的戰鬥力比護甲大師低 [\d.]+%（以我的角色為基準）/
       )
     ).toBeInTheDocument();
+  });
+
+  it('serves a swap from the in-memory cache instead of refetching data both sides already hold', async () => {
+    __setSearch('left=影之愛衣&right=護甲大師');
+    global.fetch = createFetchMock();
+    render(<ComparePage />);
+
+    await screen.findByText('影之愛衣');
+    await screen.findByText('護甲大師');
+
+    const callsBeforeSwap = global.fetch.mock.calls.length;
+    fireEvent.click(screen.getByRole('button', { name: '交換左右角色' }));
+
+    await waitFor(() => {
+      const params = new URLSearchParams(__getSearch());
+      expect(params.get('left')).toBe('護甲大師');
+      expect(params.get('right')).toBe('影之愛衣');
+    });
+
+    // Both names were already fetched (and cached) before the swap, so
+    // the swapped-in sides must be served from cache, not refetched —
+    // the call count stays exactly where it was.
+    await screen.findByText('影之愛衣');
+    await screen.findByText('護甲大師');
+    expect(global.fetch.mock.calls.length).toBe(callsBeforeSwap);
   });
 
   it('shows an inline same-character message and does not issue a second full-character request', async () => {

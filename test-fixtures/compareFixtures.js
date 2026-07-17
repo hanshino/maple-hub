@@ -1,8 +1,9 @@
-// Shared raw-character fixture builder for /compare component tests.
-// Mirrors the shape and defaults used by
-// __tests__/lib/characterComparison.test.js's local `makeRawCharacter`,
-// so component tests exercise the same `getFullCharacterData` contract
-// the pure comparison layer was verified against.
+// Shared raw-character fixture builder for the /compare feature, used by
+// both __tests__/lib/characterComparison.test.js (the pure comparison
+// layer) and the /compare component tests, so every test exercises the
+// same `getFullCharacterData` contract. `shadowRaw`/`armorMasterRaw`
+// mirror the spec's verified live sample (影之愛衣 vs 護甲大師) plus the
+// extra equipment/familiar/ability detail the component tests render.
 
 export const stat = (name, value) => ({
   stat_name: name,
@@ -113,7 +114,8 @@ export const shadowRaw = makeRawCharacter({
     {
       item_equipment_slot: '帽子',
       item_name: '測試帽子（我方）',
-      starforce: 17,
+      starforce: 436,
+      item_etc_option: { attack_power: '121', magic_power: '0' },
       item_total_option: { str: 30, dex: 0, int: 0, luk: 0 },
       potential_option_1: 'STR +9%',
       potential_option_grade: '傳說',
@@ -206,7 +208,8 @@ export const armorMasterRaw = makeRawCharacter({
     {
       item_equipment_slot: '帽子',
       item_name: '測試帽子（參考）',
-      starforce: 22,
+      starforce: 447,
+      item_etc_option: { attack_power: '100', magic_power: '0' },
       item_total_option: { str: 42, dex: 0, int: 0, luk: 0 },
       potential_option_1: 'STR +12%',
       potential_option_grade: '傳說',

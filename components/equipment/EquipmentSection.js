@@ -14,6 +14,8 @@ import {
 import {
   processCashItemEquipmentData,
   getEquipmentPosition,
+  isSpecialEquipmentSlot,
+  SLOT_ORDER,
 } from '../../lib/equipmentUtils';
 import { identifyIndependentItems } from '../../lib/combatPowerCalculator';
 import PetEquipmentPanel, {
@@ -24,38 +26,11 @@ import EquipmentList from '../EquipmentList';
 import EquipmentDetailDrawer from '../EquipmentDetailDrawer';
 import CashItemDetailDrawer from '../CashItemDetailDrawer';
 import EquipmentCardCompact from './EquipmentCardCompact';
-import SpecialEquipmentPanel, {
-  isSpecialEquipmentSlot,
-} from './SpecialEquipmentPanel';
+import SpecialEquipmentPanel from './SpecialEquipmentPanel';
 import PanelEmpty from '../panel/PanelEmpty';
 
-// Display order for the compact card grid — mirrors EquipmentGrid's slot
-// layout order so the "裝備" tab reads in a familiar sequence.
-const SLOT_ORDER = [
-  'hat',
-  'face-accessory',
-  'eye-accessory',
-  'earring',
-  'top',
-  'bottom',
-  'shoulder',
-  'cape',
-  'gloves',
-  'shoes',
-  'belt',
-  'ring',
-  'ring2',
-  'ring3',
-  'ring4',
-  'necklace',
-  'necklace2',
-  'weapon',
-  'sub-weapon',
-  'pocket',
-  'badge',
-  'medal',
-  'machine-heart',
-];
+// SLOT_ORDER (display order for the compact card grid, mirroring
+// EquipmentGrid's slot layout) now comes from lib/equipmentUtils.
 
 const slotSortIndex = item => {
   const position = getEquipmentPosition(item.item_equipment_slot);

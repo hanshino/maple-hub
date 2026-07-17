@@ -1,12 +1,8 @@
 'use client';
 
-import { Box, Chip, Typography } from '@mui/material';
-import {
-  EVIDENCE_COLORS,
-  EVIDENCE_LABELS,
-  formatDelta,
-  formatRawValue,
-} from './compareFormat';
+import { Box, Typography } from '@mui/material';
+import EvidenceChip from './EvidenceChip';
+import { formatDelta, formatRawValue } from './compareFormat';
 
 /**
  * Generic detail tab for the categories that don't need a specialized
@@ -53,12 +49,7 @@ export default function CategoryCompareTab({ rows, presetInfo }) {
             {formatRawValue(row.right, row.unit)}（
             {formatDelta(row.delta, row.unit)}）
           </Typography>
-          <Chip
-            label={EVIDENCE_LABELS[row.evidence]}
-            size="small"
-            color={EVIDENCE_COLORS[row.evidence]}
-            sx={{ px: 1, height: 22, fontSize: '0.7rem', fontWeight: 700 }}
-          />
+          <EvidenceChip evidence={row.evidence} />
         </Box>
       ))}
     </Box>

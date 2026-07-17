@@ -2,10 +2,32 @@
 
 import { useCallback, useEffect, useRef, useState } from 'react';
 
-export const SIDE_IDLE = 'idle';
-export const SIDE_LOADING = 'loading';
-export const SIDE_ERROR = 'error';
-export const SIDE_SUCCESS = 'success';
+const SIDE_IDLE = 'idle';
+const SIDE_LOADING = 'loading';
+const SIDE_ERROR = 'error';
+const SIDE_SUCCESS = 'success';
+
+// Module-level cache so swapping sides (which only exchanges URL params)
+// or re-entering a name already looked up doesn't refetch data both
+// sides already hold in memory. 5-minute TTL matches the project's
+// localStorage caching convention (see CLAUDE.md's Data Flow section).
+const CACHE_TTL_MS = 5 * 60 * 1000;
+const characterSideCache = new Map();
+
+/** Test-isolation helper — the cache Map persists across tests in a file. */
+export function clearCharacterSideCache() {
+  characterSideCache.clear();
+}
+
+function getCachedEntry(name) {
+  const entry = characterSideCache.get(name);
+  if (!entry) return null;
+  if (Date.now() - entry.fetchedAt > CACHE_TTL_MS) {
+    characterSideCache.delete(name);
+    return null;
+  }
+  return entry;
+}
 
 /**
  * Resolves a character name to an OCID through the existing search API,
@@ -41,6 +63,12 @@ export function useCharacterSide(name, { skip = false } = {}) {
       return;
     }
 
+    const cached = getCachedEntry(targetName);
+    if (cached) {
+      setState({ status: SIDE_SUCCESS, data: cached.data, error: null });
+      return;
+    }
+
     const controller = new AbortController();
     controllerRef.current = controller;
     setState({ status: SIDE_LOADING, data: null, error: null });
@@ -67,6 +95,11 @@ export function useCharacterSide(name, { skip = false } = {}) {
         const data = await charRes.json();
         if (requestIdRef.current !== requestId) return;
 
+        characterSideCache.set(targetName, {
+          ocid: searchData.ocid,
+          data,
+          fetchedAt: Date.now(),
+        });
         setState({ status: SIDE_SUCCESS, data, error: null });
       } catch (err) {
         if (requestIdRef.current !== requestId) return;

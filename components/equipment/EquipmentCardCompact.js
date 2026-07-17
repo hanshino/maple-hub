@@ -4,21 +4,8 @@ import { Box, Typography, Chip } from '@mui/material';
 import { alpha } from '@mui/material/styles';
 import StarIcon from '@mui/icons-material/Star';
 import { parsePotentialOption } from '../../lib/combatPowerCalculator';
+import { EQUIPMENT_STAT_LABELS } from '../../lib/equipmentUtils';
 import { POTENTIAL_GRADE_COLORS } from '../EquipmentDetailDrawer';
-
-// Fallback labels when no potential line is parseable — only used to
-// summarize item_total_option, not to re-derive potential text parsing.
-const FALLBACK_STAT_LABELS = {
-  all_stat: { label: '全屬性', isPercent: true },
-  boss_damage: { label: 'Boss傷害', isPercent: true },
-  ignore_monster_armor: { label: '無視防禦', isPercent: true },
-  attack_power: { label: '攻擊力', isPercent: false },
-  magic_power: { label: '魔力', isPercent: false },
-  str: { label: 'STR', isPercent: false },
-  dex: { label: 'DEX', isPercent: false },
-  int: { label: 'INT', isPercent: false },
-  luk: { label: 'LUK', isPercent: false },
-};
 
 const getStatSummary = item => {
   const potentialLines = [
@@ -37,7 +24,7 @@ const getStatSummary = item => {
   const total = item.item_total_option;
   if (total && typeof total === 'object') {
     let best = null;
-    for (const [key, meta] of Object.entries(FALLBACK_STAT_LABELS)) {
+    for (const [key, meta] of Object.entries(EQUIPMENT_STAT_LABELS)) {
       const raw = parseFloat(total[key]);
       if (!Number.isNaN(raw) && raw > 0 && (!best || raw > best.raw)) {
         best = { raw, ...meta };

@@ -296,6 +296,25 @@ describe('EquipmentSection', () => {
     expect(screen.getByText('獨立圖騰')).toBeInTheDocument();
   });
 
+  it('keeps the sub-weapon (part=寶石, slot=輔助武器) in the main grid, not the special panel', () => {
+    const equipmentData = {
+      item_equipment: [
+        makeItem('副武器', '輔助武器', {
+          item_equipment_part: '寶石',
+          item_total_option: {},
+        }),
+      ],
+    };
+    render(
+      <TestWrapper>
+        <EquipmentSection equipmentData={equipmentData} />
+      </TestWrapper>
+    );
+
+    expect(screen.getByRole('button', { name: '副武器' })).toBeInTheDocument();
+    expect(screen.queryByText('特殊裝備')).not.toBeInTheDocument();
+  });
+
   it('opens the equipment detail drawer when a card is clicked', () => {
     const equipmentData = {
       equipment_presets: {

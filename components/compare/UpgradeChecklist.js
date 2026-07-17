@@ -1,10 +1,9 @@
 'use client';
 
-import { Box, Chip, Typography } from '@mui/material';
+import { Box, Typography } from '@mui/material';
+import EvidenceChip from './EvidenceChip';
 import {
   CATEGORY_LABELS,
-  EVIDENCE_COLORS,
-  EVIDENCE_LABELS,
   categoryMetricLabel,
   formatDelta,
   formatPlain,
@@ -63,17 +62,7 @@ export default function UpgradeChecklist({ directions }) {
                 <Typography sx={{ fontWeight: 800 }}>
                   {CATEGORY_LABELS[direction.category] || direction.category}
                 </Typography>
-                <Chip
-                  label={EVIDENCE_LABELS[direction.evidence]}
-                  size="small"
-                  color={EVIDENCE_COLORS[direction.evidence]}
-                  sx={{
-                    px: 1,
-                    height: 20,
-                    fontSize: '0.65rem',
-                    fontWeight: 700,
-                  }}
-                />
+                <EvidenceChip evidence={direction.evidence} />
               </Box>
               <Typography variant="body2" color="text.secondary">
                 觀察到的差異：{categoryMetricLabel(direction.metric)}{' '}

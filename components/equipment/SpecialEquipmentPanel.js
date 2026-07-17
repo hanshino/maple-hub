@@ -2,43 +2,32 @@
 
 import { Box, Grid, Typography } from '@mui/material';
 import { alpha } from '@mui/material/styles';
+import { EQUIPMENT_STAT_LABELS } from '../../lib/equipmentUtils';
 
 const PUZZLE_SLOT_RE = /^拼圖(\d+)$/;
-const TOTEM_SLOT_RE = /^圖騰\d+$/;
-const SPECIAL_RING_SLOT = '輔助特殊技能戒指';
-const SPECIAL_GEM_SLOT = '寶石';
 
 const PUZZLE_TOTAL = 12;
 
-/**
- * Classifies an item by `item_equipment_slot` ONLY — never by
- * `item_equipment_part` (the sub-weapon uses part='寶石' but must stay in
- * the main equipment grid).
- */
-export const isSpecialEquipmentSlot = slot => {
-  if (!slot) return false;
-  if (PUZZLE_SLOT_RE.test(slot)) return true;
-  if (TOTEM_SLOT_RE.test(slot)) return true;
-  return slot === SPECIAL_RING_SLOT || slot === SPECIAL_GEM_SLOT;
-};
-
-// Order mirrors the spec: STR/DEX/INT/LUK/全屬性/攻擊力/魔力/防禦.
-const STAT_FIELDS = [
-  ['str', 'STR', false],
-  ['dex', 'DEX', false],
-  ['int', 'INT', false],
-  ['luk', 'LUK', false],
-  ['all_stat', '全屬性', true],
-  ['attack_power', '攻擊力', false],
-  ['magic_power', '魔力', false],
-  ['armor', '防禦', false],
+// Order mirrors the spec: STR/DEX/INT/LUK/全屬性/攻擊力/魔力/防禦. This is a
+// deliberate curation (subset + order) of lib/equipmentUtils.js's
+// EQUIPMENT_STAT_LABELS, not a duplicate of its label strings.
+const STAT_KEYS = [
+  'str',
+  'dex',
+  'int',
+  'luk',
+  'all_stat',
+  'attack_power',
+  'magic_power',
+  'armor',
 ];
 
 const getStatLine = item => {
   const total = item.item_total_option || {};
-  const parts = STAT_FIELDS.map(([key, label, isPercent]) => {
+  const parts = STAT_KEYS.map(key => {
     const value = parseInt(total[key]) || 0;
     if (!value) return null;
+    const { label, isPercent } = EQUIPMENT_STAT_LABELS[key];
     return `${label} +${value}${isPercent ? '%' : ''}`;
   }).filter(Boolean);
   return parts.length ? parts.join('、') : '無屬性加成';
@@ -74,11 +63,13 @@ const tileSx = {
  * that only carry item_total_option data — no potential/starforce, so they
  * don't belong in the interactive EquipmentCardCompact grid. Puzzle pieces
  * are stitched into a single 3x4 collage using their slot number.
+ *
+ * `items` is expected to already be filtered to special-equipment slots by
+ * the caller (see EquipmentSection, which also needs the complement list
+ * for its main grid) — this component does not re-filter.
  */
 const SpecialEquipmentPanel = ({ items }) => {
-  const specialItems = (items || []).filter(item =>
-    isSpecialEquipmentSlot(item.item_equipment_slot)
-  );
+  const specialItems = items || [];
   if (specialItems.length === 0) return null;
 
   const puzzlePieces = specialItems.filter(item =>

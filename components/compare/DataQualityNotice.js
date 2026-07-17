@@ -4,20 +4,7 @@ import { Box, Card, CardContent, Typography } from '@mui/material';
 import WarningAmberIcon from '@mui/icons-material/WarningAmber';
 import { staticGlassCardSx } from './glassCardSx';
 import { CATEGORY_COVERAGE } from './compareFormat';
-
-function formatSyncedAt(value) {
-  if (!value) return null;
-  const date = new Date(value);
-  if (Number.isNaN(date.getTime())) return null;
-  return date.toLocaleString('zh-TW', {
-    year: 'numeric',
-    month: '2-digit',
-    day: '2-digit',
-    hour: '2-digit',
-    minute: '2-digit',
-    hour12: false,
-  });
-}
+import { formatTimestamp } from '../../lib/format';
 
 /**
  * Data-quality notice: both syncedAt values, a >10-minute freshness
@@ -34,8 +21,14 @@ export default function DataQualityNotice({
   rightNormalized,
 }) {
   const { snapshot } = comparison;
-  const leftLabel = formatSyncedAt(snapshot.leftSyncedAt);
-  const rightLabel = formatSyncedAt(snapshot.rightSyncedAt);
+  const leftLabel = formatTimestamp(snapshot.leftSyncedAt, {
+    hour12: false,
+    fallbackToNow: false,
+  });
+  const rightLabel = formatTimestamp(snapshot.rightSyncedAt, {
+    hour12: false,
+    fallbackToNow: false,
+  });
   const diffMinutes =
     snapshot.diffMs !== null ? Math.round(snapshot.diffMs / 60000) : null;
 

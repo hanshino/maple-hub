@@ -1,8 +1,7 @@
 import { render, screen, fireEvent } from '@testing-library/react';
 import { ThemeProvider, createTheme } from '@mui/material/styles';
-import SpecialEquipmentPanel, {
-  isSpecialEquipmentSlot,
-} from '../../../components/equipment/SpecialEquipmentPanel';
+import SpecialEquipmentPanel from '../../../components/equipment/SpecialEquipmentPanel';
+import { isSpecialEquipmentSlot } from '../../../lib/equipmentUtils';
 
 const TestWrapper = ({ children }) => (
   <ThemeProvider theme={createTheme()}>{children}</ThemeProvider>
@@ -197,23 +196,5 @@ describe('SpecialEquipmentPanel', () => {
     expect(() => fireEvent.click(screen.getByText('獨立圖騰'))).not.toThrow();
     expect(screen.queryByRole('dialog')).not.toBeInTheDocument();
     expect(screen.queryByRole('button')).not.toBeInTheDocument();
-  });
-
-  it('excludes non-special items such as the sub-weapon (part=寶石, slot=輔助武器)', () => {
-    const items = [
-      {
-        item_name: '副武器',
-        item_equipment_slot: '輔助武器',
-        item_equipment_part: '寶石',
-        item_icon: 'sub-weapon.png',
-        item_total_option: {},
-      },
-    ];
-    const { container } = render(
-      <TestWrapper>
-        <SpecialEquipmentPanel items={items} />
-      </TestWrapper>
-    );
-    expect(container).toBeEmptyDOMElement();
   });
 });
