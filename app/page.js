@@ -358,7 +358,7 @@ function HomeContent() {
           <Grid container spacing={2} sx={{ mb: 4 }}>
             <Grid size={{ xs: 12, md: 7 }}>
               <Card elevation={2}>
-                <CardContent>
+                <CardContent sx={{ p: 3 }}>
                   <Skeleton variant="text" width={120} height={32} />
                   <Skeleton
                     variant="rounded"
@@ -421,7 +421,11 @@ function HomeContent() {
           </Card>
 
           {/* At-a-glance stat tiles */}
-          <StatHighlightStrip battlePower={battlePower} statsData={statsData} />
+          <StatHighlightStrip
+            battlePower={battlePower}
+            statsData={statsData}
+            characterClass={character.character_class}
+          />
 
           {/* Main two columns: stat balance + quick exp progress | equipment */}
           <Grid container spacing={2} sx={{ mb: 3, alignItems: 'flex-start' }}>
@@ -444,6 +448,7 @@ function HomeContent() {
                       parseFloat(character.character_exp_rate || 0) / 100
                     }
                     expRate={5}
+                    historicalData={chartData}
                     level={character.character_level}
                   />
                 </CardContent>

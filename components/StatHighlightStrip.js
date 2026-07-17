@@ -7,7 +7,11 @@ import { formatStatValue } from '../lib/statsUtils';
 
 const MAIN_STAT_KEYS = ['STR', 'DEX', 'INT', 'LUK'];
 
-const getMainStatName = finalStats => {
+const getMainStatName = (finalStats, characterClass) => {
+  if (characterClass === '惡魔復仇者') {
+    return finalStats.some(stat => stat.stat_name === 'HP') ? 'HP' : null;
+  }
+
   let bestName = null;
   let bestValue = -1;
   for (const name of MAIN_STAT_KEYS) {
@@ -77,13 +81,17 @@ const Tile = ({ label, value, sub, highlight }) => (
  * boss/critical damage %, and ignore-defense %. Mirrors maplescouter's
  * "at-a-glance" summary row. 2x2 on mobile, 4 across on sm+.
  */
-const StatHighlightStrip = ({ battlePower, statsData }) => {
+const StatHighlightStrip = ({ battlePower, statsData, characterClass }) => {
   const finalStats = statsData?.final_stat || [];
 
   if (finalStats.length === 0 && battlePower == null) return null;
 
   const balance = extractBalanceStats(statsData || {});
-  const mainStatName = getMainStatName(finalStats);
+  const mainStatName = getMainStatName(finalStats, characterClass);
+  const mainStatValue =
+    characterClass === '惡魔復仇者'
+      ? finalStats.find(stat => stat.stat_name === 'HP')?.stat_value
+      : balance.mainStat;
 
   const tiles = [
     {
@@ -95,7 +103,7 @@ const StatHighlightStrip = ({ battlePower, statsData }) => {
     {
       key: 'main-stat',
       label: mainStatName ? `主屬性 ${mainStatName}` : '主屬性',
-      value: balance.mainStat ? formatStatValue(String(balance.mainStat)) : '-',
+      value: mainStatValue ? formatStatValue(String(mainStatValue)) : '-',
     },
     {
       key: 'boss-crit',

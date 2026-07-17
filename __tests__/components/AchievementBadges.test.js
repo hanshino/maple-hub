@@ -1,4 +1,5 @@
 import { render, screen } from '@testing-library/react';
+import userEvent from '@testing-library/user-event';
 import { ThemeProvider, createTheme } from '@mui/material/styles';
 import AchievementBadges from '../../components/AchievementBadges';
 
@@ -31,21 +32,82 @@ describe('AchievementBadges', () => {
     expect(screen.queryByText('Lv.280+')).not.toBeInTheDocument();
   });
 
-  it('shows starforce badges for any-piece and full-body thresholds', () => {
+  it('shows any-piece and full-body starforce badges when every eligible item is at least 22 stars', async () => {
+    const user = userEvent.setup();
     const equipment = {
       hat: { item_equipment_slot: '帽子', starforce: '22' },
       weapon: { item_equipment_slot: '武器', starforce: '25' },
+      face: { item_equipment_slot: '臉飾', starforce: '22' },
     };
     render(
       <TestWrapper>
         <AchievementBadges character={{}} equipment={equipment} />
       </TestWrapper>
     );
+
+    expect(screen.getByText('★22+')).toBeInTheDocument();
+    const fullBodyBadge = screen.getByText('全身★22+');
+    expect(fullBodyBadge).toBeInTheDocument();
+    await user.hover(fullBodyBadge);
+    expect(
+      await screen.findByText('依目前已裝備的可星力部位估算，皆達 22 星以上')
+    ).toBeInTheDocument();
+  });
+
+  it('does not show the full-body badge when an eligible equipped item has zero stars', () => {
+    const equipment = {
+      hat: { item_equipment_slot: '帽子', starforce: '22' },
+      weapon: { item_equipment_slot: '武器', starforce: '0' },
+    };
+    render(
+      <TestWrapper>
+        <AchievementBadges character={{}} equipment={equipment} />
+      </TestWrapper>
+    );
+
+    expect(screen.getByText('★22+')).toBeInTheDocument();
+    expect(screen.queryByText('全身★22+')).not.toBeInTheDocument();
+  });
+
+  it('ignores known ineligible slots when evaluating the full-body badge', () => {
+    const equipment = {
+      hat: { item_equipment_slot: '帽子', starforce: '22' },
+      weapon: { item_equipment_slot: '武器', starforce: '22' },
+      pocket: { item_equipment_slot: '口袋道具', starforce: '0' },
+      badge: { item_equipment_slot: '徽章', starforce: '0' },
+      medal: { item_equipment_slot: '勳章', starforce: '0' },
+      totem: { item_equipment_slot: '圖騰', starforce: '0' },
+      title: { item_equipment_slot: '稱號', starforce: '0' },
+      symbol: { item_equipment_slot: '神秘徽章', starforce: '0' },
+      cash: { item_equipment_slot: '現金', starforce: '0' },
+      pet: { item_equipment_slot: '寵物裝備', starforce: '0' },
+    };
+    render(
+      <TestWrapper>
+        <AchievementBadges character={{}} equipment={equipment} />
+      </TestWrapper>
+    );
+
     expect(screen.getByText('★22+')).toBeInTheDocument();
     expect(screen.getByText('全身★22+')).toBeInTheDocument();
   });
 
-  it('shows any-piece starforce badge but not full-body when one item is under threshold', () => {
+  it('ignores unfamiliar slots in the conservative full-body estimate', () => {
+    const equipment = {
+      hat: { item_equipment_slot: '帽子', starforce: '22' },
+      futureSlot: { item_equipment_slot: '未來特殊部位', starforce: '0' },
+    };
+
+    render(
+      <TestWrapper>
+        <AchievementBadges character={{}} equipment={equipment} />
+      </TestWrapper>
+    );
+
+    expect(screen.getByText('全身★22+')).toBeInTheDocument();
+  });
+
+  it('keeps the any-piece badge when another eligible item is under threshold', () => {
     const equipment = {
       hat: { item_equipment_slot: '帽子', starforce: '22' },
       weapon: { item_equipment_slot: '武器', starforce: '5' },

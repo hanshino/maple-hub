@@ -20,10 +20,97 @@ describe('ProgressBar', () => {
     expect(screen.getByText('100.00')).toBeInTheDocument();
   });
 
-  it('shows estimated time to level up', () => {
-    render(<ProgressBar progress={0.5} expRate={10} />);
+  it('hides the ETA without sufficient increasing historical data', () => {
+    const { rerender } = render(<ProgressBar progress={0.5} expRate={10} />);
 
-    expect(screen.getByText(/預計升級: 5.0 小時/)).toBeInTheDocument();
+    expect(screen.queryByText(/預計升級/)).not.toBeInTheDocument();
+
+    rerender(
+      <ProgressBar
+        progress={0.5}
+        historicalData={[{ date: '2025-10-20', percentage: 50, level: 200 }]}
+      />
+    );
+    expect(screen.queryByText(/預計升級/)).not.toBeInTheDocument();
+
+    rerender(
+      <ProgressBar
+        progress={0.5}
+        historicalData={[
+          { date: '2025-10-20', percentage: 50, level: 200 },
+          { date: '2025-10-20', percentage: 60, level: 200 },
+        ]}
+      />
+    );
+    expect(screen.queryByText(/預計升級/)).not.toBeInTheDocument();
+
+    rerender(
+      <ProgressBar
+        progress={0.5}
+        historicalData={[
+          { date: '2025-10-20', percentage: 60, level: 200 },
+          { date: '2025-10-21', percentage: 50, level: 200 },
+        ]}
+      />
+    );
+    expect(screen.queryByText(/預計升級/)).not.toBeInTheDocument();
+  });
+
+  it('shows history-derived daily growth and ETA when cumulative progress increases', () => {
+    render(
+      <ProgressBar
+        progress={0.6}
+        historicalData={[
+          { date: '2025-10-20', percentage: 50, level: 200 },
+          { date: '2025-10-21', percentage: 60, level: 200 },
+        ]}
+      />
+    );
+
+    expect(screen.getByText('+10.00%/天')).toBeInTheDocument();
+    expect(screen.getByText(/預計升級:/)).toHaveTextContent(
+      '預計升級: 4 天 0.0 小時'
+    );
+  });
+
+  it('derives ETA from valid dated points when invalid history entries are present', () => {
+    render(
+      <ProgressBar
+        progress={0.6}
+        historicalData={[
+          { date: 'not-a-date', percentage: 0, level: 1 },
+          { date: '2025-10-20', percentage: 50, level: 200 },
+          { date: '2025-10-21', percentage: 60, level: 200 },
+        ]}
+      />
+    );
+
+    expect(screen.getByText('+10.00%/天')).toBeInTheDocument();
+    expect(screen.getByText(/預計升級:/)).toHaveTextContent(
+      '預計升級: 4 天 0.0 小時'
+    );
+  });
+
+  it.each([
+    [
+      'non-finite percentages',
+      [
+        { date: '2025-10-20', percentage: Infinity, level: 200 },
+        { date: '2025-10-21', percentage: 10, level: 200 },
+      ],
+    ],
+    [
+      'non-finite levels',
+      [
+        { date: '2025-10-20', percentage: 50, level: 200 },
+        { date: '2025-10-21', percentage: 60, level: Infinity },
+      ],
+    ],
+  ])('hides growth and ETA for %s', (_label, historicalData) => {
+    render(<ProgressBar progress={0.5} historicalData={historicalData} />);
+
+    expect(screen.queryByText(/預計升級/)).not.toBeInTheDocument();
+    expect(screen.queryByText(/%\/天/)).not.toBeInTheDocument();
   });
 
   it('displays level when provided', () => {

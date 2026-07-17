@@ -43,6 +43,41 @@ describe('StatHighlightStrip', () => {
     expect(screen.getByText('95%')).toBeInTheDocument();
   });
 
+  it('uses HP as the Demon Avenger main stat while other classes keep their highest primary stat', () => {
+    const demonAvengerStats = {
+      ...statsData,
+      final_stat: [
+        ...statsData.final_stat,
+        { stat_name: 'HP', stat_value: '125000' },
+      ],
+    };
+    const { rerender } = render(
+      <TestWrapper>
+        <StatHighlightStrip
+          battlePower={12345678}
+          statsData={demonAvengerStats}
+          characterClass="惡魔復仇者"
+        />
+      </TestWrapper>
+    );
+
+    expect(screen.getByText('主屬性 HP')).toBeInTheDocument();
+    expect(screen.getByText('125000')).toBeInTheDocument();
+
+    rerender(
+      <TestWrapper>
+        <StatHighlightStrip
+          battlePower={12345678}
+          statsData={demonAvengerStats}
+          characterClass="英雄"
+        />
+      </TestWrapper>
+    );
+
+    expect(screen.getByText('主屬性 STR')).toBeInTheDocument();
+    expect(screen.getByText('4000')).toBeInTheDocument();
+  });
+
   it('shows a dash for battle power when unavailable but stats exist', () => {
     render(
       <TestWrapper>

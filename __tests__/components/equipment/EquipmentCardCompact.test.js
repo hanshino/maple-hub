@@ -79,4 +79,22 @@ describe('EquipmentCardCompact', () => {
     fireEvent.click(screen.getByText('測試武器'));
     expect(handleClick).toHaveBeenCalledWith(item);
   });
+
+  it('uses 24px padding for populated and empty cards', () => {
+    const item = { item_name: '有裝備的卡片' };
+    render(
+      <TestWrapper>
+        <EquipmentCardCompact item={item} />
+        <EquipmentCardCompact item={null} slotName="帽子" />
+      </TestWrapper>
+    );
+
+    expect(
+      getComputedStyle(screen.getByRole('button', { name: '有裝備的卡片' }))
+        .padding
+    ).toBe('24px');
+    expect(getComputedStyle(screen.getByLabelText('帽子：空')).padding).toBe(
+      '24px'
+    );
+  });
 });

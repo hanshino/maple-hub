@@ -19,6 +19,33 @@ const LEVEL_MILESTONES = [290, 280, 270, 260];
 const UNION_LEVEL_MILESTONES = [10000, 9000, 8000];
 const UNION_ARTIFACT_MILESTONES = [20, 15, 10, 5];
 const LEGENDARY_GRADE = '傳說';
+// TWMS OpenAPI exposes `starforce`, but not whether a zero-star item is
+// eligible or its max-star cap. Keep this conservative canonical-slot
+// heuristic local; unfamiliar/future slots are intentionally ignored and the
+// UI labels the result as an estimate.
+const STARFORCE_ELIGIBLE_SLOTS = new Set([
+  '帽子',
+  '臉飾',
+  '眼飾',
+  '耳環',
+  '上衣',
+  '褲/裙',
+  '套服',
+  '鞋子',
+  '手套',
+  '披風',
+  '戒指1',
+  '戒指2',
+  '戒指3',
+  '戒指4',
+  '墜飾',
+  '墜飾2',
+  '腰帶',
+  '肩膀裝飾',
+  '機器心臟',
+  '武器',
+  '輔助武器',
+]);
 
 const ICON_SIZE = 14;
 
@@ -78,15 +105,20 @@ const buildBadges = ({ character, equipment, unionData, hexaCoreData }) => {
         color: '#ffd54f',
       });
     }
-    const allMaxed = starforceItems.every(
-      item => (parseInt(item.starforce) || 0) >= STARFORCE_THRESHOLD
+    const eligibleItems = equipItems.filter(item =>
+      STARFORCE_ELIGIBLE_SLOTS.has(item.item_equipment_slot)
     );
-    if (allMaxed) {
+    const allEligibleMaxed =
+      eligibleItems.length > 0 &&
+      eligibleItems.every(
+        item => (parseInt(item.starforce) || 0) >= STARFORCE_THRESHOLD
+      );
+    if (allEligibleMaxed) {
       badges.push({
         id: 'star-all',
         icon: <StarsIcon sx={{ fontSize: ICON_SIZE }} />,
         label: `全身★${STARFORCE_THRESHOLD}+`,
-        tooltip: `全身裝備星力皆達到 ${STARFORCE_THRESHOLD} 星以上`,
+        tooltip: `依目前已裝備的可星力部位估算，皆達 ${STARFORCE_THRESHOLD} 星以上`,
         color: '#ffd54f',
       });
     }

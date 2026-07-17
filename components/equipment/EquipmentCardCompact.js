@@ -54,7 +54,7 @@ const getStatSummary = item => {
 const cardSx = {
   display: 'flex',
   flexDirection: 'column',
-  p: 2,
+  p: 3,
   borderRadius: 3,
   cursor: 'pointer',
   height: '100%',

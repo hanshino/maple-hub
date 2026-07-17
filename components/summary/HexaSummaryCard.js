@@ -17,7 +17,7 @@ const HEXA_CORE_MAX_LEVEL = 30;
  * (rendered in the collapsible 成長追蹤 section), which this does not
  * re-derive.
  */
-const HexaSummaryCard = ({ hexaCoreData, hexaStatData }) => {
+const HexaSummaryCard = ({ hexaCoreData }) => {
   const hexaCores = hexaCoreData?.character_hexa_core_equipment;
 
   if (!hexaCores?.length) {
@@ -34,7 +34,6 @@ const HexaSummaryCard = ({ hexaCoreData, hexaStatData }) => {
   const filteredCores = filterHexaCoreSkills(hexaCores);
   const progress = calculateHexaMatrixProgress({
     character_hexa_core_equipment: filteredCores,
-    ...(hexaStatData || {}),
   });
   const totalProgress =
     typeof progress.totalProgress === 'number' &&
