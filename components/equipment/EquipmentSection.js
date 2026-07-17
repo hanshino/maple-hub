@@ -24,6 +24,9 @@ import EquipmentList from '../EquipmentList';
 import EquipmentDetailDrawer from '../EquipmentDetailDrawer';
 import CashItemDetailDrawer from '../CashItemDetailDrawer';
 import EquipmentCardCompact from './EquipmentCardCompact';
+import SpecialEquipmentPanel, {
+  isSpecialEquipmentSlot,
+} from './SpecialEquipmentPanel';
 import PanelEmpty from '../panel/PanelEmpty';
 
 // Display order for the compact card grid — mirrors EquipmentGrid's slot
@@ -149,6 +152,21 @@ const EquipmentSection = ({
       .sort((a, b) => slotSortIndex(a) - slotSortIndex(b));
   }, [presets, presetKey]);
 
+  const mainItems = useMemo(
+    () =>
+      currentItems.filter(
+        item => !isSpecialEquipmentSlot(item.item_equipment_slot)
+      ),
+    [currentItems]
+  );
+  const specialItems = useMemo(
+    () =>
+      currentItems.filter(item =>
+        isSpecialEquipmentSlot(item.item_equipment_slot)
+      ),
+    [currentItems]
+  );
+
   const cashItemEquipment = useMemo(() => {
     if (!cashEquipmentData?.cash_item_equipment_base) return {};
     return processCashItemEquipmentData(cashEquipmentData);
@@ -208,11 +226,11 @@ const EquipmentSection = ({
             </ToggleButtonGroup>
           )}
 
-          {currentItems.length === 0 ? (
+          {mainItems.length === 0 ? (
             <PanelEmpty message="此預設尚無裝備資料" />
           ) : (
             <Grid container spacing={2}>
-              {currentItems.map(item => (
+              {mainItems.map(item => (
                 <Grid
                   key={`${item.item_equipment_slot}-${item.item_name}`}
                   size={{ xs: 12, md: 6 }}
@@ -222,6 +240,8 @@ const EquipmentSection = ({
               ))}
             </Grid>
           )}
+
+          <SpecialEquipmentPanel items={specialItems} />
         </Box>
       )}
 
