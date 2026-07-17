@@ -79,8 +79,17 @@ npm run format:check # Prettier check (CI)
 - Glassmorphism 風格：半透明卡片 + `backdropFilter: blur` + 細邊框，參考 `app/about/page.js` 的 `glassCardSx`
 - Hover 用 `translateY` + `boxShadow`，不用 `scale`（避免 layout shift）
 - Icon button 與 Chip 混排時，保持相同邊框色和高度（參考 `linkBtnSx`）
-- Chip 要加足夠的 `px` padding，避免文字太擠
 - Light/dark mode 顏色定義集中在各元件的 `mode === 'dark'` 三元判斷
+
+#### 間距鐵律（歷史上最常被退件的問題就是「內容貼邊」，以下是硬性數字，不是建議）
+
+- 卡片級容器（Card / Paper / 玻璃卡）內距一律 `p: 3`（24px）；MUI `CardContent`
+  預設的 16px **不夠**，必須明確覆寫
+- 有邊框或底色的子容器（統計格、表格區塊、清單列）內距至少 `p: 1.5`（12px）
+- 大數字、標題不可貼容器邊緣；標題與內容之間 `mb: 2`
+- Chip 至少 `px: 1`，避免文字太擠
+- 交付 UI 前自查：實際開頁面（或用 computed style 量測）確認最外層卡片與
+  子容器的 padding 符合上述數字——「看起來有 padding」不算，要量
 
 ### API Routes
 

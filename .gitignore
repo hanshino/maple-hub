@@ -110,3 +110,6 @@ Desktop.ini
 .import-failed.json
 ocids.csv
 .superpowers/
+
+# Playwright MCP session artifacts
+.playwright-mcp/

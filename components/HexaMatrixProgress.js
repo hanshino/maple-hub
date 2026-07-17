@@ -39,11 +39,9 @@ export default function HexaMatrixProgress({
       hexaCoreData.character_hexa_core_equipment
     );
 
-    const combinedHexaData = {
+    const calculatedProgress = calculateHexaMatrixProgress({
       character_hexa_core_equipment: filteredHexaCores,
-      ...(hexaStatData || {}),
-    };
-    const calculatedProgress = calculateHexaMatrixProgress(combinedHexaData);
+    });
 
     return {
       progress: calculatedProgress,

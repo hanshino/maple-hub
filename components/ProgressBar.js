@@ -17,35 +17,57 @@ export default function ProgressBar({
 }) {
   const percentage = Math.max(0, Math.min(progress * 100, 100));
   const remainingPercentage = Math.max(0, 100 - percentage);
-  const estimatedHours = calculateEstimatedTimeToLevel(
-    remainingPercentage,
-    expRate,
-    historicalData
-  );
 
-  // Calculate daily growth rate from historical data
-  const dailyGrowth = (() => {
-    if (!historicalData || historicalData.length < 2) return null;
-    const sorted = [...historicalData].sort(
-      (a, b) => new Date(a.date) - new Date(b.date)
-    );
-    const first = sorted[0];
-    const last = sorted[sorted.length - 1];
-    const days = Math.max(
-      1,
-      (new Date(last.date) - new Date(first.date)) / (1000 * 60 * 60 * 24)
-    );
+  const { dailyGrowth, validHistory } = (() => {
+    if (!historicalData || historicalData.length < 2) {
+      return { dailyGrowth: null, validHistory: null };
+    }
 
-    // Account for level changes
-    const firstPct = first.percentage ?? (first.progress ?? 0) * 100;
-    const lastPct = last.percentage ?? (last.progress ?? 0) * 100;
-    const firstLevel = first.level ?? 0;
-    const lastLevel = last.level ?? 0;
-    const levelAdj = Math.max(0, lastLevel - firstLevel) * 100;
-    const totalGain = lastPct - firstPct + levelAdj;
+    const points = historicalData
+      .map(item => {
+        if (!item?.date || Number.isNaN(new Date(item.date).getTime())) {
+          return null;
+        }
+        const percentage =
+          typeof item.percentage === 'number'
+            ? item.percentage
+            : typeof item.progress === 'number'
+              ? item.progress * 100
+              : null;
+        const level = item.level ?? 0;
+        return percentage === null ||
+          !Number.isFinite(percentage) ||
+          !Number.isFinite(level)
+          ? null
+          : { date: new Date(item.date), percentage, level };
+      })
+      .filter(Boolean)
+      .sort((a, b) => a.date - b.date);
 
-    return totalGain / days;
+    if (points.length < 2) return { dailyGrowth: null, validHistory: null };
+
+    const first = points[0];
+    const last = points[points.length - 1];
+    const elapsedDays = (last.date - first.date) / (1000 * 60 * 60 * 24);
+    const cumulativeGain =
+      last.percentage -
+      first.percentage +
+      Math.max(0, last.level - first.level) * 100;
+    const dailyGrowth =
+      elapsedDays > 0 && cumulativeGain > 0
+        ? cumulativeGain / elapsedDays
+        : null;
+
+    return { dailyGrowth, validHistory: points };
   })();
+  const estimatedHours =
+    dailyGrowth === null
+      ? null
+      : calculateEstimatedTimeToLevel(
+          remainingPercentage,
+          expRate,
+          validHistory
+        );
 
   return (
     <Box>
@@ -160,17 +182,19 @@ export default function ProgressBar({
           flexWrap: 'wrap',
         }}
       >
-        <Box sx={{ display: 'flex', alignItems: 'center', gap: 0.5 }}>
-          <AccessTimeIcon
-            sx={{ fontSize: 14, color: 'text.secondary', opacity: 0.7 }}
-          />
-          <Typography
-            variant="caption"
-            sx={{ color: 'text.secondary', fontWeight: 500 }}
-          >
-            預計升級: {formatTime(estimatedHours)}
-          </Typography>
-        </Box>
+        {estimatedHours !== null && (
+          <Box sx={{ display: 'flex', alignItems: 'center', gap: 0.5 }}>
+            <AccessTimeIcon
+              sx={{ fontSize: 14, color: 'text.secondary', opacity: 0.7 }}
+            />
+            <Typography
+              variant="caption"
+              sx={{ color: 'text.secondary', fontWeight: 500 }}
+            >
+              預計升級: {formatTime(estimatedHours)}
+            </Typography>
+          </Box>
+        )}
         {dailyGrowth !== null && dailyGrowth > 0 && (
           <Box sx={{ display: 'flex', alignItems: 'center', gap: 0.5 }}>
             <TrendingUpIcon
