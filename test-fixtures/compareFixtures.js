@@ -31,6 +31,7 @@ export function makeRawCharacter({
   symbols = [],
   setEffects = [],
   familiar = null,
+  ability = null,
   petEquipment = {},
   cashEquipment = { cash_item_equipment_base: [] },
   syncedAt = '2026-07-17T00:00:00.000Z',
@@ -85,6 +86,7 @@ export function makeRawCharacter({
     cashEquipment,
     petEquipment,
     familiar,
+    ability,
     syncedAt,
   };
 }
@@ -156,6 +158,28 @@ export const shadowRaw = makeRawCharacter({
           { option_no: 2, option_name: '最終傷害 (%)', option_value: '20' },
           { option_no: 3, option_name: '最終傷害 (%)', option_value: '20' },
         ],
+      },
+    ],
+  },
+  ability: {
+    ability_grade: '傳說',
+    preset_no: 3,
+    remain_fame: 9959389,
+    ability_info: [
+      {
+        ability_no: '1',
+        ability_grade: '傳說',
+        ability_value: '使用技能時，依20%機率，沒有冷卻時間',
+      },
+      {
+        ability_no: '2',
+        ability_grade: '罕見',
+        ability_value: '攻擊Boss怪物時，傷害增加 8%',
+      },
+      {
+        ability_no: '3',
+        ability_grade: '罕見',
+        ability_value: '攻擊陷入狀態異常的對象時，傷害增加8%',
       },
     ],
   },
@@ -240,6 +264,28 @@ export const armorMasterRaw = makeRawCharacter({
         familiar_level: 2,
         option_level: 2,
         option: [],
+      },
+    ],
+  },
+  ability: {
+    ability_grade: '傳說',
+    preset_no: 1,
+    remain_fame: 6630925,
+    ability_info: [
+      {
+        ability_no: '1',
+        ability_grade: '傳說',
+        ability_value: '攻擊Boss怪物時，傷害增加 20%',
+      },
+      {
+        ability_no: '2',
+        ability_grade: '罕見',
+        ability_value: '攻擊力增加21 ',
+      },
+      {
+        ability_no: '3',
+        ability_grade: '罕見',
+        ability_value: '攻擊陷入狀態異常的對象時，傷害增加8%',
       },
     ],
   },

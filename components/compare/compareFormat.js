@@ -17,6 +17,7 @@ export const CATEGORY_LABELS = {
   'Link Skill': '連結技能',
   'Set Effects': '套裝效果',
   Familiar: '萌獸',
+  Ability: '內在能力',
 };
 
 export const EVIDENCE_LABELS = {
@@ -49,6 +50,7 @@ export const CATEGORY_COVERAGE = [
   { key: 'linkSkill', label: '連結技能' },
   { key: 'setEffects', label: '套裝效果' },
   { key: 'familiar', label: '萌獸' },
+  { key: 'ability', label: '內在能力' },
 ];
 
 const STAT_METRIC_LABELS = {
@@ -91,6 +93,10 @@ const CATEGORY_METRIC_LABELS = {
   summonedFamiliarFinalDamage: '裝備中萌獸最終傷害',
   registeredFamiliarCount: '已登錄萌獸數',
   linkedFamiliarCount: '羈絆連結數',
+  abilityBossDamage: '內在能力 Boss 傷害',
+  abilityAttackPower: '內在能力攻擊力',
+  abilityMagicPower: '內在能力魔法攻擊力',
+  abilityCritRate: '內在能力爆擊率',
 };
 
 /**

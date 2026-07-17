@@ -40,6 +40,7 @@ function makeRawCharacter({
   symbols = [],
   setEffects = [],
   familiar = null,
+  ability = null,
   petEquipment = {},
   cashEquipment = { cash_item_equipment_base: [] },
   syncedAt = '2026-07-17T00:00:00.000Z',
@@ -94,6 +95,7 @@ function makeRawCharacter({
     cashEquipment,
     petEquipment,
     familiar,
+    ability,
     syncedAt,
   };
 }
@@ -1007,5 +1009,120 @@ describe('normalizeCharacterForComparison — attack source sums', () => {
     expect(equipment.starforceAttackSum.delta).toBe(147);
     expect(equipment.petAttackSum.delta).toBe(105);
     expect(equipment.cashAttackSum.delta).toBe(20);
+  });
+});
+
+describe('normalizeCharacterForComparison — inner ability (內在能力)', () => {
+  // Verbatim live line texts — the 狀態異常 line also says 傷害增加 and
+  // must NOT count as boss damage.
+  const referenceAbility = {
+    ability_grade: '傳說',
+    preset_no: 1,
+    ability_info: [
+      {
+        ability_no: '1',
+        ability_grade: '傳說',
+        ability_value: '攻擊Boss怪物時，傷害增加 20%',
+      },
+      {
+        ability_no: '2',
+        ability_grade: '罕見',
+        ability_value: '攻擊力增加21 ',
+      },
+      {
+        ability_no: '3',
+        ability_grade: '罕見',
+        ability_value: '攻擊陷入狀態異常的對象時，傷害增加8%',
+      },
+    ],
+  };
+
+  it('parses boss damage and flat attack from active lines, ignoring look-alikes', () => {
+    const normalized = normalizeCharacterForComparison(
+      makeRawCharacter({ ability: referenceAbility })
+    );
+
+    expect(normalized.ability.coverage).toBe(true);
+    expect(normalized.ability.grade).toBe('傳說');
+    expect(normalized.ability.activePresetNo).toBe('1');
+    expect(normalized.ability.bossDamage).toBe(20);
+    expect(normalized.ability.attackPower).toBe(21);
+    expect(normalized.ability.magicPower).toBe(0);
+    expect(normalized.ability.critRate).toBe(0);
+  });
+
+  it('reports real zeros when all lines are utility lines', () => {
+    const normalized = normalizeCharacterForComparison(
+      makeRawCharacter({
+        ability: {
+          ability_grade: '傳說',
+          preset_no: 2,
+          ability_info: [
+            {
+              ability_no: '1',
+              ability_grade: '傳說',
+              ability_value: '道具掉落率增加 18%',
+            },
+          ],
+        },
+      })
+    );
+
+    expect(normalized.ability.coverage).toBe(true);
+    expect(normalized.ability.bossDamage).toBe(0);
+    expect(normalized.ability.attackPower).toBe(0);
+  });
+
+  it('treats a character synced before ability support as unavailable, never zero', () => {
+    const normalized = normalizeCharacterForComparison(makeRawCharacter());
+
+    expect(normalized.ability).toEqual({
+      coverage: false,
+      grade: null,
+      activePresetNo: null,
+      bossDamage: null,
+      attackPower: null,
+      magicPower: null,
+      critRate: null,
+    });
+  });
+
+  it('exposes ability rows with pp units and surfaces the boss-damage lag as an upgrade direction', () => {
+    const mine = normalizeCharacterForComparison(
+      makeRawCharacter({
+        ocid: 'A',
+        name: 'A',
+        ability: {
+          ability_grade: '傳說',
+          preset_no: 3,
+          ability_info: [
+            {
+              ability_no: '2',
+              ability_grade: '罕見',
+              ability_value: '攻擊Boss怪物時，傷害增加 8%',
+            },
+          ],
+        },
+      })
+    );
+    const reference = normalizeCharacterForComparison(
+      makeRawCharacter({ ocid: 'B', name: 'B', ability: referenceAbility })
+    );
+    const comparison = compareCharacters(mine, reference);
+
+    const row = comparison.categories.ability.bossDamage;
+    expect(row.category).toBe('Ability');
+    expect(row.metric).toBe('abilityBossDamage');
+    expect(row.unit).toBe('pp');
+    expect(row.evidence).toBe('derived');
+    expect(row.delta).toBe(-12);
+    expect(row.direction).toBe('behind');
+
+    const directions = rankUpgradeDirections(comparison);
+    const abilityEntry = directions.find(d => d.category === 'Ability');
+    expect(abilityEntry).toBeDefined();
+    expect(abilityEntry.metric).toBe('abilityBossDamage');
+    expect(abilityEntry.myValue).toBe(8);
+    expect(abilityEntry.referenceValue).toBe(20);
   });
 });

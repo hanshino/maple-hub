@@ -42,6 +42,11 @@ const SUMMARY_CATEGORIES = [
     label: '萌獸',
     getRow: c => c.familiar.summonedFinalDamage,
   },
+  {
+    key: 'ability',
+    label: '內在能力',
+    getRow: c => c.ability.bossDamage,
+  },
 ];
 
 const DELTA_COLOR = {

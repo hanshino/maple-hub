@@ -9,6 +9,7 @@ import ProgressionSummaryCards from './ProgressionSummaryCards';
 import EquipmentCompareTab from './EquipmentCompareTab';
 import CategoryCompareTab from './CategoryCompareTab';
 import FamiliarCompareTab from './FamiliarCompareTab';
+import AbilityCompareTab from './AbilityCompareTab';
 
 const TAB_OVERVIEW = 0;
 const TAB_EQUIPMENT = 1;
@@ -19,6 +20,7 @@ const TAB_HYPER_STAT = 5;
 const TAB_LINK_SKILL = 6;
 const TAB_SET_EFFECTS = 7;
 const TAB_FAMILIAR = 8;
+const TAB_ABILITY = 9;
 
 const TAB_NAMES = [
   '總覽',
@@ -30,6 +32,7 @@ const TAB_NAMES = [
   '連結技能',
   '套裝效果',
   '萌獸',
+  '內在能力',
 ];
 
 // Index -> normalized-coverage key (see lib/characterComparison.js's
@@ -44,6 +47,7 @@ const TAB_COVERAGE_KEY = [
   'linkSkill',
   'setEffects',
   'familiar',
+  'ability',
 ];
 
 /**
@@ -331,6 +335,36 @@ export default function CompareTabs({
             ]}
             leftFamiliarData={leftRaw?.familiar}
             rightFamiliarData={rightRaw?.familiar}
+          />
+        )}
+
+        {activeTab === TAB_ABILITY && (
+          <AbilityCompareTab
+            rows={[
+              {
+                label: '內在能力 Boss 傷害',
+                row: categories.ability.bossDamage,
+              },
+              {
+                label: '內在能力攻擊力',
+                row: categories.ability.attackPower,
+              },
+              {
+                label: '內在能力魔法攻擊力',
+                row: categories.ability.magicPower,
+              },
+              {
+                label: '內在能力爆擊率',
+                row: categories.ability.critRate,
+              },
+            ]}
+            presetInfo={{
+              label: '啟用中的內在能力 Preset',
+              left: categories.ability.activePresetNo.left,
+              right: categories.ability.activePresetNo.right,
+            }}
+            leftAbilityData={leftRaw?.ability}
+            rightAbilityData={rightRaw?.ability}
           />
         )}
       </Box>

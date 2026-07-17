@@ -27,7 +27,7 @@ function buildProps(leftRaw, rightRaw) {
 }
 
 describe('CompareTabs', () => {
-  it('renders all nine tabs in the documented order', () => {
+  it('renders all ten tabs in the documented order', () => {
     render(<CompareTabs {...buildProps(shadowRaw, armorMasterRaw)} />);
     const tabs = screen.getAllByRole('tab');
     expect(tabs.map(t => t.textContent)).toEqual([
@@ -40,6 +40,7 @@ describe('CompareTabs', () => {
       '連結技能',
       '套裝效果',
       '萌獸',
+      '內在能力',
     ]);
   });
 
