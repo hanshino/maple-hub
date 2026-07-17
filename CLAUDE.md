@@ -14,7 +14,7 @@ npm run build        # Production build
 npm run start        # Start production server
 npm run test         # Jest tests
 npm run test:watch   # Jest watch mode
-npm test -- --testPathPattern="__tests__/api/character" # Run specific test file/pattern
+npm test -- --testPathPatterns="__tests__/api/character" # Run specific test file/pattern (Jest 30 renamed the flag; singular --testPathPattern errors)
 npm run lint         # ESLint (next/core-web-vitals + Prettier)
 npm run format       # Prettier auto-format
 npm run format:check # Prettier check (CI)

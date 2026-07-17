@@ -276,8 +276,8 @@ my character - reference character
 ### Units
 
 - Ordinary numeric metrics use their native unit.
-- Boss damage, IED, critical rate, and critical damage use percentage points,
-  shown as `pp`.
+- Damage, boss damage, IED, critical rate, and critical damage use percentage
+  points, shown as `pp`.
 - They must not be formatted as relative percentage growth.
 - Active equipment star sum is labelled **current equipment star sum**. It is
   distinct from Nexon's final-stat Star Force value.
