@@ -1,7 +1,21 @@
 'use client';
 
-import { Box, Card, Chip, Typography } from '@mui/material';
-import { EVIDENCE_COLORS, EVIDENCE_LABELS, formatRawValue } from './compareFormat';
+import {
+  Box,
+  Chip,
+  Table,
+  TableBody,
+  TableCell,
+  TableHead,
+  TableRow,
+  Typography,
+} from '@mui/material';
+import {
+  EVIDENCE_COLORS,
+  EVIDENCE_LABELS,
+  formatDelta,
+  formatRawValue,
+} from './compareFormat';
 
 const SUMMARY_CATEGORIES = [
   { key: 'equipment', label: '裝備', getRow: c => c.equipment.starSum },
@@ -25,81 +39,111 @@ const SUMMARY_CATEGORIES = [
   },
 ];
 
-function noteFor(row) {
-  if (row.coverage !== 'complete') return '本次資料不足，顯示為未知，不視為 0。';
-  if (row.direction === 'behind') {
-    return `落後 ${Math.abs(row.delta).toLocaleString('en-US')}。`;
+const DELTA_COLOR = {
+  ahead: 'success.main',
+  behind: 'error.main',
+  even: 'text.secondary',
+  unknown: 'text.disabled',
+};
+
+function deltaCell(row) {
+  if (row.coverage !== 'complete' || row.direction === 'unknown') {
+    return { text: '未知', color: DELTA_COLOR.unknown };
   }
-  if (row.direction === 'ahead') {
-    return `領先 ${Math.abs(row.delta).toLocaleString('en-US')}。`;
+  if (row.direction === 'even') {
+    return { text: '相同', color: DELTA_COLOR.even };
   }
-  if (row.direction === 'even') return '兩者相同。';
-  return '尚無法比較。';
+  return {
+    text: formatDelta(row.delta, row.unit),
+    color: DELTA_COLOR[row.direction],
+  };
 }
 
 /**
- * Progression-system summary cards (Equipment/Symbols/Union/HEXA/Hyper
- * Stat/Link Skill/Set Effects). These stay visible in cross-class
- * comparisons too — only the main-stat rows and upgrade checklist are
- * class-specific and get hidden there.
+ * Progression-system summary (Equipment/Symbols/Union/HEXA/Hyper Stat/Link
+ * Skill/Set Effects) as a table matching KeyStatTable's visual language.
+ * Stays visible in cross-class comparisons too — only the main-stat rows
+ * and upgrade checklist are class-specific and get hidden there.
  */
 export default function ProgressionSummaryCards({ comparison }) {
+  const rows = SUMMARY_CATEGORIES.map(({ key, label, getRow }) => ({
+    key,
+    label,
+    row: getRow(comparison.categories),
+  }));
+  const hasUnknown = rows.some(({ row }) => row.coverage !== 'complete');
+
   return (
-    <Box
-      sx={{
-        display: 'grid',
-        gridTemplateColumns: {
-          xs: '1fr',
-          sm: 'repeat(auto-fit, minmax(200px, 1fr))',
-        },
-        gap: 1.5,
-      }}
-    >
-      {SUMMARY_CATEGORIES.map(({ key, label, getRow }) => {
-        const row = getRow(comparison.categories);
-        return (
-          <Card
-            key={key}
-            variant="outlined"
-            sx={{
-              p: 1.5,
-              display: 'flex',
-              flexDirection: 'column',
-              gap: 0.75,
-            }}
-          >
-            <Box
-              sx={{
-                display: 'flex',
-                justifyContent: 'space-between',
-                alignItems: 'center',
-                gap: 1,
-              }}
-            >
-              <Typography sx={{ fontWeight: 800 }}>{label}</Typography>
-              <Chip
-                label={EVIDENCE_LABELS[row.evidence]}
-                size="small"
-                color={EVIDENCE_COLORS[row.evidence]}
-                sx={{ px: 1, height: 20, fontSize: '0.65rem', fontWeight: 700 }}
-              />
-            </Box>
-            <Typography sx={{ fontWeight: 800 }}>
-              {formatRawValue(row.left, row.unit)}
-              <Box
-                component="span"
-                sx={{ color: 'text.secondary', fontWeight: 400, mx: 0.75 }}
-              >
-                →
-              </Box>
-              {formatRawValue(row.right, row.unit)}
-            </Typography>
-            <Typography variant="body2" color="text.secondary">
-              {noteFor(row)}
-            </Typography>
-          </Card>
-        );
-      })}
+    <Box>
+      <Box sx={{ overflowX: 'auto' }}>
+        <Table size="small" sx={{ minWidth: 520 }}>
+          <TableHead>
+            <TableRow>
+              <TableCell>系統</TableCell>
+              <TableCell align="right">我的角色</TableCell>
+              <TableCell align="right">參考角色</TableCell>
+              <TableCell align="right">差值</TableCell>
+            </TableRow>
+          </TableHead>
+          <TableBody>
+            {rows.map(({ key, label, row }) => {
+              const delta = deltaCell(row);
+              return (
+                <TableRow key={key}>
+                  <TableCell>
+                    <Box
+                      sx={{
+                        display: 'flex',
+                        alignItems: 'center',
+                        gap: 0.75,
+                        flexWrap: 'wrap',
+                      }}
+                    >
+                      <Typography variant="body2" sx={{ fontWeight: 700 }}>
+                        {label}
+                      </Typography>
+                      <Chip
+                        label={EVIDENCE_LABELS[row.evidence]}
+                        size="small"
+                        color={EVIDENCE_COLORS[row.evidence]}
+                        sx={{
+                          px: 1,
+                          height: 20,
+                          fontSize: '0.65rem',
+                          fontWeight: 700,
+                        }}
+                      />
+                    </Box>
+                  </TableCell>
+                  <TableCell align="right">
+                    {formatRawValue(row.left, row.unit)}
+                  </TableCell>
+                  <TableCell align="right">
+                    {formatRawValue(row.right, row.unit)}
+                  </TableCell>
+                  <TableCell align="right">
+                    <Typography
+                      component="span"
+                      sx={{ fontWeight: 800, color: delta.color }}
+                    >
+                      {delta.text}
+                    </Typography>
+                  </TableCell>
+                </TableRow>
+              );
+            })}
+          </TableBody>
+        </Table>
+      </Box>
+      {hasUnknown && (
+        <Typography
+          variant="caption"
+          color="text.secondary"
+          sx={{ display: 'block', mt: 1.5 }}
+        >
+          顯示為未知代表本次資料不足，不視為 0。
+        </Typography>
+      )}
     </Box>
   );
 }

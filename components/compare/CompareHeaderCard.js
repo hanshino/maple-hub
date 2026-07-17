@@ -57,10 +57,10 @@ function FighterPanel({ roleLabel, state, normalized, otherNormalized }) {
         border: '1px solid',
         borderColor: 'divider',
         borderRadius: 3,
-        p: 1.5,
+        p: 2.5,
         display: 'flex',
         flexDirection: 'column',
-        gap: 1,
+        gap: 1.5,
       }}
     >
       <Typography

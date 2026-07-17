@@ -135,7 +135,7 @@ function hasNonZero(optionObject) {
 function ItemDetail({ item, sideLabel }) {
   if (!item) {
     return (
-      <Box sx={{ p: 1.5, flex: 1, minWidth: 0 }}>
+      <Box sx={{ p: 2, flex: 1, minWidth: 0 }}>
         <Typography variant="caption" color="text.disabled">
           {sideLabel}：此格未裝備
         </Typography>
@@ -149,14 +149,13 @@ function ItemDetail({ item, sideLabel }) {
   return (
     <Box
       sx={{
-        p: 1.5,
+        p: 2,
         flex: 1,
         minWidth: 0,
         display: 'flex',
         flexDirection: 'column',
         gap: 0.75,
-        border: '1px solid',
-        borderColor: 'divider',
+        bgcolor: 'action.hover',
         borderRadius: 2,
       }}
     >
@@ -220,12 +219,9 @@ export default function EquipmentCompareTab({
         sx={{
           display: 'flex',
           flexWrap: 'wrap',
-          gap: 2.5,
+          columnGap: 4,
+          rowGap: 2,
           mb: 3,
-          p: 1.5,
-          border: '1px solid',
-          borderColor: 'divider',
-          borderRadius: 2,
           alignItems: 'center',
         }}
       >
@@ -260,7 +256,7 @@ export default function EquipmentCompareTab({
       {slots.length === 0 ? (
         <Typography color="text.secondary">尚無裝備資料可比較</Typography>
       ) : (
-        <Box sx={{ display: 'flex', flexDirection: 'column', gap: 1 }}>
+        <Box sx={{ display: 'flex', flexDirection: 'column' }}>
           {slots.map(slot => {
             const leftItem = leftBySlot[slot];
             const rightItem = rightBySlot[slot];
@@ -270,10 +266,11 @@ export default function EquipmentCompareTab({
               <Box
                 key={slot}
                 sx={{
-                  border: '1px solid',
-                  borderColor: 'divider',
-                  borderRadius: 2,
-                  p: 1.5,
+                  py: 1.5,
+                  '&:not(:last-child)': {
+                    borderBottom: '1px solid',
+                    borderColor: 'divider',
+                  },
                 }}
               >
                 <Box

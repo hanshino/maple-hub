@@ -12,20 +12,14 @@ import {
  * Generic detail tab for the categories that don't need a specialized
  * layout (Symbols, HEXA, Union, Hyper Stat, Link Skill, Set Effects).
  * Every row is read directly from `comparison.categories` — no invented
- * values, no recomputed deltas or evidence.
+ * values, no recomputed deltas or evidence. Rows render as a
+ * divider-separated list, not bordered boxes.
  */
 export default function CategoryCompareTab({ rows, presetInfo }) {
   return (
-    <Box sx={{ display: 'flex', flexDirection: 'column', gap: 1.5 }}>
+    <Box>
       {presetInfo && (
-        <Box
-          sx={{
-            p: 1.5,
-            border: '1px solid',
-            borderColor: 'divider',
-            borderRadius: 2,
-          }}
-        >
+        <Box sx={{ mb: 3 }}>
           <Typography variant="caption" color="text.secondary">
             {presetInfo.label}
           </Typography>
@@ -40,14 +34,15 @@ export default function CategoryCompareTab({ rows, presetInfo }) {
         <Box
           key={label}
           sx={{
-            p: 1.5,
-            border: '1px solid',
-            borderColor: 'divider',
-            borderRadius: 2,
+            py: 2,
             display: 'flex',
             flexWrap: 'wrap',
             alignItems: 'center',
             gap: 1.5,
+            '&:not(:last-child)': {
+              borderBottom: '1px solid',
+              borderColor: 'divider',
+            },
           }}
         >
           <Typography sx={{ fontWeight: 700, minWidth: 160 }}>

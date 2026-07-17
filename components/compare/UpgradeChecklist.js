@@ -1,6 +1,6 @@
 'use client';
 
-import { Box, Card, Chip, Typography } from '@mui/material';
+import { Box, Chip, Typography } from '@mui/material';
 import {
   CATEGORY_LABELS,
   EVIDENCE_COLORS,
@@ -12,9 +12,9 @@ import {
 
 /**
  * Up to three progression systems worth inspecting, from
- * `rankUpgradeDirections`. Presented as a numbered checklist with a
- * not-a-ranking footnote — never as an effectiveness ranking, and never
- * summed to reproduce the total combat-power gap.
+ * `rankUpgradeDirections`. Presented as a borderless numbered checklist
+ * with a not-a-ranking footnote — never as an effectiveness ranking, and
+ * never summed to reproduce the total combat-power gap.
  */
 export default function UpgradeChecklist({ directions }) {
   if (!directions || directions.length === 0) {
@@ -27,34 +27,18 @@ export default function UpgradeChecklist({ directions }) {
 
   return (
     <Box>
-      <Box
-        sx={{
-          display: 'grid',
-          gridTemplateColumns: {
-            xs: '1fr',
-            sm: 'repeat(auto-fit, minmax(220px, 1fr))',
-          },
-          gap: 1.5,
-        }}
-      >
+      <Box sx={{ display: 'flex', flexDirection: 'column', gap: 2.5 }}>
         {directions.map((direction, index) => (
-          <Card
+          <Box
             key={direction.category}
-            variant="outlined"
-            sx={{
-              p: 1.5,
-              display: 'flex',
-              gap: 1.5,
-              transition: 'transform 0.15s ease, box-shadow 0.15s ease',
-              '&:hover': { transform: 'translateY(-2px)', boxShadow: 3 },
-            }}
+            sx={{ display: 'flex', gap: 2, alignItems: 'flex-start' }}
           >
             <Box
               aria-hidden="true"
               sx={{
                 flexShrink: 0,
-                width: 30,
-                height: 30,
+                width: 32,
+                height: 32,
                 borderRadius: '50%',
                 display: 'flex',
                 alignItems: 'center',
@@ -67,33 +51,44 @@ export default function UpgradeChecklist({ directions }) {
               {index + 1}
             </Box>
             <Box sx={{ minWidth: 0 }}>
-              <Typography sx={{ fontWeight: 800, mb: 0.5 }}>
-                {CATEGORY_LABELS[direction.category] || direction.category}
-              </Typography>
-              <Typography
-                variant="body2"
-                color="text.secondary"
-                sx={{ mb: 0.75 }}
+              <Box
+                sx={{
+                  display: 'flex',
+                  alignItems: 'center',
+                  gap: 1,
+                  flexWrap: 'wrap',
+                  mb: 0.5,
+                }}
               >
+                <Typography sx={{ fontWeight: 800 }}>
+                  {CATEGORY_LABELS[direction.category] || direction.category}
+                </Typography>
+                <Chip
+                  label={EVIDENCE_LABELS[direction.evidence]}
+                  size="small"
+                  color={EVIDENCE_COLORS[direction.evidence]}
+                  sx={{
+                    px: 1,
+                    height: 20,
+                    fontSize: '0.65rem',
+                    fontWeight: 700,
+                  }}
+                />
+              </Box>
+              <Typography variant="body2" color="text.secondary">
                 觀察到的差異：{categoryMetricLabel(direction.metric)}{' '}
                 {formatPlain(direction.myValue)} vs{' '}
                 {formatPlain(direction.referenceValue)}（
                 {formatDelta(direction.delta, null)}）
               </Typography>
-              <Chip
-                label={EVIDENCE_LABELS[direction.evidence]}
-                size="small"
-                color={EVIDENCE_COLORS[direction.evidence]}
-                sx={{ px: 1, height: 20, fontSize: '0.65rem', fontWeight: 700 }}
-              />
             </Box>
-          </Card>
+          </Box>
         ))}
       </Box>
       <Typography
         variant="caption"
         color="text.secondary"
-        sx={{ display: 'block', mt: 2 }}
+        sx={{ display: 'block', mt: 2.5 }}
       >
         各項為「可觀察的差異」，並非因果歸因；差異不可加總重現總戰力差距。
       </Typography>
