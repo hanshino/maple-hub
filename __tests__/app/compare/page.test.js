@@ -134,7 +134,9 @@ beforeEach(() => {
 
 describe('/compare page', () => {
   it('loads both characters prefilled from the URL (shareable, reload-safe)', async () => {
-    __setSearch('left=%E5%BD%B1%E4%B9%8B%E6%84%9B%E8%A1%A3&right=%E8%AD%B7%E7%94%B2%E5%A4%A7%E5%B8%AB');
+    __setSearch(
+      'left=%E5%BD%B1%E4%B9%8B%E6%84%9B%E8%A1%A3&right=%E8%AD%B7%E7%94%B2%E5%A4%A7%E5%B8%AB'
+    );
     global.fetch = createFetchMock();
 
     render(<ComparePage />);
@@ -288,7 +290,9 @@ describe('/compare page', () => {
     // headline recomputes with 護甲大師 as "my character" — proving the
     // comparison direction actually flipped, not just the two names.
     expect(
-      await screen.findByText(/影之愛衣的戰鬥力比護甲大師低 [\d.]+%（以我的角色為基準）/)
+      await screen.findByText(
+        /影之愛衣的戰鬥力比護甲大師低 [\d.]+%（以我的角色為基準）/
+      )
     ).toBeInTheDocument();
   });
 
@@ -297,9 +301,7 @@ describe('/compare page', () => {
     global.fetch = createFetchMock();
     render(<ComparePage />);
 
-    expect(
-      screen.getByText(/兩側輸入了相同的角色/)
-    ).toBeInTheDocument();
+    expect(screen.getByText(/兩側輸入了相同的角色/)).toBeInTheDocument();
 
     await waitFor(() => expect(global.fetch).toHaveBeenCalledTimes(2));
     await new Promise(resolve => setTimeout(resolve, 10));

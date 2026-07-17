@@ -88,8 +88,7 @@ export default function DataQualityNotice({
 
           <Typography component="li" variant="body2">
             顯示戰鬥力為<strong>當前啟用的 preset 組合</strong>
-            下的數值，不一定是該角色的最高戰力；本頁不推估切換 preset
-            後的戰力。
+            下的數值，不一定是該角色的最高戰力；本頁不推估切換 preset 後的戰力。
           </Typography>
 
           {snapshot.undated && (

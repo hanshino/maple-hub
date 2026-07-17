@@ -4,7 +4,11 @@ import {
   normalizeCharacterForComparison,
   compareCharacters,
 } from '../../../lib/characterComparison';
-import { shadowRaw, armorMasterRaw, makeRawCharacter } from '../../../test-fixtures/compareFixtures';
+import {
+  shadowRaw,
+  armorMasterRaw,
+  makeRawCharacter,
+} from '../../../test-fixtures/compareFixtures';
 
 function successState(data) {
   return { status: 'success', data, error: null, retry: jest.fn() };
@@ -68,11 +72,15 @@ describe('CompareHeaderCard', () => {
     // Equipment presets differ (P2 vs P3) in this fixture.
     expect(screen.getAllByText('裝備 P2').length).toBeGreaterThan(0);
     expect(screen.getAllByText('裝備 P3').length).toBeGreaterThan(0);
-    expect(container.querySelectorAll('.MuiChip-colorWarning').length).toBeGreaterThan(0);
+    expect(
+      container.querySelectorAll('.MuiChip-colorWarning').length
+    ).toBeGreaterThan(0);
   });
 
   it('does not tint a preset chip when both sides share the same active preset', () => {
-    const sameHyper = { 1: [{ stat_type: '力量', stat_level: 5, stat_increase: '+100' }] };
+    const sameHyper = {
+      1: [{ stat_type: '力量', stat_level: 5, stat_increase: '+100' }],
+    };
     const left = makeRawCharacter({
       hyperStatUsePresetNo: '1',
       hyperStatPresets: sameHyper,

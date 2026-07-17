@@ -53,7 +53,9 @@ describe('AbilityCompareTab', () => {
     expect(
       screen.getByText(/【傳說】使用技能時，依20%機率，沒有冷卻時間/)
     ).toBeInTheDocument();
-    expect(screen.getByText(/【罕見】攻擊Boss怪物時，傷害增加 8%/)).toBeInTheDocument();
+    expect(
+      screen.getByText(/【罕見】攻擊Boss怪物時，傷害增加 8%/)
+    ).toBeInTheDocument();
     // Missing side reads as unknown, never zero.
     expect(screen.getByText(/本次資料不足，不視為 0/)).toBeInTheDocument();
   });

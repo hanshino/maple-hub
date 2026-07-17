@@ -40,10 +40,7 @@ function SummonedPane({ title, familiarData }) {
           </Typography>
         ) : (
           summoned.map(f => (
-            <Box
-              key={f.familiar_name}
-              sx={{ '&:not(:last-child)': { mb: 2 } }}
-            >
+            <Box key={f.familiar_name} sx={{ '&:not(:last-child)': { mb: 2 } }}>
               <Typography sx={{ fontWeight: 700, mb: 0.5 }}>
                 {f.familiar_name}
               </Typography>

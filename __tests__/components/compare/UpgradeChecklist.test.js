@@ -5,7 +5,10 @@ import {
   compareCharacters,
   rankUpgradeDirections,
 } from '../../../lib/characterComparison';
-import { shadowRaw, armorMasterRaw } from '../../../test-fixtures/compareFixtures';
+import {
+  shadowRaw,
+  armorMasterRaw,
+} from '../../../test-fixtures/compareFixtures';
 
 describe('UpgradeChecklist', () => {
   const comparison = compareCharacters(

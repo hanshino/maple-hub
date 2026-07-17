@@ -118,17 +118,17 @@ does not prove that every upstream value represents exactly the same instant.
 
 Observed active-snapshot highlights, with 護甲大師 as the reference:
 
-| Metric | 影之愛衣 | 護甲大師 | Reference minus my character |
-| --- | ---: | ---: | ---: |
-| Combat power | 1,626,455,576 | 2,002,590,020 | +376,134,444 (+23.126%) |
-| LUK | 100,345 | 105,285 | +4,940 |
-| Attack | 16,586 | 18,117 | +1,531 |
-| Boss damage | 665% | 703% | +38pp |
-| IED | 96.99% | 97.17% | +0.18pp |
-| Critical damage | 164.25% | 149.60% | -14.65pp |
-| Active-item star sum | 436 | 447 | +11 |
-| Authentic Force | 740 | 770 | +30 |
-| Union level | 10,046 | 10,737 | +691 |
+| Metric               |      影之愛衣 |      護甲大師 | Reference minus my character |
+| -------------------- | ------------: | ------------: | ---------------------------: |
+| Combat power         | 1,626,455,576 | 2,002,590,020 |      +376,134,444 (+23.126%) |
+| LUK                  |       100,345 |       105,285 |                       +4,940 |
+| Attack               |        16,586 |        18,117 |                       +1,531 |
+| Boss damage          |          665% |          703% |                        +38pp |
+| IED                  |        96.99% |        97.17% |                      +0.18pp |
+| Critical damage      |       164.25% |       149.60% |                     -14.65pp |
+| Active-item star sum |           436 |           447 |                          +11 |
+| Authentic Force      |           740 |           770 |                          +30 |
+| Union level          |        10,046 |        10,737 |                         +691 |
 
 The reference character has higher displayed combat power despite having lower
 damage and critical damage. Both have eleven level-30 HEXA cores, while their
@@ -204,9 +204,9 @@ responses from an earlier search are cancelled or ignored.
 The comparison layer consists of three focused pure functions:
 
 ```js
-normalizeCharacterForComparison(data)
-compareCharacters(left, right)
-rankUpgradeDirections(comparison)
+normalizeCharacterForComparison(data);
+compareCharacters(left, right);
+rankUpgradeDirections(comparison);
 ```
 
 `normalizeCharacterForComparison` extracts:

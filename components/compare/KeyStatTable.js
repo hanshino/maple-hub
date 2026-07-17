@@ -87,7 +87,12 @@ export default function KeyStatTable({ comparison }) {
                     label={EVIDENCE_LABELS[row.evidence]}
                     size="small"
                     color={EVIDENCE_COLORS[row.evidence]}
-                    sx={{ px: 1, height: 20, fontSize: '0.65rem', fontWeight: 700 }}
+                    sx={{
+                      px: 1,
+                      height: 20,
+                      fontSize: '0.65rem',
+                      fontWeight: 700,
+                    }}
                   />
                 </Box>
               </TableCell>
@@ -113,7 +118,10 @@ export default function KeyStatTable({ comparison }) {
               <TableCell align="right">
                 <Typography
                   component="span"
-                  sx={{ fontWeight: 800, color: DIRECTION_COLOR[row.direction] }}
+                  sx={{
+                    fontWeight: 800,
+                    color: DIRECTION_COLOR[row.direction],
+                  }}
                 >
                   {formatDelta(row.delta, row.unit)}
                 </Typography>

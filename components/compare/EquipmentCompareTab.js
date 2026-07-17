@@ -173,10 +173,7 @@ function enhancementSummary(item) {
     if (matk > 0) bits.push(`魔+${matk}`);
     return bits.length ? `${label} ${bits.join(' ')}` : null;
   };
-  return [
-    seg('卷軸', item.item_etc_option),
-    seg('星火', item.item_add_option),
-  ]
+  return [seg('卷軸', item.item_etc_option), seg('星火', item.item_add_option)]
     .filter(Boolean)
     .join('・');
 }
@@ -301,8 +298,7 @@ function AttackSourceTable({ sourceRows }) {
         color="text.secondary"
         sx={{ display: 'block', mt: 1.5 }}
       >
-        固定值加總（含寵物裝備與現金道具），不含潛能／聯盟／超級屬性等 %
-        加成。
+        固定值加總（含寵物裝備與現金道具），不含潛能／聯盟／超級屬性等 % 加成。
       </Typography>
     </Box>
   );

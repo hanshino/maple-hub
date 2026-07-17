@@ -143,5 +143,7 @@ export function formatDelta(value, unit) {
 /** Formats an integer count/level for plain display (no sign, no unit). */
 export function formatPlain(value) {
   if (value === null || value === undefined) return '未知';
-  return typeof value === 'number' ? value.toLocaleString('en-US') : String(value);
+  return typeof value === 'number'
+    ? value.toLocaleString('en-US')
+    : String(value);
 }
