@@ -76,8 +76,10 @@ function CompareContent() {
     [comparison]
   );
 
-  const bothReady =
-    left.status === 'success' && right.status === 'success' && !!comparison;
+  // `comparison` is non-null iff both sides successfully loaded data (see
+  // useCharacterSide.js — `data` is only ever set alongside status
+  // 'success'), so its truthiness alone determines readiness.
+  const bothReady = !!comparison;
 
   return (
     <Container maxWidth="lg" sx={{ py: 4 }}>

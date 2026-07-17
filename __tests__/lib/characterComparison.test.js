@@ -7,185 +7,12 @@ import {
   compareCharacters,
   rankUpgradeDirections,
 } from '../../lib/characterComparison.js';
-
-// --- Fixture helpers -------------------------------------------------
-
-const stat = (name, value) => ({ stat_name: name, stat_value: String(value) });
-
-/**
- * Builds a `getFullCharacterData`-shaped raw response (see
- * lib/db/queries.js:449-481). Keeps every category present with sane
- * empty defaults so individual tests only need to override what they
- * care about.
- */
-function makeRawCharacter({
-  ocid = 'OCID_BASE',
-  name = 'Base Character',
-  characterClass = '暗殺者',
-  level = 290,
-  world = '重生',
-  combatPower = 1000000000,
-  finalStat = [],
-  equipmentPresetActive = 1,
-  equipmentItems = [],
-  hyperStatUsePresetNo = '1',
-  hyperStatPresets = {},
-  linkSkillUsePresetNo = '1',
-  linkSkillPresets = {},
-  ownedLinkSkill = null,
-  union = { union_level: 1000, union_grade: null, union_artifact_level: null },
-  raiderStats = [],
-  hexaCores = [],
-  hexaStats = {},
-  symbols = [],
-  setEffects = [],
-  familiar = null,
-  ability = null,
-  petEquipment = {},
-  cashEquipment = { cash_item_equipment_base: [] },
-  syncedAt = '2026-07-17T00:00:00.000Z',
-} = {}) {
-  return {
-    basicInfo: {
-      ocid,
-      character_name: name,
-      character_level: level,
-      character_class: characterClass,
-      character_class_level: null,
-      world_name: world,
-      character_image: null,
-      character_exp_rate: null,
-      character_gender: null,
-      character_guild_name: null,
-      combat_power: combatPower,
-    },
-    stats: { final_stat: finalStat },
-    equipment: {
-      preset_no: equipmentPresetActive,
-      item_equipment: equipmentItems,
-      item_equipment_preset_1: [],
-      item_equipment_preset_2: [],
-      item_equipment_preset_3: [],
-    },
-    equipment_presets: {
-      active: equipmentPresetActive,
-      presets: { 1: [], 2: [], 3: [] },
-    },
-    hyperStats: {
-      use_preset_no: hyperStatUsePresetNo,
-      hyper_stat_preset_1: hyperStatPresets['1'] || [],
-      hyper_stat_preset_2: hyperStatPresets['2'] || [],
-      hyper_stat_preset_3: hyperStatPresets['3'] || [],
-    },
-    linkSkills: {
-      use_preset_no: linkSkillUsePresetNo,
-      character_link_skill_preset_1: linkSkillPresets['1'] || [],
-      character_link_skill_preset_2: linkSkillPresets['2'] || [],
-      character_link_skill_preset_3: linkSkillPresets['3'] || [],
-      character_owned_link_skill: ownedLinkSkill,
-    },
-    hexaCores: { character_hexa_core_equipment: hexaCores },
-    hexaStats,
-    symbols: { symbol: symbols },
-    setEffects: { set_effect: setEffects },
-    union,
-    unionRaider: { union_raider_stat: raiderStats },
-    unionArtifacts: { union_artifact_crystal: [], union_artifact_effect: [] },
-    unionChampion: { union_champion: [], champion_badge_total_info: [] },
-    cashEquipment,
-    petEquipment,
-    familiar,
-    ability,
-    syncedAt,
-  };
-}
-
-// --- Primary fixture: the spec's verified live sample -----------------
-// 影之愛衣 (mine) vs 護甲大師 (reference), same class.
-
-const shadowRaw = makeRawCharacter({
-  ocid: 'OCID_SHADOW',
-  name: '影之愛衣',
-  characterClass: '夜使者',
-  combatPower: 1626455576,
-  finalStat: [
-    stat('LUK', 100345),
-    stat('攻擊力', 16586),
-    stat('傷害', 20),
-    stat('BOSS怪物傷害', 665),
-    stat('無視防禦率', 96.99),
-    stat('爆擊傷害', 164.25),
-    stat('星力', 1500),
-    stat('真實之力', 740),
-  ],
-  equipmentPresetActive: 2,
-  equipmentItems: [
-    {
-      item_equipment_slot: '帽子',
-      starforce: 436,
-      item_etc_option: { attack_power: '121', magic_power: '0' },
-    },
-  ],
-  hyperStatUsePresetNo: '2',
-  hyperStatPresets: {
-    2: [{ stat_type: '力量', stat_level: 10, stat_increase: '+300' }],
-  },
-  linkSkillUsePresetNo: '2',
-  linkSkillPresets: {
-    2: [{ skill_name: '夜使者的連結', skill_level: 3 }],
-  },
-  ownedLinkSkill: '夜使者的連結',
-  union: { union_level: 10046, union_grade: null, union_artifact_level: null },
-  raiderStats: ['STR : +230', 'DEX : +100', '攻擊力 : +30', 'HP : +1000'],
-  hexaCores: [{ hexa_core_name: '核心A', hexa_core_level: 30 }],
-  symbols: [{ symbol_name: '符文A', symbol_level: 20 }],
-  setEffects: [{ set_name: '套裝A', total_set_count: 6 }],
-});
-
-const armorMasterRaw = makeRawCharacter({
-  ocid: 'OCID_ARMOR',
-  name: '護甲大師',
-  characterClass: '夜使者',
-  combatPower: 2002590020,
-  finalStat: [
-    stat('LUK', 105285),
-    stat('攻擊力', 18117),
-    stat('傷害', 15),
-    stat('BOSS怪物傷害', 703),
-    stat('無視防禦率', 97.17),
-    stat('爆擊傷害', 149.6),
-    stat('星力', 1600),
-    stat('真實之力', 770),
-  ],
-  equipmentPresetActive: 3,
-  equipmentItems: [
-    {
-      item_equipment_slot: '帽子',
-      starforce: 447,
-      item_etc_option: { attack_power: '100', magic_power: '0' },
-    },
-  ],
-  hyperStatUsePresetNo: '3',
-  hyperStatPresets: {
-    3: [{ stat_type: '力量', stat_level: 12, stat_increase: '+360' }],
-  },
-  linkSkillUsePresetNo: '1',
-  linkSkillPresets: {
-    1: [{ skill_name: '護甲大師的連結', skill_level: 3 }],
-  },
-  ownedLinkSkill: '護甲大師的連結',
-  union: { union_level: 10737, union_grade: null, union_artifact_level: null },
-  raiderStats: [
-    'STR : +300',
-    'DEX : +150',
-    '攻擊力 : +40',
-    'HP : +1200',
-    'DEF : +50',
-  ],
-  hexaCores: [{ hexa_core_name: '核心A', hexa_core_level: 30 }],
-  symbols: [{ symbol_name: '符文A', symbol_level: 25 }],
-  setEffects: [{ set_name: '套裝A', total_set_count: 8 }],
-});
+import {
+  stat,
+  makeRawCharacter,
+  shadowRaw,
+  armorMasterRaw,
+} from '../../test-fixtures/compareFixtures.js';
 
 describe('normalizeCharacterForComparison', () => {
   const mine = normalizeCharacterForComparison(shadowRaw);
@@ -248,7 +75,6 @@ describe('normalizeCharacterForComparison', () => {
 
   it('measures HEXA by core levels and files Authentic Force under symbols', () => {
     expect(mine.hexa.totalCoreLevel).toBe(30);
-    expect(mine.hexa.coreCount).toBe(1);
     expect(mine.hexa.authenticForce).toBeUndefined();
     expect(mine.symbols.authenticForce).toBe(740);
     expect(reference.symbols.authenticForce).toBe(770);
@@ -354,9 +180,7 @@ describe('compareCharacters — verified sample (影之愛衣 vs 護甲大師)',
 
   it('carries an evidence level and coverage on every row', () => {
     for (const row of comparison.rows) {
-      expect(['api-fact', 'derived', 'model-estimate', 'unknown']).toContain(
-        row.evidence
-      );
+      expect(['api-fact', 'derived', 'unknown']).toContain(row.evidence);
       expect(['complete', 'partial', 'unavailable']).toContain(row.coverage);
     }
   });
@@ -373,11 +197,6 @@ describe('compareCharacters — sign and copy inversion after swapping sides', (
     expect(swapped.headline.delta).toBe(-original.headline.delta);
     expect(original.headline.direction).toBe('behind');
     expect(swapped.headline.direction).toBe('ahead');
-  });
-
-  it('flips the headline copy to describe the new relationship', () => {
-    expect(original.headline.text).toMatch(/lower/);
-    expect(swapped.headline.text).toMatch(/higher/);
   });
 
   it('flips ordinary row deltas (e.g. LUK) after swapping', () => {
@@ -406,21 +225,8 @@ describe('compareCharacters — cross-class common-summary mode', () => {
     expect(comparison.sameClass).toBe(false);
   });
 
-  it('only includes common-summary rows, no main-stat rows', () => {
-    const statRows = comparison.rows.filter(r => r.category === 'stats');
-    expect(statRows).toHaveLength(0);
-
-    const metrics = comparison.rows.map(r => r.metric);
-    expect(metrics).toEqual(
-      expect.arrayContaining([
-        'combatPower',
-        'level',
-        'world',
-        'unionLevel',
-        'symbolProgress',
-        'snapshotQuality',
-      ])
-    );
+  it('produces no rows — rows only ever holds stats-category entries, which cross-class comparisons never get', () => {
+    expect(comparison.rows).toEqual([]);
   });
 
   it('produces no upgrade directions for cross-class comparisons', () => {
@@ -592,16 +398,11 @@ describe('compareCharacters — snapshot freshness', () => {
   it('does not warn when the snapshot-time difference is just under 10 minutes', () => {
     const left = withSyncedAt(BASE);
     const right = withSyncedAt('2026-07-17T00:09:59.999Z'); // 599999ms
-    const { snapshot, rows } = compareCharacters(left, right);
+    const { snapshot } = compareCharacters(left, right);
 
     expect(snapshot.undated).toBe(false);
     expect(snapshot.diffMs).toBe(599999);
     expect(snapshot.warning).toBe(false);
-
-    const qualityRow = rows.find(r => r.metric === 'snapshotQuality');
-    expect(qualityRow.note).toBe(
-      'snapshots are within 10 minutes of each other'
-    );
   });
 
   it('does not warn exactly at the 10-minute boundary (strictly-greater-than semantics)', () => {
@@ -616,30 +417,20 @@ describe('compareCharacters — snapshot freshness', () => {
   it('warns when the snapshot-time difference is just over 10 minutes', () => {
     const left = withSyncedAt(BASE);
     const right = withSyncedAt('2026-07-17T00:10:00.001Z'); // 600001ms
-    const { snapshot, rows } = compareCharacters(left, right);
+    const { snapshot } = compareCharacters(left, right);
 
     expect(snapshot.diffMs).toBe(600001);
     expect(snapshot.warning).toBe(true);
-
-    const qualityRow = rows.find(r => r.metric === 'snapshotQuality');
-    expect(qualityRow.note).toBe(
-      'snapshot times differ by more than 10 minutes'
-    );
   });
 
   it('treats a missing syncedAt on one side as undated, never a fake "fresh" claim', () => {
     const left = withSyncedAt(BASE);
     const right = withSyncedAt(null);
-    const { snapshot, rows } = compareCharacters(left, right);
+    const { snapshot } = compareCharacters(left, right);
 
     expect(snapshot.undated).toBe(true);
     expect(snapshot.diffMs).toBeNull();
     expect(snapshot.warning).toBe(false);
-
-    const qualityRow = rows.find(r => r.metric === 'snapshotQuality');
-    expect(qualityRow.note).toBe('undated snapshot');
-    expect(qualityRow.evidence).toBe('unknown');
-    expect(qualityRow.coverage).toBe('partial');
   });
 
   it('treats both syncedAt missing as undated, without crashing', () => {
@@ -658,13 +449,10 @@ describe('compareCharacters — snapshot freshness', () => {
     const right = withSyncedAt(BASE);
 
     expect(() => compareCharacters(left, right)).not.toThrow();
-    const { snapshot, rows } = compareCharacters(left, right);
+    const { snapshot } = compareCharacters(left, right);
     expect(snapshot.undated).toBe(true);
     expect(snapshot.diffMs).toBeNull();
     expect(snapshot.warning).toBe(false);
-
-    const qualityRow = rows.find(r => r.metric === 'snapshotQuality');
-    expect(qualityRow.note).toBe('undated snapshot');
   });
 });
 

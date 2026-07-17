@@ -267,6 +267,54 @@ describe('EquipmentSection', () => {
     expect(screen.getByText('小啾')).toBeInTheDocument();
   });
 
+  it('routes special equipment slots into SpecialEquipmentPanel instead of the main compact grid', () => {
+    const equipmentData = {
+      item_equipment: [
+        makeItem('毛帽', '帽子'),
+        makeItem('拼圖1名稱', '拼圖1', { item_total_option: {} }),
+        makeItem('獨立圖騰', '圖騰1', { item_total_option: {} }),
+      ],
+    };
+    render(
+      <TestWrapper>
+        <EquipmentSection equipmentData={equipmentData} />
+      </TestWrapper>
+    );
+
+    // Main compact grid: only the normal item is a clickable card.
+    expect(screen.getByRole('button', { name: '毛帽' })).toBeInTheDocument();
+    expect(
+      screen.queryByRole('button', { name: /拼圖1名稱/ })
+    ).not.toBeInTheDocument();
+    expect(
+      screen.queryByRole('button', { name: /獨立圖騰/ })
+    ).not.toBeInTheDocument();
+
+    // Special panel: renders both special items, not as buttons.
+    expect(screen.getByText('特殊裝備')).toBeInTheDocument();
+    expect(screen.getByAltText('拼圖1名稱')).toBeInTheDocument();
+    expect(screen.getByText('獨立圖騰')).toBeInTheDocument();
+  });
+
+  it('keeps the sub-weapon (part=寶石, slot=輔助武器) in the main grid, not the special panel', () => {
+    const equipmentData = {
+      item_equipment: [
+        makeItem('副武器', '輔助武器', {
+          item_equipment_part: '寶石',
+          item_total_option: {},
+        }),
+      ],
+    };
+    render(
+      <TestWrapper>
+        <EquipmentSection equipmentData={equipmentData} />
+      </TestWrapper>
+    );
+
+    expect(screen.getByRole('button', { name: '副武器' })).toBeInTheDocument();
+    expect(screen.queryByText('特殊裝備')).not.toBeInTheDocument();
+  });
+
   it('opens the equipment detail drawer when a card is clicked', () => {
     const equipmentData = {
       equipment_presets: {

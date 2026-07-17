@@ -2,7 +2,6 @@
 
 import {
   Box,
-  Chip,
   Table,
   TableBody,
   TableCell,
@@ -14,9 +13,9 @@ import TrendingUpIcon from '@mui/icons-material/TrendingUp';
 import TrendingDownIcon from '@mui/icons-material/TrendingDown';
 import RemoveIcon from '@mui/icons-material/Remove';
 import HelpOutlineIcon from '@mui/icons-material/HelpOutline';
+import EvidenceChip from './EvidenceChip';
 import {
-  EVIDENCE_COLORS,
-  EVIDENCE_LABELS,
+  DIRECTION_COLORS,
   formatDelta,
   formatRawValue,
   statMetricLabel,
@@ -27,13 +26,6 @@ const DIRECTION_ICON = {
   behind: <TrendingDownIcon fontSize="small" />,
   even: <RemoveIcon fontSize="small" />,
   unknown: <HelpOutlineIcon fontSize="small" />,
-};
-
-const DIRECTION_COLOR = {
-  ahead: 'success.main',
-  behind: 'error.main',
-  even: 'text.secondary',
-  unknown: 'text.disabled',
 };
 
 const DIRECTION_LABEL = {
@@ -83,17 +75,7 @@ export default function KeyStatTable({ comparison }) {
                   <Typography variant="body2" sx={{ fontWeight: 700 }}>
                     {statMetricLabel(row.metric)}
                   </Typography>
-                  <Chip
-                    label={EVIDENCE_LABELS[row.evidence]}
-                    size="small"
-                    color={EVIDENCE_COLORS[row.evidence]}
-                    sx={{
-                      px: 1,
-                      height: 20,
-                      fontSize: '0.65rem',
-                      fontWeight: 700,
-                    }}
-                  />
+                  <EvidenceChip evidence={row.evidence} />
                 </Box>
               </TableCell>
               <TableCell align="right">
@@ -106,7 +88,7 @@ export default function KeyStatTable({ comparison }) {
                   sx={{
                     display: 'flex',
                     justifyContent: 'center',
-                    color: DIRECTION_COLOR[row.direction],
+                    color: DIRECTION_COLORS[row.direction],
                   }}
                 >
                   {DIRECTION_ICON[row.direction]}
@@ -120,7 +102,7 @@ export default function KeyStatTable({ comparison }) {
                   component="span"
                   sx={{
                     fontWeight: 800,
-                    color: DIRECTION_COLOR[row.direction],
+                    color: DIRECTION_COLORS[row.direction],
                   }}
                 >
                   {formatDelta(row.delta, row.unit)}

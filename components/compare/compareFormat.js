@@ -23,7 +23,6 @@ export const CATEGORY_LABELS = {
 export const EVIDENCE_LABELS = {
   'api-fact': 'API',
   derived: '推導',
-  'model-estimate': '估計',
   unknown: '未知',
 };
 
@@ -32,8 +31,17 @@ export const EVIDENCE_LABELS = {
 export const EVIDENCE_COLORS = {
   'api-fact': 'success',
   derived: 'primary',
-  'model-estimate': 'warning',
   unknown: 'default',
+};
+
+// Shared direction -> color mapping (advantage/deficit/tie/unknown),
+// previously tripled verbatim across KeyStatTable.js, ProgressionSummary
+// Cards.js, and EquipmentCompareTab.js.
+export const DIRECTION_COLORS = {
+  ahead: 'success.main',
+  behind: 'error.main',
+  even: 'text.secondary',
+  unknown: 'text.disabled',
 };
 
 // Normalized-category keys (as produced by normalizeCharacterForComparison)
@@ -142,8 +150,5 @@ export function formatDelta(value, unit) {
 
 /** Formats an integer count/level for plain display (no sign, no unit). */
 export function formatPlain(value) {
-  if (value === null || value === undefined) return '未知';
-  return typeof value === 'number'
-    ? value.toLocaleString('en-US')
-    : String(value);
+  return formatRawValue(value, null);
 }

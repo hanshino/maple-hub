@@ -10,6 +10,7 @@ import EquipmentCompareTab from './EquipmentCompareTab';
 import CategoryCompareTab from './CategoryCompareTab';
 import FamiliarCompareTab from './FamiliarCompareTab';
 import AbilityCompareTab from './AbilityCompareTab';
+import { CATEGORY_COVERAGE, categoryMetricLabel } from './compareFormat';
 
 const TAB_OVERVIEW = 0;
 const TAB_EQUIPMENT = 1;
@@ -22,33 +23,15 @@ const TAB_SET_EFFECTS = 7;
 const TAB_FAMILIAR = 8;
 const TAB_ABILITY = 9;
 
-const TAB_NAMES = [
-  '總覽',
-  '裝備',
-  '符文',
-  'HEXA',
-  '聯盟',
-  '極限屬性',
-  '連結技能',
-  '套裝效果',
-  '萌獸',
-  '內在能力',
-];
+// Tab names and coverage keys are derived from compareFormat's
+// CATEGORY_COVERAGE (shared with DataQualityNotice's missing-category
+// list) so both never drift apart; only the always-available Overview
+// tab is added here.
+const TAB_NAMES = ['總覽', ...CATEGORY_COVERAGE.map(c => c.label)];
 
 // Index -> normalized-coverage key (see lib/characterComparison.js's
 // normalize output); null for the always-available Overview tab.
-const TAB_COVERAGE_KEY = [
-  null,
-  'equipment',
-  'symbols',
-  'hexa',
-  'union',
-  'hyperStat',
-  'linkSkill',
-  'setEffects',
-  'familiar',
-  'ability',
-];
+const TAB_COVERAGE_KEY = [null, ...CATEGORY_COVERAGE.map(c => c.key)];
 
 /**
  * Comparison detail tabs. A structurally missing category (both sides
@@ -194,81 +177,48 @@ export default function CompareTabs({
             starSumRow={categories.equipment.starSum}
             starForceRow={categories.equipment.finalStatStarForce}
             sourceRows={[
-              { label: '白值攻擊力', row: categories.equipment.baseAttackSum },
-              {
-                label: '星力攻擊力',
-                row: categories.equipment.starforceAttackSum,
-              },
-              {
-                label: '卷軸攻擊力',
-                row: categories.equipment.scrollAttackSum,
-              },
-              {
-                label: '星火攻擊力',
-                row: categories.equipment.flameAttackSum,
-              },
-              {
-                label: '裝備攻擊力合計',
-                row: categories.equipment.totalAttackSum,
-              },
-              {
-                label: '寵物裝備攻擊力',
-                row: categories.equipment.petAttackSum,
-              },
-              {
-                label: '現金道具攻擊力',
-                row: categories.equipment.cashAttackSum,
-              },
-              { label: '白值魔力', row: categories.equipment.baseMagicSum },
-              {
-                label: '星力魔力',
-                row: categories.equipment.starforceMagicSum,
-              },
-              { label: '卷軸魔力', row: categories.equipment.scrollMagicSum },
-              { label: '星火魔力', row: categories.equipment.flameMagicSum },
-              {
-                label: '裝備魔力合計',
-                row: categories.equipment.totalMagicSum,
-              },
-              { label: '寵物裝備魔力', row: categories.equipment.petMagicSum },
-              { label: '現金道具魔力', row: categories.equipment.cashMagicSum },
-            ]}
+              categories.equipment.baseAttackSum,
+              categories.equipment.starforceAttackSum,
+              categories.equipment.scrollAttackSum,
+              categories.equipment.flameAttackSum,
+              categories.equipment.totalAttackSum,
+              categories.equipment.petAttackSum,
+              categories.equipment.cashAttackSum,
+              categories.equipment.baseMagicSum,
+              categories.equipment.starforceMagicSum,
+              categories.equipment.scrollMagicSum,
+              categories.equipment.flameMagicSum,
+              categories.equipment.totalMagicSum,
+              categories.equipment.petMagicSum,
+              categories.equipment.cashMagicSum,
+            ].map(row => ({ label: categoryMetricLabel(row.metric), row }))}
           />
         )}
 
         {activeTab === TAB_SYMBOLS && (
           <CategoryCompareTab
             rows={[
-              { label: '符文等級總和', row: categories.symbols.totalLevel },
-              { label: '真實之力', row: categories.symbols.authenticForce },
-            ]}
+              categories.symbols.totalLevel,
+              categories.symbols.authenticForce,
+            ].map(row => ({ label: categoryMetricLabel(row.metric), row }))}
           />
         )}
 
         {activeTab === TAB_HEXA && (
           <CategoryCompareTab
             rows={[
-              {
-                label: 'HEXA 核心等級總和',
-                row: categories.hexa.totalCoreLevel,
-              },
-              {
-                label: 'HEXA 屬性等級總和',
-                row: categories.hexa.totalStatLevel,
-              },
-            ]}
+              categories.hexa.totalCoreLevel,
+              categories.hexa.totalStatLevel,
+            ].map(row => ({ label: categoryMetricLabel(row.metric), row }))}
           />
         )}
 
         {activeTab === TAB_UNION && (
           <CategoryCompareTab
             rows={[
-              { label: '聯盟等級', row: categories.union.level },
-              {
-                label: '聯盟戰地屬性項目數',
-                row: categories.union.raider.statCount,
-              },
-            ]}
+              categories.union.level,
+              categories.union.raider.statCount,
+            ].map(row => ({ label: categoryMetricLabel(row.metric), row }))}
           />
         )}
 
@@ -279,12 +229,10 @@ export default function CompareTabs({
               left: categories.hyperStat.activePresetNo.left,
               right: categories.hyperStat.activePresetNo.right,
             }}
-            rows={[
-              {
-                label: '極限屬性等級總和',
-                row: categories.hyperStat.totalLevel,
-              },
-            ]}
+            rows={[categories.hyperStat.totalLevel].map(row => ({
+              label: categoryMetricLabel(row.metric),
+              row,
+            }))}
           />
         )}
 
@@ -295,42 +243,29 @@ export default function CompareTabs({
               left: categories.linkSkill.activePresetNo.left,
               right: categories.linkSkill.activePresetNo.right,
             }}
-            rows={[
-              {
-                label: '連結技能等級總和',
-                row: categories.linkSkill.totalLevel,
-              },
-            ]}
+            rows={[categories.linkSkill.totalLevel].map(row => ({
+              label: categoryMetricLabel(row.metric),
+              row,
+            }))}
           />
         )}
 
         {activeTab === TAB_SET_EFFECTS && (
           <CategoryCompareTab
-            rows={[
-              {
-                label: '套裝件數總和',
-                row: categories.setEffects.totalSetCount,
-              },
-            ]}
+            rows={[categories.setEffects.totalSetCount].map(row => ({
+              label: categoryMetricLabel(row.metric),
+              row,
+            }))}
           />
         )}
 
         {activeTab === TAB_FAMILIAR && (
           <FamiliarCompareTab
             rows={[
-              {
-                label: '裝備中萌獸最終傷害',
-                row: categories.familiar.summonedFinalDamage,
-              },
-              {
-                label: '已登錄萌獸數',
-                row: categories.familiar.registeredCount,
-              },
-              {
-                label: '羈絆連結數',
-                row: categories.familiar.linkedCount,
-              },
-            ]}
+              categories.familiar.summonedFinalDamage,
+              categories.familiar.registeredCount,
+              categories.familiar.linkedCount,
+            ].map(row => ({ label: categoryMetricLabel(row.metric), row }))}
             leftFamiliarData={leftRaw?.familiar}
             rightFamiliarData={rightRaw?.familiar}
           />
@@ -339,23 +274,11 @@ export default function CompareTabs({
         {activeTab === TAB_ABILITY && (
           <AbilityCompareTab
             rows={[
-              {
-                label: '內在能力 Boss 傷害',
-                row: categories.ability.bossDamage,
-              },
-              {
-                label: '內在能力攻擊力',
-                row: categories.ability.attackPower,
-              },
-              {
-                label: '內在能力魔法攻擊力',
-                row: categories.ability.magicPower,
-              },
-              {
-                label: '內在能力爆擊率',
-                row: categories.ability.critRate,
-              },
-            ]}
+              categories.ability.bossDamage,
+              categories.ability.attackPower,
+              categories.ability.magicPower,
+              categories.ability.critRate,
+            ].map(row => ({ label: categoryMetricLabel(row.metric), row }))}
             presetInfo={{
               label: '啟用中的內在能力 Preset',
               left: categories.ability.activePresetNo.left,

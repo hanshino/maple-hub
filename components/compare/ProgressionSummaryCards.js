@@ -2,7 +2,6 @@
 
 import {
   Box,
-  Chip,
   Table,
   TableBody,
   TableCell,
@@ -10,62 +9,36 @@ import {
   TableRow,
   Typography,
 } from '@mui/material';
-import {
-  EVIDENCE_COLORS,
-  EVIDENCE_LABELS,
-  formatDelta,
-  formatRawValue,
-} from './compareFormat';
+import EvidenceChip from './EvidenceChip';
+import { DIRECTION_COLORS, formatDelta, formatRawValue } from './compareFormat';
+import { HEADLINE_METRIC_BY_CATEGORY } from '../../lib/characterComparison';
 
+// Presentational (key, label) pairs only — row selection now delegates to
+// lib/characterComparison.js's HEADLINE_METRIC_BY_CATEGORY, the same
+// headline-metric choice rankUpgradeDirections uses, so the two never
+// drift apart. `categoryName` indexes into that map's stable-order keys.
 const SUMMARY_CATEGORIES = [
-  { key: 'equipment', label: '裝備', getRow: c => c.equipment.starSum },
-  { key: 'symbols', label: '符文', getRow: c => c.symbols.totalLevel },
-  { key: 'union', label: '聯盟', getRow: c => c.union.level },
-  { key: 'hexa', label: 'HEXA', getRow: c => c.hexa.totalCoreLevel },
-  {
-    key: 'hyperStat',
-    label: '極限屬性',
-    getRow: c => c.hyperStat.totalLevel,
-  },
-  {
-    key: 'linkSkill',
-    label: '連結技能',
-    getRow: c => c.linkSkill.totalLevel,
-  },
-  {
-    key: 'setEffects',
-    label: '套裝效果',
-    getRow: c => c.setEffects.totalSetCount,
-  },
-  {
-    key: 'familiar',
-    label: '萌獸',
-    getRow: c => c.familiar.summonedFinalDamage,
-  },
-  {
-    key: 'ability',
-    label: '內在能力',
-    getRow: c => c.ability.bossDamage,
-  },
+  { key: 'equipment', label: '裝備', categoryName: 'Equipment' },
+  { key: 'symbols', label: '符文', categoryName: 'Symbols' },
+  { key: 'union', label: '聯盟', categoryName: 'Union' },
+  { key: 'hexa', label: 'HEXA', categoryName: 'HEXA' },
+  { key: 'hyperStat', label: '極限屬性', categoryName: 'Hyper Stat' },
+  { key: 'linkSkill', label: '連結技能', categoryName: 'Link Skill' },
+  { key: 'setEffects', label: '套裝效果', categoryName: 'Set Effects' },
+  { key: 'familiar', label: '萌獸', categoryName: 'Familiar' },
+  { key: 'ability', label: '內在能力', categoryName: 'Ability' },
 ];
-
-const DELTA_COLOR = {
-  ahead: 'success.main',
-  behind: 'error.main',
-  even: 'text.secondary',
-  unknown: 'text.disabled',
-};
 
 function deltaCell(row) {
   if (row.coverage !== 'complete' || row.direction === 'unknown') {
-    return { text: '未知', color: DELTA_COLOR.unknown };
+    return { text: '未知', color: DIRECTION_COLORS.unknown };
   }
   if (row.direction === 'even') {
-    return { text: '相同', color: DELTA_COLOR.even };
+    return { text: '相同', color: DIRECTION_COLORS.even };
   }
   return {
     text: formatDelta(row.delta, row.unit),
-    color: DELTA_COLOR[row.direction],
+    color: DIRECTION_COLORS[row.direction],
   };
 }
 
@@ -76,10 +49,10 @@ function deltaCell(row) {
  * and upgrade checklist are class-specific and get hidden there.
  */
 export default function ProgressionSummaryCards({ comparison }) {
-  const rows = SUMMARY_CATEGORIES.map(({ key, label, getRow }) => ({
+  const rows = SUMMARY_CATEGORIES.map(({ key, label, categoryName }) => ({
     key,
     label,
-    row: getRow(comparison.categories),
+    row: HEADLINE_METRIC_BY_CATEGORY[categoryName](comparison.categories),
   }));
   const hasUnknown = rows.some(({ row }) => row.coverage !== 'complete');
 
@@ -112,17 +85,7 @@ export default function ProgressionSummaryCards({ comparison }) {
                       <Typography variant="body2" sx={{ fontWeight: 700 }}>
                         {label}
                       </Typography>
-                      <Chip
-                        label={EVIDENCE_LABELS[row.evidence]}
-                        size="small"
-                        color={EVIDENCE_COLORS[row.evidence]}
-                        sx={{
-                          px: 1,
-                          height: 20,
-                          fontSize: '0.65rem',
-                          fontWeight: 700,
-                        }}
-                      />
+                      <EvidenceChip evidence={row.evidence} />
                     </Box>
                   </TableCell>
                   <TableCell align="right">
