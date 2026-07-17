@@ -221,6 +221,14 @@ describe('normalizeCharacterForComparison', () => {
     expect(reference.unionRaider.statCount).toBe(5);
   });
 
+  it('measures HEXA by core levels and files Authentic Force under symbols', () => {
+    expect(mine.hexa.totalCoreLevel).toBe(30);
+    expect(mine.hexa.coreCount).toBe(1);
+    expect(mine.hexa.authenticForce).toBeUndefined();
+    expect(mine.symbols.authenticForce).toBe(740);
+    expect(reference.symbols.authenticForce).toBe(770);
+  });
+
   it('treats a missing or empty category as unknown, never zero', () => {
     const raw = makeRawCharacter({ union: null });
     const normalized = normalizeCharacterForComparison(raw);
@@ -291,6 +299,20 @@ describe('compareCharacters — verified sample (影之愛衣 vs 護甲大師)',
     expect(starSumRow.metric).not.toBe(starForceRow.metric);
     expect(starSumRow.left).toBe(436);
     expect(starForceRow.left).toBe(1500);
+  });
+
+  it('compares HEXA by core-level sum and Authentic Force inside Symbols', () => {
+    const hexaRow = comparison.categories.hexa.totalCoreLevel;
+    expect(hexaRow.metric).toBe('totalHexaCoreLevel');
+    expect(hexaRow.evidence).toBe('derived');
+    expect(hexaRow.delta).toBe(0); // both fixtures run core level 30
+
+    const authenticRow = comparison.categories.symbols.authenticForce;
+    expect(authenticRow.category).toBe('Symbols');
+    expect(authenticRow.metric).toBe('authenticForce');
+    expect(authenticRow.evidence).toBe('api-fact');
+    expect(authenticRow.left).toBe(740);
+    expect(authenticRow.delta).toBe(-30);
   });
 
   it('carries an evidence level and coverage on every row', () => {
@@ -443,7 +465,6 @@ describe('rankUpgradeDirections — deterministic inspection order', () => {
     reference.hyperStats = mine.hyperStats;
     reference.linkSkills = mine.linkSkills;
     reference.setEffects = mine.setEffects;
-    reference.stats = mine.stats; // ties HEXA (真實之力) too
 
     const comparison = compareCharacters(
       normalizeCharacterForComparison(mine),
@@ -451,6 +472,46 @@ describe('rankUpgradeDirections — deterministic inspection order', () => {
     );
     const directions = rankUpgradeDirections(comparison);
     expect(directions.map(d => d.category)).toEqual(['Equipment', 'Union']);
+  });
+
+  it('keys HEXA eligibility on core levels, never on Authentic Force', () => {
+    const { mine, reference } = makeBehindPair();
+    // Authentic Force stays behind (700 vs 900) while core levels tie —
+    // HEXA must not become eligible off the symbol-fed stat.
+    const tiedCores = [{ hexa_core_name: '核心A', hexa_core_level: 10 }];
+    mine.hexaCores = { character_hexa_core_equipment: tiedCores };
+    reference.hexaCores = { character_hexa_core_equipment: tiedCores };
+
+    let directions = rankUpgradeDirections(
+      compareCharacters(
+        normalizeCharacterForComparison(mine),
+        normalizeCharacterForComparison(reference)
+      )
+    );
+    expect(directions.map(d => d.category)).not.toContain('HEXA');
+
+    // Core levels behind (10 vs 40) → HEXA becomes eligible, reported
+    // via the core-level metric. Symbols/Union are tied so HEXA fits in
+    // the top three.
+    reference.hexaCores = {
+      character_hexa_core_equipment: [
+        { hexa_core_name: '核心A', hexa_core_level: 40 },
+      ],
+    };
+    reference.symbols = mine.symbols;
+    reference.union = mine.union;
+
+    directions = rankUpgradeDirections(
+      compareCharacters(
+        normalizeCharacterForComparison(mine),
+        normalizeCharacterForComparison(reference)
+      )
+    );
+    const hexaDirection = directions.find(d => d.category === 'HEXA');
+    expect(hexaDirection).toBeDefined();
+    expect(hexaDirection.metric).toBe('totalHexaCoreLevel');
+    expect(hexaDirection.myValue).toBe(10);
+    expect(hexaDirection.referenceValue).toBe(40);
   });
 
   it('skips a category with incomplete structural data even if the raw value looks worse', () => {

@@ -21,7 +21,7 @@ const SUMMARY_CATEGORIES = [
   { key: 'equipment', label: '裝備', getRow: c => c.equipment.starSum },
   { key: 'symbols', label: '符文', getRow: c => c.symbols.totalLevel },
   { key: 'union', label: '聯盟', getRow: c => c.union.level },
-  { key: 'hexa', label: 'HEXA', getRow: c => c.hexa.authenticForce },
+  { key: 'hexa', label: 'HEXA', getRow: c => c.hexa.totalCoreLevel },
   {
     key: 'hyperStat',
     label: '極限屬性',

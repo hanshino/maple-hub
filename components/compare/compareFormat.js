@@ -67,6 +67,7 @@ const CATEGORY_METRIC_LABELS = {
   unionLevel: '聯盟等級',
   raiderStatCount: '聯盟戰地屬性項目數',
   authenticForce: '真實之力',
+  totalHexaCoreLevel: 'HEXA 核心等級總和',
   totalHyperStatLevel: '極限屬性等級總和',
   totalLinkSkillLevel: '連結技能等級總和',
   totalSetEffectCount: '套裝件數總和',

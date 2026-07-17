@@ -194,6 +194,7 @@ export default function CompareTabs({
           <CategoryCompareTab
             rows={[
               { label: '符文等級總和', row: categories.symbols.totalLevel },
+              { label: '真實之力', row: categories.symbols.authenticForce },
             ]}
           />
         )}
@@ -201,7 +202,10 @@ export default function CompareTabs({
         {activeTab === TAB_HEXA && (
           <CategoryCompareTab
             rows={[
-              { label: '真實之力', row: categories.hexa.authenticForce },
+              {
+                label: 'HEXA 核心等級總和',
+                row: categories.hexa.totalCoreLevel,
+              },
             ]}
           />
         )}
