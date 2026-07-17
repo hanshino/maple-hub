@@ -725,33 +725,52 @@ describe('normalizeCharacterForComparison — HEXA stat cores', () => {
 });
 
 describe('normalizeCharacterForComparison — familiar (萌獸)', () => {
+  // Mirrors the verified live sample: the equipped familiar is the one
+  // with summoned_flag='true' (垃圾桶), NOT the 羈絆-linked one
+  // (寒冰半人馬, familiar_state='linked').
   const familiarPayload = {
     familiar_info: [
       {
         familiar_name: '寒冰半人馬',
         familiar_state: 'linked',
+        slot_id: '1',
+        summoned_flag: 'false',
         familiar_level: 5,
         option_level: 5,
-        option: [],
+        option: [
+          { option_no: 1, option_name: '最終傷害 (%)', option_value: '2' },
+          { option_no: 2, option_name: 'LUK (%)', option_value: '4' },
+        ],
       },
       {
         familiar_name: '青蛇',
         familiar_state: 'registered',
+        slot_id: 'not link',
+        summoned_flag: 'false',
         familiar_level: 5,
         option_level: 5,
-        option: [],
+        option: [
+          { option_no: 1, option_name: '最終傷害 (%)', option_value: '2' },
+          { option_no: 2, option_name: '緩慢效果', option_value: '1002' },
+        ],
       },
       {
-        familiar_name: '樹妖',
+        familiar_name: '垃圾桶',
         familiar_state: 'registered',
-        familiar_level: 3,
-        option_level: 3,
-        option: [],
+        slot_id: 'not link',
+        summoned_flag: 'true',
+        familiar_level: 5,
+        option_level: 5,
+        option: [
+          { option_no: 1, option_name: '物理攻擊力 (%)', option_value: '14' },
+          { option_no: 2, option_name: '最終傷害 (%)', option_value: '20' },
+          { option_no: 3, option_name: '最終傷害 (%)', option_value: '20' },
+        ],
       },
     ],
   };
 
-  it('counts registered and linked familiars and sums linked option levels', () => {
+  it('sums 最終傷害 only over the equipped (summoned) familiar, never the 羈絆-linked one', () => {
     const normalized = normalizeCharacterForComparison(
       makeRawCharacter({ familiar: familiarPayload })
     );
@@ -760,11 +779,13 @@ describe('normalizeCharacterForComparison — familiar (萌獸)', () => {
       coverage: true,
       registeredCount: 3,
       linkedCount: 1,
-      linkedOptionLevelSum: 5,
+      // 垃圾桶 20+20; 寒冰半人馬's and 青蛇's 最終傷害 are excluded
+      // because they are not summoned.
+      summonedFinalDamage: 40,
     });
   });
 
-  it('reports a real zero (not unknown) when data exists but nothing is linked', () => {
+  it('reports a real zero (not unknown) when data exists but nothing is equipped', () => {
     const normalized = normalizeCharacterForComparison(
       makeRawCharacter({
         familiar: {
@@ -772,7 +793,14 @@ describe('normalizeCharacterForComparison — familiar (萌獸)', () => {
             {
               familiar_name: '青蛇',
               familiar_state: 'registered',
-              option_level: 5,
+              summoned_flag: 'false',
+              option: [
+                {
+                  option_no: 1,
+                  option_name: '最終傷害 (%)',
+                  option_value: '2',
+                },
+              ],
             },
           ],
         },
@@ -780,7 +808,7 @@ describe('normalizeCharacterForComparison — familiar (萌獸)', () => {
     );
 
     expect(normalized.familiar.linkedCount).toBe(0);
-    expect(normalized.familiar.linkedOptionLevelSum).toBe(0);
+    expect(normalized.familiar.summonedFinalDamage).toBe(0);
   });
 
   it('treats a character synced before familiar support as unavailable, never zero', () => {
@@ -790,66 +818,84 @@ describe('normalizeCharacterForComparison — familiar (萌獸)', () => {
       coverage: false,
       registeredCount: null,
       linkedCount: null,
-      linkedOptionLevelSum: null,
+      summonedFinalDamage: null,
     });
   });
 });
 
 describe('compareCharacters + rankUpgradeDirections — familiar category', () => {
-  const familiarOf = (registered, linked) => ({
+  // Builds a familiar payload whose equipped familiar grants
+  // `finalDamage`% total, with `registered` familiars overall.
+  const familiarOf = (registered, finalDamage) => ({
     familiar_info: Array.from({ length: registered }, (_, i) => ({
       familiar_name: `萌獸${i}`,
-      familiar_state: i < linked ? 'linked' : 'registered',
+      familiar_state: 'registered',
+      summoned_flag: i === 0 && finalDamage > 0 ? 'true' : 'false',
       option_level: 5,
-      option: [],
+      option:
+        i === 0 && finalDamage > 0
+          ? [
+              {
+                option_no: 1,
+                option_name: '最終傷害 (%)',
+                option_value: String(finalDamage),
+              },
+            ]
+          : [],
     })),
   });
 
-  it('produces derived Familiar rows keyed on registered/linked counts', () => {
+  it('produces derived Familiar rows with the equipped final-damage headline in pp', () => {
     const mine = normalizeCharacterForComparison(
-      makeRawCharacter({ ocid: 'A', name: 'A', familiar: familiarOf(3, 1) })
+      makeRawCharacter({ ocid: 'A', name: 'A', familiar: familiarOf(3, 40) })
     );
     const reference = normalizeCharacterForComparison(
-      makeRawCharacter({ ocid: 'B', name: 'B', familiar: familiarOf(78, 0) })
+      makeRawCharacter({ ocid: 'B', name: 'B', familiar: familiarOf(78, 40) })
     );
 
     const { familiar } = compareCharacters(mine, reference).categories;
-    expect(familiar.registeredCount.category).toBe('Familiar');
-    expect(familiar.registeredCount.metric).toBe('registeredFamiliarCount');
-    expect(familiar.registeredCount.evidence).toBe('derived');
+    expect(familiar.summonedFinalDamage.category).toBe('Familiar');
+    expect(familiar.summonedFinalDamage.metric).toBe(
+      'summonedFamiliarFinalDamage'
+    );
+    expect(familiar.summonedFinalDamage.evidence).toBe('derived');
+    expect(familiar.summonedFinalDamage.unit).toBe('pp');
+    expect(familiar.summonedFinalDamage.delta).toBe(0);
     expect(familiar.registeredCount.delta).toBe(-75);
-    expect(familiar.linkedCount.delta).toBe(1);
-    expect(familiar.linkedOptionLevelSum.delta).toBe(5);
   });
 
   it('marks familiar rows partial when only one side has data', () => {
     const mine = normalizeCharacterForComparison(
-      makeRawCharacter({ ocid: 'A', name: 'A', familiar: familiarOf(3, 1) })
+      makeRawCharacter({ ocid: 'A', name: 'A', familiar: familiarOf(3, 40) })
     );
     const reference = normalizeCharacterForComparison(
       makeRawCharacter({ ocid: 'B', name: 'B' })
     );
 
     const row = compareCharacters(mine, reference).categories.familiar
-      .registeredCount;
+      .summonedFinalDamage;
     expect(row.coverage).toBe('partial');
     expect(row.delta).toBeNull();
     expect(row.direction).toBe('unknown');
   });
 
-  it('surfaces Familiar in upgrade directions when it is the only lagging system', () => {
+  it('keys the Familiar upgrade direction on equipped final damage, not collection size', () => {
+    // Mine owns MORE familiars but the equipped one grants less final
+    // damage — the direction must still flag Familiar as behind.
     const mine = normalizeCharacterForComparison(
-      makeRawCharacter({ ocid: 'A', name: 'A', familiar: familiarOf(3, 1) })
+      makeRawCharacter({ ocid: 'A', name: 'A', familiar: familiarOf(78, 10) })
     );
     const reference = normalizeCharacterForComparison(
-      makeRawCharacter({ ocid: 'B', name: 'B', familiar: familiarOf(78, 0) })
+      makeRawCharacter({ ocid: 'B', name: 'B', familiar: familiarOf(3, 40) })
     );
 
-    const directions = rankUpgradeDirections(compareCharacters(mine, reference));
+    const directions = rankUpgradeDirections(
+      compareCharacters(mine, reference)
+    );
     const familiarEntry = directions.find(d => d.category === 'Familiar');
     expect(familiarEntry).toBeDefined();
-    expect(familiarEntry.metric).toBe('registeredFamiliarCount');
-    expect(familiarEntry.myValue).toBe(3);
-    expect(familiarEntry.referenceValue).toBe(78);
+    expect(familiarEntry.metric).toBe('summonedFamiliarFinalDamage');
+    expect(familiarEntry.myValue).toBe(10);
+    expect(familiarEntry.referenceValue).toBe(40);
   });
 });

@@ -76,9 +76,9 @@ const CATEGORY_METRIC_LABELS = {
   totalHyperStatLevel: '極限屬性等級總和',
   totalLinkSkillLevel: '連結技能等級總和',
   totalSetEffectCount: '套裝件數總和',
+  summonedFamiliarFinalDamage: '裝備中萌獸最終傷害',
   registeredFamiliarCount: '已登錄萌獸數',
-  linkedFamiliarCount: '連結中萌獸數',
-  linkedFamiliarOptionLevelSum: '連結萌獸選項等級總和',
+  linkedFamiliarCount: '羈絆連結數',
 };
 
 /**

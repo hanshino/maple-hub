@@ -40,7 +40,7 @@ const SUMMARY_CATEGORIES = [
   {
     key: 'familiar',
     label: '萌獸',
-    getRow: c => c.familiar.registeredCount,
+    getRow: c => c.familiar.summonedFinalDamage,
   },
 ];
 

@@ -8,6 +8,7 @@ import UpgradeChecklist from './UpgradeChecklist';
 import ProgressionSummaryCards from './ProgressionSummaryCards';
 import EquipmentCompareTab from './EquipmentCompareTab';
 import CategoryCompareTab from './CategoryCompareTab';
+import FamiliarCompareTab from './FamiliarCompareTab';
 
 const TAB_OVERVIEW = 0;
 const TAB_EQUIPMENT = 1;
@@ -275,21 +276,23 @@ export default function CompareTabs({
         )}
 
         {activeTab === TAB_FAMILIAR && (
-          <CategoryCompareTab
+          <FamiliarCompareTab
             rows={[
+              {
+                label: '裝備中萌獸最終傷害',
+                row: categories.familiar.summonedFinalDamage,
+              },
               {
                 label: '已登錄萌獸數',
                 row: categories.familiar.registeredCount,
               },
               {
-                label: '連結中萌獸數',
+                label: '羈絆連結數',
                 row: categories.familiar.linkedCount,
               },
-              {
-                label: '連結萌獸選項等級總和',
-                row: categories.familiar.linkedOptionLevelSum,
-              },
             ]}
+            leftFamiliarData={leftRaw?.familiar}
+            rightFamiliarData={rightRaw?.familiar}
           />
         )}
       </Box>

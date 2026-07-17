@@ -134,16 +134,26 @@ export const shadowRaw = makeRawCharacter({
       {
         familiar_name: '寒冰半人馬',
         familiar_state: 'linked',
+        slot_id: '1',
+        summoned_flag: 'false',
         familiar_level: 5,
         option_level: 5,
-        option: [],
+        option: [
+          { option_no: 1, option_name: '最終傷害 (%)', option_value: '2' },
+        ],
       },
       {
-        familiar_name: '青蛇',
+        familiar_name: '垃圾桶',
         familiar_state: 'registered',
+        slot_id: 'not link',
+        summoned_flag: 'true',
         familiar_level: 5,
         option_level: 5,
-        option: [],
+        option: [
+          { option_no: 1, option_name: '物理攻擊力 (%)', option_value: '14' },
+          { option_no: 2, option_name: '最終傷害 (%)', option_value: '20' },
+          { option_no: 3, option_name: '最終傷害 (%)', option_value: '20' },
+        ],
       },
     ],
   },
@@ -199,15 +209,23 @@ export const armorMasterRaw = makeRawCharacter({
   familiar: {
     familiar_info: [
       {
-        familiar_name: '樹妖',
+        familiar_name: '深淵小雪球',
         familiar_state: 'registered',
+        slot_id: 'not link',
+        summoned_flag: 'true',
         familiar_level: 5,
         option_level: 5,
-        option: [],
+        option: [
+          { option_no: 1, option_name: '4秒內恢復 HP', option_value: '20' },
+          { option_no: 2, option_name: '最終傷害 (%)', option_value: '20' },
+          { option_no: 3, option_name: '最終傷害 (%)', option_value: '20' },
+        ],
       },
       {
         familiar_name: '石巨人',
         familiar_state: 'registered',
+        slot_id: 'not link',
+        summoned_flag: 'false',
         familiar_level: 3,
         option_level: 3,
         option: [],
@@ -215,6 +233,8 @@ export const armorMasterRaw = makeRawCharacter({
       {
         familiar_name: '火焰豬',
         familiar_state: 'registered',
+        slot_id: 'not link',
+        summoned_flag: 'false',
         familiar_level: 2,
         option_level: 2,
         option: [],
