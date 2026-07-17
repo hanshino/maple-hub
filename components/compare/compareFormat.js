@@ -63,6 +63,8 @@ const STAT_METRIC_LABELS = {
 const CATEGORY_METRIC_LABELS = {
   currentEquipmentStarSum: '現有裝備星力總和',
   finalStatStarForce: '面板星力',
+  scrollAttackSum: '卷軸攻擊力總和',
+  scrollMagicSum: '卷軸魔力總和',
   totalSymbolLevel: '符文等級總和',
   unionLevel: '聯盟等級',
   raiderStatCount: '聯盟戰地屬性項目數',

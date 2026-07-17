@@ -112,7 +112,13 @@ const shadowRaw = makeRawCharacter({
     stat('真實之力', 740),
   ],
   equipmentPresetActive: 2,
-  equipmentItems: [{ item_equipment_slot: '帽子', starforce: 436 }],
+  equipmentItems: [
+    {
+      item_equipment_slot: '帽子',
+      starforce: 436,
+      item_etc_option: { attack_power: '121', magic_power: '0' },
+    },
+  ],
   hyperStatUsePresetNo: '2',
   hyperStatPresets: {
     2: [{ stat_type: '力量', stat_level: 10, stat_increase: '+300' }],
@@ -145,7 +151,13 @@ const armorMasterRaw = makeRawCharacter({
     stat('真實之力', 770),
   ],
   equipmentPresetActive: 3,
-  equipmentItems: [{ item_equipment_slot: '帽子', starforce: 447 }],
+  equipmentItems: [
+    {
+      item_equipment_slot: '帽子',
+      starforce: 447,
+      item_etc_option: { attack_power: '100', magic_power: '0' },
+    },
+  ],
   hyperStatUsePresetNo: '3',
   hyperStatPresets: {
     3: [{ stat_type: '力量', stat_level: 12, stat_increase: '+360' }],
@@ -219,6 +231,12 @@ describe('normalizeCharacterForComparison', () => {
     ).toBe(false);
     expect(mine.unionRaider.statCount).toBe(4);
     expect(reference.unionRaider.statCount).toBe(5);
+  });
+
+  it('sums scroll-granted attack across the active equipment items', () => {
+    expect(mine.equipment.scrollAttackSum).toBe(121);
+    expect(reference.equipment.scrollAttackSum).toBe(100);
+    expect(mine.equipment.scrollMagicSum).toBe(0);
   });
 
   it('measures HEXA by core levels and files Authentic Force under symbols', () => {
@@ -299,6 +317,18 @@ describe('compareCharacters — verified sample (影之愛衣 vs 護甲大師)',
     expect(starSumRow.metric).not.toBe(starForceRow.metric);
     expect(starSumRow.left).toBe(436);
     expect(starForceRow.left).toBe(1500);
+  });
+
+  it('exposes scroll attack/magic sums as derived equipment rows', () => {
+    const attackRow = comparison.categories.equipment.scrollAttackSum;
+    expect(attackRow.metric).toBe('scrollAttackSum');
+    expect(attackRow.evidence).toBe('derived');
+    expect(attackRow.left).toBe(121);
+    expect(attackRow.delta).toBe(21);
+
+    const magicRow = comparison.categories.equipment.scrollMagicSum;
+    expect(magicRow.metric).toBe('scrollMagicSum');
+    expect(magicRow.delta).toBe(0);
   });
 
   it('compares HEXA by core-level sum and Authentic Force inside Symbols', () => {

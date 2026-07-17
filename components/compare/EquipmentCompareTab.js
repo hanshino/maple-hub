@@ -132,6 +132,44 @@ function hasNonZero(optionObject) {
   );
 }
 
+// Per-slot stat deltas (mine − reference), read straight off the two raw
+// items' starforce / item_total_option — presentation arithmetic over the
+// side-by-side payloads, not comparison-layer math.
+function computeSlotDeltas(leftItem, rightItem) {
+  if (!leftItem || !rightItem) return [];
+  const deltas = [];
+  const starDelta =
+    (parseInt(leftItem.starforce) || 0) - (parseInt(rightItem.starforce) || 0);
+  if (starDelta !== 0) deltas.push({ label: '星力', delta: starDelta });
+  const leftTotal = leftItem.item_total_option || {};
+  const rightTotal = rightItem.item_total_option || {};
+  for (const { key, label } of STAT_LABELS) {
+    const delta =
+      (parseInt(leftTotal[key]) || 0) - (parseInt(rightTotal[key]) || 0);
+    if (delta !== 0) deltas.push({ label, delta });
+  }
+  return deltas;
+}
+
+// Concrete scroll (item_etc_option) / flame (item_add_option) attack and
+// magic values for one item, e.g. "卷軸 攻+121・星火 攻+45".
+function enhancementSummary(item) {
+  const seg = (label, option) => {
+    const atk = parseInt(option?.attack_power) || 0;
+    const matk = parseInt(option?.magic_power) || 0;
+    const bits = [];
+    if (atk > 0) bits.push(`攻+${atk}`);
+    if (matk > 0) bits.push(`魔+${matk}`);
+    return bits.length ? `${label} ${bits.join(' ')}` : null;
+  };
+  return [
+    seg('卷軸', item.item_etc_option),
+    seg('星火', item.item_add_option),
+  ]
+    .filter(Boolean)
+    .join('・');
+}
+
 function ItemDetail({ item, sideLabel }) {
   if (!item) {
     return (
@@ -145,6 +183,7 @@ function ItemDetail({ item, sideLabel }) {
 
   const hasScrollOrFlame =
     hasNonZero(item.item_etc_option) || hasNonZero(item.item_add_option);
+  const enhancement = enhancementSummary(item);
 
   return (
     <Box
@@ -169,9 +208,9 @@ function ItemDetail({ item, sideLabel }) {
         星力 {formatStarforce(item.starforce)}
       </Typography>
       <ItemFixedStats item={item} />
-      {hasScrollOrFlame && (
+      {(enhancement || hasScrollOrFlame) && (
         <Typography variant="caption" color="text.secondary">
-          含卷軸／星火加成
+          {enhancement || '含卷軸／星火加成'}
         </Typography>
       )}
       <ItemPotential item={item} prefix="potential_option" title="潛在能力" />
@@ -199,6 +238,8 @@ export default function EquipmentCompareTab({
   rightEquipmentData,
   starSumRow,
   starForceRow,
+  scrollAttackRow,
+  scrollMagicRow,
 }) {
   const [expandedSlot, setExpandedSlot] = useState(null);
 
@@ -245,6 +286,23 @@ export default function EquipmentCompareTab({
             {formatDelta(starForceRow.delta, starForceRow.unit)}）
           </Typography>
         </Box>
+        {[
+          { label: '卷軸攻擊力總和', row: scrollAttackRow },
+          { label: '卷軸魔力總和', row: scrollMagicRow },
+        ].map(({ label, row }) =>
+          row && (row.left > 0 || row.right > 0) ? (
+            <Box key={label}>
+              <Typography variant="caption" color="text.secondary">
+                {label}
+              </Typography>
+              <Typography sx={{ fontWeight: 800 }}>
+                {formatRawValue(row.left, row.unit)} /{' '}
+                {formatRawValue(row.right, row.unit)}（
+                {formatDelta(row.delta, row.unit)}）
+              </Typography>
+            </Box>
+          ) : null
+        )}
         <Chip
           label={EVIDENCE_LABELS[starSumRow.evidence]}
           size="small"
@@ -262,6 +320,7 @@ export default function EquipmentCompareTab({
             const rightItem = rightBySlot[slot];
             const expanded = expandedSlot === slot;
             const slotLabel = SLOT_LABELS[slot] || slot;
+            const slotDeltas = computeSlotDeltas(leftItem, rightItem);
             return (
               <Box
                 key={slot}
@@ -314,6 +373,25 @@ export default function EquipmentCompareTab({
                   </IconButton>
                 </Box>
                 <Collapse in={expanded}>
+                  {slotDeltas.length > 0 && (
+                    <Typography variant="body2" sx={{ mt: 1.5 }}>
+                      差異（我方 − 參考）：
+                      {slotDeltas.map(({ label, delta }, index) => (
+                        <Box component="span" key={label}>
+                          {index > 0 && '、'}
+                          <Box
+                            component="span"
+                            sx={{
+                              fontWeight: 700,
+                              color: delta > 0 ? 'success.main' : 'error.main',
+                            }}
+                          >
+                            {label} {delta > 0 ? `+${delta}` : delta}
+                          </Box>
+                        </Box>
+                      ))}
+                    </Typography>
+                  )}
                   <Box
                     sx={{
                       display: 'flex',

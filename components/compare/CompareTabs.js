@@ -187,6 +187,8 @@ export default function CompareTabs({
             rightEquipmentData={rightRaw?.equipment}
             starSumRow={categories.equipment.starSum}
             starForceRow={categories.equipment.finalStatStarForce}
+            scrollAttackRow={categories.equipment.scrollAttackSum}
+            scrollMagicRow={categories.equipment.scrollMagicSum}
           />
         )}
 
