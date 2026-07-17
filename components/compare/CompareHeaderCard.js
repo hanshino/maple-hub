@@ -91,8 +91,19 @@ function FighterPanel({ roleLabel, state, normalized, otherNormalized }) {
       {status === 'success' && data && (
         <>
           <Box sx={{ display: 'flex', alignItems: 'center', gap: 1.5 }}>
-            <Avatar sx={{ width: 52, height: 52, bgcolor: 'primary.main' }}>
-              {data.basicInfo?.character_name?.charAt(0) || '?'}
+            <Avatar
+              src={data.basicInfo?.character_image || undefined}
+              alt={`${data.basicInfo?.character_name || ''} 角色頭像`}
+              sx={{
+                width: 52,
+                height: 52,
+                bgcolor: data.basicInfo?.character_image
+                  ? 'transparent'
+                  : 'primary.main',
+              }}
+            >
+              {!data.basicInfo?.character_image &&
+                (data.basicInfo?.character_name?.charAt(0) || '?')}
             </Avatar>
             <Box sx={{ minWidth: 0 }}>
               <Typography sx={{ fontWeight: 800 }} noWrap>
