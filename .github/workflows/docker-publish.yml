@@ -10,7 +10,11 @@ env:
 
 jobs:
   build-and-push:
-    runs-on: ubuntu-latest
+    # Native arm64 runner (free for public repos). The only deployment target
+    # is a single arm64 (Graviton) host, so we build for arm64 directly
+    # instead of multi-arch — cross-building amd64+arm64 under QEMU would
+    # slow every build for a platform nothing runs on.
+    runs-on: ubuntu-24.04-arm
     permissions:
       contents: read
       packages: write
@@ -54,45 +58,13 @@ jobs:
             ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:migrator
           cache-from: type=gha
 
-  deploy:
-    needs: build-and-push
-    runs-on: ubuntu-latest
-    steps:
-      - name: Redeploy stack via Portainer
-        run: |
-          # Get current stack file content
-          STACK_FILE=$(curl -sf \
-            -H "X-API-Key: ${{ secrets.PORTAINER_API_KEY }}" \
-            "${{ secrets.PORTAINER_URL }}/api/stacks/${{ secrets.PORTAINER_STACK_ID }}/file" \
-            | jq -r '.StackFileContent')
-
-          # Get current env vars
-          STACK_ENV=$(curl -sf \
-            -H "X-API-Key: ${{ secrets.PORTAINER_API_KEY }}" \
-            "${{ secrets.PORTAINER_URL }}/api/stacks/${{ secrets.PORTAINER_STACK_ID }}" \
-            | jq '.Env')
-
-          # Redeploy stack with pullImage to get latest images
-          HTTP_STATUS=$(curl -sf -o /dev/null -w "%{http_code}" \
-            -X PUT \
-            -H "X-API-Key: ${{ secrets.PORTAINER_API_KEY }}" \
-            -H "Content-Type: application/json" \
-            "${{ secrets.PORTAINER_URL }}/api/stacks/${{ secrets.PORTAINER_STACK_ID }}?endpointId=${{ secrets.PORTAINER_ENDPOINT_ID }}" \
-            -d "$(jq -n \
-              --arg stackFile "$STACK_FILE" \
-              --argjson env "$STACK_ENV" \
-              '{stackFileContent: $stackFile, env: $env, prune: true, pullImage: true}')")
-
-          if [ "$HTTP_STATUS" != "200" ]; then
-            echo "::error::Stack redeploy failed with HTTP $HTTP_STATUS"
-            exit 1
-          fi
-
-          echo "Stack redeployed successfully"
-
+      # Deployment is pull-based: the host itself periodically runs
+      # `docker compose pull && docker compose up -d`. CI's job ends at
+      # publishing the image to GHCR, so all we report here is that the
+      # publish happened — not that any deployment occurred.
       - name: Discord notification
         env:
           DISCORD_WEBHOOK: ${{ secrets.DISCORD_WEBHOOK }}
-        uses: Ilshidur/action-discord@master
+        uses: Ilshidur/action-discord@ad5235de713df3ef38022185499b02ffe93b7efe # v0.4.0
         with:
-          args: '{{ EVENT_PAYLOAD.repository.full_name }} 已完成部署'
+          args: '{{ EVENT_PAYLOAD.repository.full_name }} 已發佈 arm64 image'
