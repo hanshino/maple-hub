@@ -62,9 +62,14 @@ jobs:
       # `docker compose pull && docker compose up -d`. CI's job ends at
       # publishing the image to GHCR, so all we report here is that the
       # publish happened — not that any deployment occurred.
+      #
+      # A plain curl call replaces the Ilshidur/action-discord Docker
+      # container action: its base image (mhart/alpine-node:12.19.1,
+      # unmaintained since 2019) has no arm64 manifest and fails outright
+      # on this arm64 runner. curl also removes any third-party code
+      # execution against our webhook secret, not just pins it.
       - name: Discord notification
-        env:
-          DISCORD_WEBHOOK: ${{ secrets.DISCORD_WEBHOOK }}
-        uses: Ilshidur/action-discord@ad5235de713df3ef38022185499b02ffe93b7efe # v0.4.0
-        with:
-          args: '{{ EVENT_PAYLOAD.repository.full_name }} 已發佈 arm64 image'
+        run: |
+          curl -sf -H "Content-Type: application/json" \
+            -d "{\"content\": \"${{ github.repository }} 已發佈 arm64 image\"}" \
+            "${{ secrets.DISCORD_WEBHOOK }}"
